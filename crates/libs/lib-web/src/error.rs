@@ -25,6 +25,14 @@ pub enum Error {
 		user_id: i64,
 	},
 
+	// -- User Management
+	RegisterFailUsernameEmpty,
+	RegisterFailPwdTooShort,
+	UserHasNoPwd,
+	PwdNotMatching,
+	ResetPwdFailUserNotFound,
+	NotAuthorized,
+
 	// -- CtxExtError
 	#[from]
 	CtxExt(middleware::mw_auth::CtxExtError),
@@ -151,6 +159,27 @@ impl Error {
 				(StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL)
 			}
 
+			// -- User Management
+			RegisterFailUsernameEmpty => (
+				StatusCode::BAD_REQUEST,
+				ClientError::REGISTER_FAIL_USERNAME_EMPTY,
+			),
+			RegisterFailPwdTooShort => (
+				StatusCode::BAD_REQUEST,
+				ClientError::REGISTER_FAIL_PWD_TOO_SHORT,
+			),
+			UserHasNoPwd | PwdNotMatching => {
+				(StatusCode::FORBIDDEN, ClientError::PWD_VALIDATION_FAIL)
+			}
+			ResetPwdFailUserNotFound => (
+				StatusCode::BAD_REQUEST,
+				ClientError::USER_NOT_FOUND,
+			),
+			NotAuthorized => (
+				StatusCode::FORBIDDEN,
+				ClientError::NOT_AUTHORIZED,
+			),
+
 			// -- Auth
 			CtxExt(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
@@ -209,6 +238,13 @@ pub enum ClientError {
 	LOGIN_FAIL,
 	NO_AUTH,
 	ENTITY_NOT_FOUND { entity: &'static str, id: i64 },
+
+	// -- User Management
+	REGISTER_FAIL_USERNAME_EMPTY,
+	REGISTER_FAIL_PWD_TOO_SHORT,
+	PWD_VALIDATION_FAIL,
+	USER_NOT_FOUND,
+	NOT_AUTHORIZED,
 
 	RPC_REQUEST_INVALID(String),
 	RPC_REQUEST_METHOD_UNKNOWN(String),

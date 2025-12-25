@@ -16,7 +16,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 // region:    --- User Types
-#[derive(Clone, Debug, sqlx::Type, derive_more::Display, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, sqlx::Type, derive_more::Display, Deserialize, Serialize)]
 #[sqlx(type_name = "user_typ")]
 pub enum UserTyp {
 	Sys,

@@ -13,6 +13,7 @@ use lib_web::middleware::mw_res_map::mw_reponse_map;
 use lib_web::routes::routes_static;
 
 use crate::web::routes_login;
+use crate::web::routes_user;
 
 use axum::{middleware, Router};
 use lib_core::_dev_utils;
@@ -41,8 +42,14 @@ async fn main() -> Result<()> {
 	let routes_rpc = web::routes_rpc::routes(mm.clone())
 		.route_layer(middleware::from_fn(mw_ctx_require));
 
+	// User management routes that require auth
+	let routes_user_auth = routes_user::routes_auth(mm.clone())
+		.route_layer(middleware::from_fn(mw_ctx_require));
+
 	let routes_all = Router::new()
 		.merge(routes_login::routes(mm.clone()))
+		.merge(routes_user::routes_public(mm.clone())) // register
+		.merge(routes_user_auth) // delete-account, change-pwd
 		.nest("/api", routes_rpc)
 		.layer(middleware::map_response(mw_reponse_map))
 		.layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolver))
