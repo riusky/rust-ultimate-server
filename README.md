@@ -9,28 +9,6 @@
 		- 这在 `lib_rpc::response` crate/模块中。
 	- 在 `Ctx` 中引入 `conv_id` 为未来的 `访问控制系统` 铺平了道路，该系统将基于权限并与关键容器结构（如 `Org`、`Space`、`Conv`）绑定。
 
-## Rust10x Web App YouTube 视频:
-
-- [第 01 集 - Rust Web App - 生产级基础代码](https://youtube.com/watch?v=3cA_mk4vdWY&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-    - [专题视频 - 代码整洁 - 单元测试中使用 `#[cfg_attr(...)]`](https://www.youtube.com/watch?v=DCPs5VRTK-U&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-	- [专题视频 - 区分 ModelControllers 和 ModelManager 的设计理念](https://www.youtube.com/watch?v=JdLi69mWIIE&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-	- [专题视频 - Base64Url - 理解 Base64URL 的用法和意义](https://www.youtube.com/watch?v=-9K7zNgsbP0&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-
-- [第 02 集 - Sea-Query (SQL 构建器) & modql (类 MongoDB 过滤器)](https://www.youtube.com/watch?v=-dMH9UiwKqg&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-
-- [第 03 集 - Cargo Workspace (多 crate 项目)](https://www.youtube.com/watch?v=zUxF0kvydJs&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-	- [AI 语音重制版](https://www.youtube.com/watch?v=iCGIqEWWTcA&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-
-- [第 04 集 - 多方案密码哈希](https://www.youtube.com/watch?v=3E0zK5h9zEs&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-
-- [第 05 集 - JSON-RPC 动态路由](https://www.youtube.com/watch?v=Gc5Nj5LJe1U&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-
-- **第 06 集 - 如有需要请在 [Discord](https://discord.gg/XuKWrNGKpC) 上提出请求**
-
-- 其他相关视频: 
-	- [Rust Axum 完整教程](https://youtube.com/watch?v=XZtlD_m59sM&list=PL7r-PXl6ZPcCIOFaL7nVHXZvBmHNhrh_Q)
-
-
 ## 启动数据库
 
 ```sh

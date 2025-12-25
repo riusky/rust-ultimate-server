@@ -31,7 +31,9 @@ fn get_app_url() -> String {
 const SQL_RECREATE_DB_FILE_NAME: &str = "00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
 
-const DEMO_PWD: &str = "welcome";
+const DEMO_PWD: &str = "demo";
+
+const ROOT_PWD: &str = "root";
 
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
@@ -84,6 +86,13 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 		.await?
 		.unwrap();
 	UserBmc::update_pwd(&ctx, &mm, demo1_user.id, DEMO_PWD).await?;
+	info!("{:<12} - init_dev_db - set demo1 pwd", "FOR-DEV-ONLY");
+
+	// -- Set root pwd
+	let root_user: User = UserBmc::first_by_username(&ctx, &mm, "root")
+		.await?
+		.unwrap();
+	UserBmc::update_pwd(&ctx, &mm, root_user.id, ROOT_PWD).await?;
 	info!("{:<12} - init_dev_db - set demo1 pwd", "FOR-DEV-ONLY");
 
 	Ok(())
