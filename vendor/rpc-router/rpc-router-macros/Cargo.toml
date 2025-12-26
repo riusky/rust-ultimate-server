@@ -1,0 +1,23 @@
+[package]
+name = "rpc-router-macros"
+version = "0.2.0-alpha.1"
+authors = ["jeremy.chone@gmail.com"]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Proc Macros for rpc-router crate"
+keywords = [
+	"rpc",
+	"json-rpc",
+]
+homepage = "https://github.com/jeremychone/rust-rpc-router"
+repository = "https://github.com/jeremychone/rust-rpc-router"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[dependencies]
+quote = "1"
+syn = {version = "2", features = ["full"]}
+
+[lib]
+proc-macro = true

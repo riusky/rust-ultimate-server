@@ -1,0 +1,43 @@
+[package]
+name = "modql"
+version = "0.4.1"
+edition = "2021"
+authors = ["Jeremy Chone <jeremy.chone@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = "Rust implementation for Model Query Language support"
+categories = ["data-structures"]
+keywords = [
+	"query-language",
+	"sea-query",
+	"model",
+	"data-model",
+	"graphql"
+]
+homepage = "https://github.com/jeremychone/rust-modql"
+repository = "https://github.com/jeremychone/rust-modql"
+
+[lints.rust]
+unsafe_code = "forbid"
+# unused = { level = "allow", priority = -1 } # For test files (dev)
+
+[features]
+# default = ["modql-macros", "with-sea-query", "with-rusqlite"] # for dev
+default = ["modql-macros"]
+with-sea-query = ["sea-query", "modql-macros/with-sea-query"]
+with-rusqlite = ["rusqlite", "modql-macros/with-rusqlite"]
+with-ilike = ["sea-query/backend-postgres"]
+
+[dependencies]
+modql-macros = { version="0.4", path = "modql-macros", optional=true}
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# -- For features
+sea-query = { version = "0.32", features = ["thread-safe"], optional = true }
+rusqlite = { version = "0.32", optional = true }
+
+[dev-dependencies]
+serde_with = "3"
+rusqlite = {version = "0.32", features = ["bundled"]}
+sea-query-rusqlite = {version = "0.7"}
+

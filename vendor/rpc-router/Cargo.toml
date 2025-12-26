@@ -1,0 +1,44 @@
+[package]
+name = "rpc-router"
+version = "0.2.0-alpha.1"
+authors = ["Jeremy Chone <jeremy.chone@gmail.com>"]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "JSON RPC Router Library"
+keywords = [
+	"rpc",
+	"json-rpc",
+]
+homepage = "https://github.com/jeremychone/rust-rpc-router"
+repository = "https://github.com/jeremychone/rust-rpc-router"
+
+[lints.rust]
+unsafe_code = "forbid"
+# unused = "allow" # For tests/*.rs
+
+[lib]
+doctest = false
+
+[features]
+default = ["rpc-router-macros"]
+
+[dependencies]
+# -- Async
+futures = "0.3"
+# -- Json
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_with = "3"
+# -- uuid & encoding
+uuid = {version = "1", features = ["v4", "v7", "fast-rng"]}
+data-encoding = "2.5" # base64, base64url, base32hex
+bs58 = "0.5"
+# -- Features
+rpc-router-macros = { version="=0.2.0-alpha.1", path = "rpc-router-macros", optional=true}
+# -- Others
+derive_more = {version = "2", features = ["from", "display"] }
+bitflags = "2.9.0"
+
+[dev-dependencies]
+# -- Async
+tokio = { version = "1", features = ["full"] }
