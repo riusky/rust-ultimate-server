@@ -40,6 +40,7 @@ async fn main() -> Result<()> {
 	let mm = ModelManager::new().await?;
 
 	// -- Define Routes
+	// Note: validated_rpc_router! in each RPC module validates handlers at runtime
 	let routes_rpc = web::routes_rpc::routes(mm.clone())
 		.route_layer(middleware::from_fn(mw_ctx_require));
 

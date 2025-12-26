@@ -16,6 +16,9 @@ pub enum Error {
 	#[from]
 	Model(lib_core::model::Error),
 
+	#[from]
+	Ctx(lib_core::ctx::Error),
+
 	// -- External Modules
 	#[from]
 	SerdeJson(#[serde_as(as = "DisplayFromStr")] serde_json::Error),
@@ -27,6 +30,12 @@ impl IntoResponse for Error {
 			Error::Model(model_err) => match model_err {
 				lib_core::model::Error::EntityNotFound { .. } => StatusCode::NOT_FOUND,
 				_ => StatusCode::INTERNAL_SERVER_ERROR,
+			},
+			Error::Ctx(ctx_err) => match ctx_err {
+				lib_core::ctx::Error::PermissionDenied { .. }
+				| lib_core::ctx::Error::PermissionAnyDenied { .. } => StatusCode::FORBIDDEN,
+				lib_core::ctx::Error::PermissionsNotLoaded => StatusCode::INTERNAL_SERVER_ERROR,
+				lib_core::ctx::Error::CtxCannotNewRootCtx => StatusCode::INTERNAL_SERVER_ERROR,
 			},
 			Error::SerdeJson(_) => StatusCode::BAD_REQUEST,
 		};

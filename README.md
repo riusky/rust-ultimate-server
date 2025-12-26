@@ -92,3 +92,6 @@ lib-valkey-core/
     └── utils/          # 工具
         ├── mod.rs
         └── lock.rs     # 分布式锁
+
+
+数据库表 → 2. ACS 模型 → 3. lib-macros → 4. Ctx 扩展 → 5. 中间件 → 6. 启动检查

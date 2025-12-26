@@ -8,6 +8,9 @@
 //! - `update_...` (PUT /:id)
 //! - `delete_...` (DELETE /:id)
 //! - `rest_router_...()` - Returns an Axum Router for the entity
+//!
+//! Also registers CRUD permissions for the resource.
+//! The resource name is derived from the `Suffix` parameter.
 
 /// Create the base CRUD REST handler functions following the common pattern.
 ///
@@ -19,7 +22,9 @@
 ///     ForCreate: AgentForCreate,
 ///     ForUpdate: AgentForUpdate,
 ///     Filter: AgentFilter,
-///     Suffix: agent
+///     Suffix: agent,
+///     ResourceDisplay: "Agent",
+///     ResourceGroup: "Agent Management"
 /// );
 /// ```
 ///
@@ -32,6 +37,9 @@
 /// - `delete_agent` - DELETE handler
 /// - `rest_router_agent()` - Returns Router with all routes configured
 ///
+/// And registers these permissions:
+/// - `agent:create`, `agent:read`, `agent:update`, `agent:delete`, `agent:list`
+///
 /// NOTE: Make sure to import the necessary types in the module that uses this macro.
 #[macro_export]
 macro_rules! generate_common_rest_fns {
@@ -41,8 +49,25 @@ macro_rules! generate_common_rest_fns {
         ForCreate: $for_create:ty,
         ForUpdate: $for_update:ty,
         Filter: $filter:ty,
-        Suffix: $suffix:ident
+        Suffix: $suffix:ident,
+        ResourceDisplay: $display:literal,
+        ResourceGroup: $group:literal
     ) => {
+		// Register CRUD permissions (resource name = stringify!($suffix))
+		::lib_core::register_crud_permissions!(stringify!($suffix), $display, $group);
+
+		// Register route handlers for startup validation
+		::lib_core::register_crud_handlers!(stringify!($suffix));
+
+		// Also register paged list handler
+		::inventory::submit! {
+			::lib_core::model::acs::RegisteredRouteHandler {
+				name: concat!("list_", stringify!($suffix), "s_paged"),
+				kind: ::lib_core::model::acs::RouteHandlerKind::Protected,
+				source: module_path!(),
+			}
+		}
+
 		paste! {
 			/// POST /
 			/// Create a new entity
@@ -52,6 +77,7 @@ macro_rules! generate_common_rest_fns {
 				Json(data): Json<$for_create>,
 			) -> Result<RestCreated<$entity>> {
 				let ctx = ctx.0;
+				ctx.require_permission(concat!(stringify!($suffix), ":create"))?;
 				let id = $bmc::create(&ctx, &mm, data).await?;
 				let entity = $bmc::get(&ctx, &mm, id).await?;
 				Ok(entity.into())
@@ -65,6 +91,7 @@ macro_rules! generate_common_rest_fns {
 				Path(PathId { id }): Path<PathId>,
 			) -> Result<RestResponse<$entity>> {
 				let ctx = ctx.0;
+				ctx.require_permission(concat!(stringify!($suffix), ":read"))?;
 				let entity = $bmc::get(&ctx, &mm, id).await?;
 				Ok(entity.into())
 			}
@@ -78,6 +105,7 @@ macro_rules! generate_common_rest_fns {
 				Query(params): Query<QueryList<$filter>>,
 			) -> Result<RestResponse<Vec<$entity>>> {
 				let ctx = ctx.0;
+				ctx.require_permission(concat!(stringify!($suffix), ":list"))?;
 				let list_options = params.into_list_options();
 				let entities = $bmc::list(&ctx, &mm, params.filters, list_options).await?;
 				Ok(entities.into())
@@ -93,6 +121,7 @@ macro_rules! generate_common_rest_fns {
 				Query(params): Query<QueryList<$filter>>,
 			) -> Result<RestPagedResponse<$entity>> {
 				let ctx = ctx.0;
+				ctx.require_permission(concat!(stringify!($suffix), ":list"))?;
 				let page_size = params.get_page_size();
 				let page_number = params.get_page_number();
 				let list_options = params.into_list_options();
@@ -115,6 +144,7 @@ macro_rules! generate_common_rest_fns {
 				Json(data): Json<$for_update>,
 			) -> Result<RestResponse<$entity>> {
 				let ctx = ctx.0;
+				ctx.require_permission(concat!(stringify!($suffix), ":update"))?;
 				$bmc::update(&ctx, &mm, id, data).await?;
 				let entity = $bmc::get(&ctx, &mm, id).await?;
 				Ok(entity.into())
@@ -128,6 +158,7 @@ macro_rules! generate_common_rest_fns {
 				Path(PathId { id }): Path<PathId>,
 			) -> Result<RestDeleted<$entity>> {
 				let ctx = ctx.0;
+				ctx.require_permission(concat!(stringify!($suffix), ":delete"))?;
 				let entity = $bmc::get(&ctx, &mm, id).await?;
 				$bmc::delete(&ctx, &mm, id).await?;
 				Ok(entity.into())

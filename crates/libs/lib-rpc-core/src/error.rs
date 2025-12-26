@@ -28,6 +28,9 @@ pub enum Error {
 	#[from]
 	Model(lib_core::model::Error),
 
+	#[from]
+	Ctx(lib_core::ctx::Error),
+
 	// -- External Modules
 	#[from]
 	SerdeJson(#[serde_as(as = "DisplayFromStr")] serde_json::Error),

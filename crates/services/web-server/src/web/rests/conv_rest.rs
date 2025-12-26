@@ -10,5 +10,7 @@ generate_common_rest_fns!(
 	ForCreate: ConvForCreate,
 	ForUpdate: ConvForUpdate,
 	Filter: ConvFilter,
-	Suffix: conv
+	Suffix: conv,
+	ResourceDisplay: "Conversation",
+	ResourceGroup: "Conversation Management"
 );

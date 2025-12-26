@@ -26,3 +26,4 @@ rpc-router = { workspace = true }
 # -- Others
 paste = "1"
 derive_more = { workspace = true }
+inventory = "0.3"

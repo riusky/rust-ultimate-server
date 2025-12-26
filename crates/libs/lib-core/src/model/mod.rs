@@ -19,11 +19,11 @@
 
 // region:    --- Modules
 
-mod acs;
 mod base;
 mod error;
 mod store;
 
+pub mod acs;
 pub mod agent;
 pub mod conv;
 pub mod conv_msg;
