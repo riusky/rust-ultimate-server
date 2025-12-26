@@ -6,6 +6,7 @@
 use modql::filter::ListOptions;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
+use serde_with::json::JsonString;
 use serde_with::{serde_as, OneOrMany};
 
 /// Path parameter for entity ID
@@ -18,15 +19,18 @@ pub struct PathId {
 /// Query params for list operations with pagination support
 /// Used with `Query<QueryList<F>>` extractor for filtering and pagination
 ///
-/// Example URL: `/api/rest/agents?page_size=10&page_number=1&order_bys=id`
+/// Example URL: `/api/rest/agents?filters={"name":{"$contains":"test"}}&page_size=10`
+/// The filters parameter accepts a JSON string that will be parsed automatically.
 #[serde_as]
 #[derive(Debug, Deserialize, Default)]
 pub struct QueryList<F>
 where
 	F: DeserializeOwned,
 {
-	/// Filters for the list query
-	#[serde_as(deserialize_as = "Option<OneOrMany<_>>")]
+	/// Filters for the list query (JSON string in URL, parsed automatically)
+	/// Single filter: `filters={"name":"test"}`
+	/// Multiple filters (OR): `filters=[{"name":"a"},{"name":"b"}]`
+	#[serde_as(deserialize_as = "Option<JsonString<OneOrMany<_>>>")]
 	#[serde(default)]
 	pub filters: Option<Vec<F>>,
 

@@ -25,7 +25,7 @@ members = [
 #       are handled in workspace.dependencies. Other strategies may also be valid.
 [workspace.dependencies]
 # -- Serde
-serde_with = {version = "3", features = ["time_0_3"] }
+serde_with = {version = "3", features = ["time_0_3", "json"] }
 # -- Data
 # Note: we lock modql version during rcs
 # modql = { version = "0.4.1", features = ["with-sea-query"]}
