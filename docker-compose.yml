@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  # Valkey (Redis 兼容缓存)
+  valkey:
+    image: valkey/valkey:8-alpine
+    container_name: rust-web-app-valkey
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey_data:/data
+    command: valkey-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # PostgreSQL 数据库
   postgres:
     image: postgres:17
@@ -30,6 +46,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -48,9 +66,14 @@ services:
       SERVICE_TOKEN_KEY: "SWFtQVZlcnlTZWNyZXRUb2tlbktleUZvckRldg"
       # Token 有效期（秒）
       SERVICE_TOKEN_DURATION_SEC: "86400"
+      # Valkey 连接配置
+      SERVICE_VALKEY_URL: redis://valkey:6379
+      SERVICE_VALKEY_POOL_MAX_SIZE: "10"
+      SERVICE_VALKEY_POOL_MIN_IDLE: "2"
     volumes:
       - ./web-folder:/app/web-folder:ro
       - ./sql:/app/sql:ro
 
 volumes:
   postgres_data:
+  valkey_data:

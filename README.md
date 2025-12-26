@@ -75,7 +75,20 @@ cargo run -p gen-key
 
 ---
 
-更多 [Rust 生产级编程](https://rust10x.com) 资源
-
-
-[GitHub 仓库地址](https://github.com/rust10x/rust-web-app)
+lib-valkey-core/
+├── Cargo.toml
+└── src/
+    ├── lib.rs          # 入口
+    ├── config.rs       # 配置管理
+    ├── error.rs        # 错误处理
+    ├── pool.rs         # bb8 连接池
+    ├── extractor.rs    # Axum extractor
+    ├── commands/       # Redis 命令封装
+    │   ├── mod.rs
+    │   ├── string.rs   # GET/SET/MGET/MSET/INCR/DECR
+    │   ├── hash.rs     # HGET/HSET/HDEL/HGETALL
+    │   ├── key.rs      # DEL/EXISTS/EXPIRE/TTL/SCAN
+    │   └── json.rs     # JSON 序列化封装
+    └── utils/          # 工具
+        ├── mod.rs
+        └── lock.rs     # 分布式锁

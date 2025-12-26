@@ -1,0 +1,37 @@
+[package]
+name = "lib-valkey-core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+# -- App Libs
+lib-utils = { path = "../../libs/lib-utils" }
+# -- Async
+tokio = { version = "1", features = ["full"] }
+# -- Redis/Valkey
+redis = { version = "0.27", default-features = false, features = ["tokio-comp", "connection-manager", "script"] }
+bb8 = "0.8"
+bb8-redis = "0.17"
+# -- Json
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# -- Web (optional, for extractor)
+axum = { workspace = true, optional = true }
+# -- Others
+derive_more = { workspace = true }
+tracing = "0.1"
+uuid = { version = "1", features = ["v4", "fast-rng"] }
+futures-util = "0.3"
+
+[features]
+default = []
+with-axum = ["axum"]
+
+[dev-dependencies]
+serial_test = "3"
