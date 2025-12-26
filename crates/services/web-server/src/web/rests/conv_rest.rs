@@ -12,5 +12,6 @@ generate_common_rest_fns!(
 	Filter: ConvFilter,
 	Suffix: conv,
 	ResourceDisplay: "Conversation",
-	ResourceGroup: "Conversation Management"
+	ResourceGroup: "Conversation Management",
+	ResourceDescription: "conversation entity for chat sessions"
 );

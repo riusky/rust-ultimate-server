@@ -178,6 +178,25 @@ impl RolePermissionBmc {
 		Ok(count)
 	}
 
+	/// Delete all role associations for a permission
+	/// Used when syncing permissions (removing stale permissions from database)
+	pub async fn delete_by_permission(
+		_ctx: &Ctx,
+		mm: &ModelManager,
+		permission_id: i64,
+	) -> Result<u64> {
+		let mut query = Query::delete();
+		query
+			.from_table(Self::table_ref())
+			.and_where(Expr::col(RolePermissionIden::PermissionId).eq(permission_id));
+
+		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+		let sqlx_query = sqlx::query_with(&sql, values);
+		let count = mm.dbx().execute(sqlx_query).await?;
+
+		Ok(count)
+	}
+
 	/// Set permissions for a role (replaces all existing permissions)
 	pub async fn set_permissions_for_role(
 		ctx: &Ctx,

@@ -50,6 +50,7 @@ pub struct RegisteredPermission {
 	pub key: &'static str,
 	pub group: &'static str,
 	pub display: &'static str,
+	pub description: &'static str,
 	pub source: &'static str,
 }
 

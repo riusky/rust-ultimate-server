@@ -13,7 +13,8 @@ generate_common_rest_fns!(
 	Filter: AgentFilter,
 	Suffix: agent,
 	ResourceDisplay: "Agent",
-	ResourceGroup: "Agent Management"
+	ResourceGroup: "Agent Management",
+	ResourceDescription: "agent entity for AI assistants"
 );
 
 // region:    --- Custom REST Endpoints
@@ -40,13 +41,18 @@ pub struct AgentStatsResponse {
 
 // -- Permission registration for custom endpoints
 
-lib_core::register_crud_permissions!("agent_custom", "Agent Custom", "Agent Management");
+lib_core::register_crud_permissions!("agent_custom", "Agent Custom", "Agent Management", "custom agent operations");
 
 // -- Custom endpoint handlers
 
 /// POST /agents/:id/clone
 /// Clone an existing agent with a new name
-#[lib_macros::rest_permission(key = "agent_custom:create", group = "Agent Management", display = "Clone Agent")]
+#[lib_macros::rest_permission(
+	key = "agent_custom:create",
+	group = "Agent Management",
+	display = "Clone Agent",
+	description = "Create a copy of an existing agent with a new name"
+)]
 pub async fn clone_agent(
 	ctx: CtxW,
 	State(mm): State<ModelManager>,
@@ -74,7 +80,12 @@ pub async fn clone_agent(
 
 /// GET /agents/stats
 /// Get agent statistics
-#[lib_macros::rest_permission(key = "agent_custom:read", group = "Agent Management", display = "Get Agent Stats")]
+#[lib_macros::rest_permission(
+	key = "agent_custom:read",
+	group = "Agent Management",
+	display = "Get Agent Stats",
+	description = "View agent statistics including total and active counts"
+)]
 pub async fn get_agent_stats(
 	ctx: CtxW,
 	State(mm): State<ModelManager>,
@@ -137,7 +148,12 @@ pub struct AgentReportResponse {
 /// Demo 1: #[register_permission] - Only registers the permission, no runtime check
 /// The permission will be synced to database at startup.
 /// Manual check still needed.
-#[lib_macros::register_permission(key = "agent:export", group = "Agent Management", display = "Export Agent")]
+#[lib_macros::register_permission(
+	key = "agent:export",
+	group = "Agent Management",
+	display = "Export Agent",
+	description = "Export agent data in various formats"
+)]
 pub async fn export_agent(
 	ctx: CtxW,
 	State(mm): State<ModelManager>,
@@ -158,7 +174,12 @@ pub async fn export_agent(
 
 /// Demo 2: #[rest_permission] - Both registers AND checks (recommended for REST)
 /// Uses ctx.0 automatically for CtxW wrapper!
-#[lib_macros::rest_permission(key = "agent:archive", group = "Agent Management", display = "Archive Agent")]
+#[lib_macros::rest_permission(
+	key = "agent:archive",
+	group = "Agent Management",
+	display = "Archive Agent",
+	description = "Archive an agent to mark it as inactive"
+)]
 pub async fn archive_agent(
 	ctx: CtxW,
 	State(mm): State<ModelManager>,

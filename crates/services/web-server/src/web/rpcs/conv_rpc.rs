@@ -26,11 +26,17 @@ generate_common_rpc_fns!(
 	Filter: ConvFilter,
 	Suffix: conv,
 	ResourceDisplay: "Conversation",
-	ResourceGroup: "Conversation Management"
+	ResourceGroup: "Conversation Management",
+	ResourceDescription: "conversation entity for chat sessions"
 );
 
 /// Returns conv_msg
-#[lib_macros::permission(key = "conv_msg:create", group = "Conversation Management", display = "Add Conversation Message")]
+#[lib_macros::permission(
+	key = "conv_msg:create",
+	group = "Conversation Management",
+	display = "Add Conversation Message",
+	description = "Add a new message to a conversation"
+)]
 pub async fn add_conv_msg(
 	ctx: Ctx,
 	mm: ModelManager,
@@ -46,7 +52,12 @@ pub async fn add_conv_msg(
 
 /// Returns conv_msg
 #[allow(unused)]
-#[lib_macros::permission(key = "conv_msg:read", group = "Conversation Management", display = "Get Conversation Message")]
+#[lib_macros::permission(
+	key = "conv_msg:read",
+	group = "Conversation Management",
+	display = "Get Conversation Message",
+	description = "View a specific message from a conversation"
+)]
 pub async fn get_conv_msg(
 	ctx: Ctx,
 	mm: ModelManager,

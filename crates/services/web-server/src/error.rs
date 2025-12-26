@@ -8,6 +8,9 @@ pub enum Error {
 	// -- Modules
 	#[from]
 	Model(model::Error),
+
+	// -- Startup errors
+	PermissionSync(String),
 }
 
 // region:    --- Error Boilerplate

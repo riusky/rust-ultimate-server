@@ -18,7 +18,8 @@
 ///     Filter: AgentFilter,
 ///     Suffix: agent,
 ///     ResourceDisplay: "Agent",
-///     ResourceGroup: "Agent Management"
+///     ResourceGroup: "Agent Management",
+///     ResourceDescription: "agent entity"
 /// );
 /// ```
 ///
@@ -33,12 +34,10 @@ macro_rules! generate_common_rpc_fns {
         Filter: $filter:ty,
         Suffix: $suffix:ident,
         ResourceDisplay: $display:literal,
-        ResourceGroup: $group:literal
+        ResourceGroup: $group:literal,
+        ResourceDescription: $desc:literal
     ) => {
-        // Register CRUD permissions (resource name = stringify!($suffix))
-        ::lib_core::register_crud_permissions!(stringify!($suffix), $display, $group);
-
-        // Register route handlers for startup validation
+        ::lib_core::register_crud_permissions!(stringify!($suffix), $display, $group, $desc);
         ::lib_core::register_crud_handlers!(stringify!($suffix));
 
         paste! {

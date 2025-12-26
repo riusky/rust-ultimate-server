@@ -18,6 +18,8 @@ use crate::web::routes_user;
 
 use axum::{middleware, Router};
 use lib_core::_dev_utils;
+use lib_core::ctx::Ctx;
+use lib_core::model::acs::PermissionBmc;
 use lib_core::model::ModelManager;
 use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
@@ -38,6 +40,17 @@ async fn main() -> Result<()> {
 	_dev_utils::init_dev().await;
 
 	let mm = ModelManager::new().await?;
+
+	// -- Sync permissions from code to database
+	// This ensures the permission table is always in sync with code-defined permissions
+	let ctx = Ctx::root_ctx();
+	PermissionBmc::sync_from_registry(&ctx, &mm).await.map_err(|e| {
+		tracing::error!("Failed to sync permissions: {:?}", e);
+		Error::PermissionSync(e.to_string())
+	})?;
+
+	// Note: Admin role bypasses all permission checks in Ctx::require_permission()
+	// No need to assign individual permissions to admin role
 
 	// -- Define Routes
 	// Note: validated_rpc_router! in each RPC module validates handlers at runtime

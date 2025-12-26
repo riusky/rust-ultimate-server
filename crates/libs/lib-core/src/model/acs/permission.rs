@@ -14,6 +14,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlx::types::time::OffsetDateTime;
 use sqlx::FromRow;
+use std::collections::HashSet;
+use tracing::info;
 
 // region:    --- Permission Types
 
@@ -220,6 +222,101 @@ impl PermissionBmc {
 			)
 			.await
 		}
+	}
+
+	/// Sync permissions from code registry to database.
+	/// - Creates new permissions that exist in code but not in database
+	/// - Updates existing permissions if metadata changed
+	/// - Deletes permissions that exist in database but not in code
+	///   (also deletes related role_permission records)
+	///
+	/// Returns (created_count, updated_count, deleted_count)
+	pub async fn sync_from_registry(
+		ctx: &Ctx,
+		mm: &ModelManager,
+	) -> Result<(usize, usize, usize)> {
+		use super::{RegisteredPermission, RolePermissionBmc};
+		use std::collections::HashMap;
+
+		// Get all registered permissions from code, deduplicated by key
+		// (same key may be registered multiple times from different sources)
+		let mut registered_map: HashMap<&str, &RegisteredPermission> = HashMap::new();
+		for perm in inventory::iter::<RegisteredPermission> {
+			// Keep the last registration for each key (or first, doesn't matter as they should be same)
+			registered_map.insert(perm.key, perm);
+		}
+		let registered_keys: HashSet<&str> = registered_map.keys().copied().collect();
+
+		// Get all permissions from database
+		let db_permissions = Self::list(ctx, mm, None, None).await?;
+
+		let mut created = 0;
+		let mut updated = 0;
+		let mut deleted = 0;
+
+		// --- Insert or update permissions from code
+		for (key, reg_perm) in &registered_map {
+			if let Some(existing) = db_permissions.iter().find(|p| &p.key.as_str() == key) {
+				// Check if update needed
+				let desc_opt = if reg_perm.description.is_empty() { None } else { Some(reg_perm.description) };
+				if existing.group_name.as_deref() != Some(reg_perm.group)
+					|| existing.display_name.as_deref() != Some(reg_perm.display)
+					|| existing.description.as_deref() != desc_opt
+				{
+					Self::update(
+						ctx,
+						mm,
+						existing.id,
+						PermissionForUpdate {
+							group_name: Some(reg_perm.group.to_string()),
+							display_name: Some(reg_perm.display.to_string()),
+							description: if reg_perm.description.is_empty() { None } else { Some(reg_perm.description.to_string()) },
+						},
+					)
+					.await?;
+					updated += 1;
+					info!("Permission updated: {} (group={}, display={})", reg_perm.key, reg_perm.group, reg_perm.display);
+				}
+			} else {
+				// Create new permission
+				Self::create(
+					ctx,
+					mm,
+					PermissionForCreate {
+						key: reg_perm.key.to_string(),
+						group_name: Some(reg_perm.group.to_string()),
+						display_name: Some(reg_perm.display.to_string()),
+						description: if reg_perm.description.is_empty() { None } else { Some(reg_perm.description.to_string()) },
+					},
+				)
+				.await?;
+				created += 1;
+				info!("Permission created: {} (group={}, display={})", reg_perm.key, reg_perm.group, reg_perm.display);
+			}
+		}
+
+		// --- Delete permissions that exist in database but not in code
+		for db_perm in &db_permissions {
+			if !registered_keys.contains(db_perm.key.as_str()) {
+				// First delete related role_permission records
+				let rp_deleted = RolePermissionBmc::delete_by_permission(ctx, mm, db_perm.id).await?;
+				if rp_deleted > 0 {
+					info!("Deleted {} role_permission records for permission: {}", rp_deleted, db_perm.key);
+				}
+
+				// Then delete the permission
+				Self::delete(ctx, mm, db_perm.id).await?;
+				deleted += 1;
+				info!("Permission deleted (not in code): {}", db_perm.key);
+			}
+		}
+
+		info!(
+			"Permission sync complete: {} created, {} updated, {} deleted",
+			created, updated, deleted
+		);
+
+		Ok((created, updated, deleted))
 	}
 }
 

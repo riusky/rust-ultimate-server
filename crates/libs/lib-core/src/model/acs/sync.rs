@@ -168,20 +168,25 @@ pub fn list_permissions_by_group() -> std::collections::HashMap<String, Vec<Perm
 /// # Usage
 ///
 /// ```rust,ignore
-/// // With literal string:
+/// // With literal string (no description):
 /// register_crud_permissions!("agent", "Agent", "Agent Management");
 ///
+/// // With description:
+/// register_crud_permissions!("agent", "Agent", "Agent Management", "Manage agent entities");
+///
 /// // With stringify! (used by generate_common_rpc_fns/rest_fns):
-/// register_crud_permissions!(stringify!(agent), "Agent", "Agent Management");
+/// register_crud_permissions!(stringify!(agent), "Agent", "Agent Management", "Manage agent entities");
 /// ```
 #[macro_export]
 macro_rules! register_crud_permissions {
-	($resource:expr, $display:literal, $group:literal) => {
+	// With description
+	($resource:expr, $display:literal, $group:literal, $desc:literal) => {
 		::inventory::submit! {
 			$crate::model::acs::RegisteredPermission {
 				key: concat!($resource, ":create"),
 				group: $group,
 				display: concat!("Create ", $display),
+				description: concat!("Create a new ", $desc),
 				source: module_path!(),
 			}
 		}
@@ -190,6 +195,7 @@ macro_rules! register_crud_permissions {
 				key: concat!($resource, ":read"),
 				group: $group,
 				display: concat!("Read ", $display),
+				description: concat!("View details of ", $desc),
 				source: module_path!(),
 			}
 		}
@@ -198,6 +204,7 @@ macro_rules! register_crud_permissions {
 				key: concat!($resource, ":update"),
 				group: $group,
 				display: concat!("Update ", $display),
+				description: concat!("Modify existing ", $desc),
 				source: module_path!(),
 			}
 		}
@@ -206,6 +213,7 @@ macro_rules! register_crud_permissions {
 				key: concat!($resource, ":delete"),
 				group: $group,
 				display: concat!("Delete ", $display),
+				description: concat!("Remove ", $desc),
 				source: module_path!(),
 			}
 		}
@@ -214,6 +222,55 @@ macro_rules! register_crud_permissions {
 				key: concat!($resource, ":list"),
 				group: $group,
 				display: concat!("List ", $display),
+				description: concat!("List all ", $desc),
+				source: module_path!(),
+			}
+		}
+	};
+	// Without description (backward compatible)
+	($resource:expr, $display:literal, $group:literal) => {
+		::inventory::submit! {
+			$crate::model::acs::RegisteredPermission {
+				key: concat!($resource, ":create"),
+				group: $group,
+				display: concat!("Create ", $display),
+				description: "",
+				source: module_path!(),
+			}
+		}
+		::inventory::submit! {
+			$crate::model::acs::RegisteredPermission {
+				key: concat!($resource, ":read"),
+				group: $group,
+				display: concat!("Read ", $display),
+				description: "",
+				source: module_path!(),
+			}
+		}
+		::inventory::submit! {
+			$crate::model::acs::RegisteredPermission {
+				key: concat!($resource, ":update"),
+				group: $group,
+				display: concat!("Update ", $display),
+				description: "",
+				source: module_path!(),
+			}
+		}
+		::inventory::submit! {
+			$crate::model::acs::RegisteredPermission {
+				key: concat!($resource, ":delete"),
+				group: $group,
+				display: concat!("Delete ", $display),
+				description: "",
+				source: module_path!(),
+			}
+		}
+		::inventory::submit! {
+			$crate::model::acs::RegisteredPermission {
+				key: concat!($resource, ":list"),
+				group: $group,
+				display: concat!("List ", $display),
+				description: "",
 				source: module_path!(),
 			}
 		}

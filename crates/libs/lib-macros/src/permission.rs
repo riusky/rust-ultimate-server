@@ -11,6 +11,7 @@ pub struct PermissionAttrs {
 	pub key: String,
 	pub group: String,
 	pub display: String,
+	pub description: String,
 }
 
 impl Parse for PermissionAttrs {
@@ -23,13 +24,15 @@ impl Parse for PermissionAttrs {
 				key: key.clone(),
 				group: String::new(),
 				display: key,
+				description: String::new(),
 			});
 		}
 
-		// Parse as key-value pairs: key = "...", group = "...", display = "..."
+		// Parse as key-value pairs: key = "...", group = "...", display = "...", description = "..."
 		let mut key = String::new();
 		let mut group = String::new();
 		let mut display = String::new();
+		let mut description = String::new();
 
 		while !input.is_empty() {
 			let ident: Ident = input.parse()?;
@@ -40,10 +43,11 @@ impl Parse for PermissionAttrs {
 				"key" => key = lit.value(),
 				"group" => group = lit.value(),
 				"display" => display = lit.value(),
+				"description" | "desc" => description = lit.value(),
 				_ => {
 					return Err(syn::Error::new_spanned(
 						ident,
-						"Unknown attribute. Expected: key, group, or display",
+						"Unknown attribute. Expected: key, group, display, or description",
 					))
 				}
 			}
@@ -65,7 +69,7 @@ impl Parse for PermissionAttrs {
 			display = key.clone();
 		}
 
-		Ok(Self { key, group, display })
+		Ok(Self { key, group, display, description })
 	}
 }
 
@@ -74,6 +78,7 @@ fn generate_registration(attrs: &PermissionAttrs) -> TokenStream2 {
 	let key = &attrs.key;
 	let group = &attrs.group;
 	let display = &attrs.display;
+	let description = &attrs.description;
 
 	quote! {
 		// Permission registration using inventory (compile-time collection)
@@ -82,6 +87,7 @@ fn generate_registration(attrs: &PermissionAttrs) -> TokenStream2 {
 				key: #key,
 				group: #group,
 				display: #display,
+				description: #description,
 				source: module_path!(),
 			}
 		}

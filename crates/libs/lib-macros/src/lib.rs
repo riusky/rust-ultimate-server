@@ -15,13 +15,27 @@ mod require;
 
 /// Register a permission at compile time without runtime checking.
 ///
+/// # Attributes
+///
+/// - `key` (required): Permission key in format "resource:action"
+/// - `group`: Permission group name for categorization
+/// - `display`: Display name shown in UI
+/// - `description` or `desc`: Detailed description of the permission
+///
 /// # Usage
 ///
 /// ```rust,ignore
+/// // Simple usage (key only)
 /// #[register_permission("agent:export")]
 /// pub async fn export_agents(...) { ... }
 ///
-/// #[register_permission(key = "agent:clone", group = "Agent Management", display = "Clone Agent")]
+/// // Full usage with all attributes
+/// #[register_permission(
+///     key = "agent:clone",
+///     group = "Agent Management",
+///     display = "Clone Agent",
+///     description = "Create a copy of an existing agent"
+/// )]
 /// pub async fn clone_agent(...) { ... }
 /// ```
 #[proc_macro_attribute]
@@ -68,15 +82,29 @@ pub fn require_any_permission(attr: TokenStream, item: TokenStream) -> TokenStre
 	require::require_any_permission_impl(attr, item)
 }
 
-/// Both register and check permission (convenience macro).
+/// Both register and check permission (convenience macro for RPC handlers).
+///
+/// # Attributes
+///
+/// - `key` (required): Permission key in format "resource:action"
+/// - `group`: Permission group name for categorization
+/// - `display`: Display name shown in UI
+/// - `description` or `desc`: Detailed description of the permission
 ///
 /// # Usage
 ///
 /// ```rust,ignore
+/// // Simple usage (key only)
 /// #[permission("agent:export")]
 /// pub async fn export_agents(ctx: Ctx, ...) -> Result<...> { ... }
 ///
-/// #[permission(key = "agent:clone", group = "Agent Management", display = "Clone Agent")]
+/// // Full usage with all attributes
+/// #[permission(
+///     key = "agent:clone",
+///     group = "Agent Management",
+///     display = "Clone Agent",
+///     description = "Create a copy of an existing agent"
+/// )]
 /// pub async fn clone_agent(ctx: Ctx, ...) -> Result<...> { ... }
 /// ```
 #[proc_macro_attribute]
@@ -90,13 +118,27 @@ pub fn permission(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Both register and check permission for REST handlers (uses ctx.0 for CtxW).
 ///
+/// # Attributes
+///
+/// - `key` (required): Permission key in format "resource:action"
+/// - `group`: Permission group name for categorization
+/// - `display`: Display name shown in UI
+/// - `description` or `desc`: Detailed description of the permission
+///
 /// # Usage
 ///
 /// ```rust,ignore
+/// // Simple usage (key only)
 /// #[rest_permission("agent:export")]
 /// pub async fn export_agents(ctx: CtxW, ...) -> Result<...> { ... }
 ///
-/// #[rest_permission(key = "agent:clone", group = "Agent Management", display = "Clone Agent")]
+/// // Full usage with all attributes
+/// #[rest_permission(
+///     key = "agent:clone",
+///     group = "Agent Management",
+///     display = "Clone Agent",
+///     description = "Create a copy of an existing agent"
+/// )]
 /// pub async fn clone_agent(ctx: CtxW, ...) -> Result<...> { ... }
 /// ```
 #[proc_macro_attribute]

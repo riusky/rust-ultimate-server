@@ -34,7 +34,8 @@ generate_common_rpc_fns!(
 	Filter: AgentFilter,
 	Suffix: agent,
 	ResourceDisplay: "Agent",
-	ResourceGroup: "Agent Management"
+	ResourceGroup: "Agent Management",
+	ResourceDescription: "agent entity for AI assistants"
 );
 
 // region:    --- Custom RPC Endpoints
@@ -78,13 +79,18 @@ pub struct BatchDeleteResult {
 
 // -- Permission registration for custom RPC
 
-lib_core::register_crud_permissions!("agent_custom", "Agent Custom", "Agent Management");
+lib_core::register_crud_permissions!("agent_custom", "Agent Custom", "Agent Management", "custom agent operations");
 
 // -- Custom RPC handlers
 
 /// Clone an existing agent with a new name
 /// RPC method: clone_agent
-#[lib_macros::permission(key = "agent_custom:create", group = "Agent Management", display = "Clone Agent")]
+#[lib_macros::permission(
+	key = "agent_custom:create",
+	group = "Agent Management",
+	display = "Clone Agent",
+	description = "Create a copy of an existing agent with a new name"
+)]
 pub async fn clone_agent(
 	ctx: Ctx,
 	mm: ModelManager,
@@ -111,7 +117,12 @@ pub async fn clone_agent(
 
 /// Get agent statistics
 /// RPC method: get_agent_stats
-#[lib_macros::permission(key = "agent_custom:read", group = "Agent Management", display = "Get Agent Stats")]
+#[lib_macros::permission(
+	key = "agent_custom:read",
+	group = "Agent Management",
+	display = "Get Agent Stats",
+	description = "View agent statistics including total and active counts"
+)]
 pub async fn get_agent_stats(
 	ctx: Ctx,
 	mm: ModelManager,
@@ -133,7 +144,12 @@ pub async fn get_agent_stats(
 
 /// Batch delete multiple agents
 /// RPC method: batch_delete_agents
-#[lib_macros::permission(key = "agent:delete", group = "Agent Management", display = "Batch Delete Agents")]
+#[lib_macros::permission(
+	key = "agent:delete",
+	group = "Agent Management",
+	display = "Batch Delete Agents",
+	description = "Delete multiple agents in a single operation"
+)]
 pub async fn batch_delete_agents(
 	ctx: Ctx,
 	mm: ModelManager,
@@ -190,7 +206,12 @@ pub struct AgentReportResult {
 
 /// Demo 1: #[register_permission] - Only registers, manual check needed
 /// For RPC, you can still use manual ctx.require_permission()
-#[lib_macros::register_permission(key = "agent:export", group = "Agent Management", display = "Export Agent")]
+#[lib_macros::register_permission(
+	key = "agent:export",
+	group = "Agent Management",
+	display = "Export Agent",
+	description = "Export agent data in various formats"
+)]
 pub async fn export_agent(
 	ctx: Ctx,
 	mm: ModelManager,
@@ -210,7 +231,12 @@ pub async fn export_agent(
 
 /// Demo 2: #[permission] - Both registers AND checks (recommended for RPC)
 /// For RPC endpoints, ctx is Ctx so the macro auto-injection works!
-#[lib_macros::permission(key = "agent:archive", group = "Agent Management", display = "Archive Agent")]
+#[lib_macros::permission(
+	key = "agent:archive",
+	group = "Agent Management",
+	display = "Archive Agent",
+	description = "Archive an agent to mark it as inactive"
+)]
 pub async fn archive_agent(
 	ctx: Ctx,
 	mm: ModelManager,
