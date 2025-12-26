@@ -118,7 +118,7 @@ pub struct ConvForUpdate {
 	pub state: Option<ConvState>,
 }
 
-#[derive(FilterNodes, Deserialize, Default, Debug)]
+#[derive(Clone, FilterNodes, Deserialize, Default, Debug)]
 pub struct ConvFilter {
 	pub id: Option<OpValsInt64>,
 

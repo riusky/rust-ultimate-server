@@ -48,7 +48,7 @@ pub struct AgentForUpdate {
 	pub name: Option<String>,
 }
 
-#[derive(FilterNodes, Default, Deserialize)]
+#[derive(Clone, FilterNodes, Default, Deserialize)]
 pub struct AgentFilter {
 	pub id: Option<OpValsInt64>,
 	pub name: Option<OpValsString>,

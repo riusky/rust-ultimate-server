@@ -4,6 +4,7 @@
 //! - `RestResponse` - Standard response wrapper (200 OK)
 //! - `RestCreated` - Response for create operations (201 Created)
 //! - `RestDeleted` - Response for delete operations (200 OK with deleted entity)
+//! - `RestPagedResponse` - Response for paginated list operations (200 OK with pagination info)
 
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -86,6 +87,80 @@ where
 }
 
 impl<T> IntoResponse for RestDeleted<T>
+where
+	T: Serialize,
+{
+	fn into_response(self) -> Response {
+		(StatusCode::OK, Json(self)).into_response()
+	}
+}
+
+/// Pagination metadata for paged responses
+#[derive(Debug, Serialize)]
+pub struct PageInfo {
+	/// Total number of items matching the query
+	pub total: i64,
+	/// Number of items per page
+	pub page_size: i64,
+	/// Current page number (1-based)
+	pub page_number: i64,
+	/// Total number of pages
+	pub total_pages: i64,
+	/// Whether there are more pages after this one
+	pub has_more: bool,
+}
+
+impl PageInfo {
+	pub fn new(total: i64, page_size: i64, page_number: i64) -> Self {
+		let total_pages = if page_size > 0 {
+			(total + page_size - 1) / page_size
+		} else {
+			0
+		};
+		Self {
+			total,
+			page_size,
+			page_number,
+			total_pages,
+			has_more: page_number < total_pages,
+		}
+	}
+}
+
+/// REST response for paginated list operations
+/// Returns HTTP 200 OK with JSON body:
+/// {
+///   "data": [...],
+///   "page_info": {
+///     "total": 100,
+///     "page_size": 10,
+///     "page_number": 1,
+///     "total_pages": 10,
+///     "has_more": true
+///   }
+/// }
+#[derive(Debug, Serialize)]
+pub struct RestPagedResponse<T>
+where
+	T: Serialize,
+{
+	pub data: Vec<T>,
+	pub page_info: PageInfo,
+}
+
+impl<T> RestPagedResponse<T>
+where
+	T: Serialize,
+{
+	pub fn new(data: Vec<T>, total: i64, page_size: i64, page_number: i64) -> Self {
+		Self {
+			data,
+			page_info: PageInfo::new(total, page_size, page_number),
+		}
+	}
+}
+
+impl<T> IntoResponse for RestPagedResponse<T>
 where
 	T: Serialize,
 {
