@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { useAuth } from '@/composables/use-auth'
 import PrivacyPolicyButton from './privacy-policy-button.vue'
 import TermsOfServiceButton from './terms-of-service-button.vue'
 import ToForgotPasswordLink from './to-forgot-password-link.vue'
@@ -9,15 +10,17 @@ defineProps<{
   toggleLayout: () => void
 }>()
 
+const { login, loading, error } = useAuth()
+
 // 手机号登录表单数据
 const phoneFormData = ref({
   phone: '',
   smsCode: '',
 })
 
-// 邮箱登录表单数据
+// 邮箱/用户名登录表单数据
 const emailFormData = ref({
-  email: '',
+  username: '',
   password: '',
 })
 
@@ -30,13 +33,14 @@ const handlePhoneLogin = () => {
   console.log('==================')
 }
 
-// 邮箱登录
-const handleEmailLogin = () => {
-  console.log('=== 邮箱登录 ===')
-  console.log('邮箱:', emailFormData.value.email)
-  console.log('密码:', emailFormData.value.password)
-  console.log('表单数据:', emailFormData.value)
-  console.log('================')
+// 用户名/密码登录
+const handleEmailLogin = async () => {
+  try {
+    await login(emailFormData.value.username, emailFormData.value.password)
+  } catch (e) {
+    // 错误已在 useAuth 中处理
+    console.error('Login failed:', e)
+  }
 }
 
 // 获取验证码
@@ -111,18 +115,23 @@ const handleGetSmsCode = () => {
             </form>
           </UiTabsContent>
 
-          <!-- 邮箱登录 -->
+          <!-- 邮箱/用户名登录 -->
           <UiTabsContent value="email" class="grid gap-4">
             <form @submit.prevent="handleEmailLogin">
               <div class="grid gap-4">
+                <!-- 错误提示 -->
+                <div v-if="error" class="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                  {{ error }}
+                </div>
                 <div class="grid gap-2">
-                  <UiLabel for="email"> 邮箱 </UiLabel>
+                  <UiLabel for="username"> 用户名 </UiLabel>
                   <UiInput
-                    id="email"
-                    v-model="emailFormData.email"
-                    type="email"
-                    placeholder="例如：m@example.com"
+                    id="username"
+                    v-model="emailFormData.username"
+                    type="text"
+                    placeholder="请输入用户名"
                     required
+                    :disabled="loading"
                   />
                 </div>
                 <div class="grid gap-2">
@@ -136,13 +145,21 @@ const handleGetSmsCode = () => {
                     type="password"
                     required
                     placeholder="*********"
+                    :disabled="loading"
                   />
                 </div>
                 <UiButton
                   type="submit"
                   class="w-full text-muted bg-muted-foreground hover:text-primary-foreground hover:bg-primary"
+                  :disabled="loading"
                 >
-                  登录
+                  <span v-if="loading" class="mr-2">
+                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </span>
+                  {{ loading ? '登录中...' : '登录' }}
                 </UiButton>
               </div>
             </form>
