@@ -33,8 +33,6 @@ const SQL_DIR: &str = "sql/dev_initial";
 
 const DEMO_PWD: &str = "demo";
 
-const ROOT_PWD: &str = "root";
-
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
 
@@ -88,11 +86,11 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	UserBmc::update_pwd(&ctx, &mm, demo1_user.id, DEMO_PWD).await?;
 	info!("{:<12} - init_dev_db - set demo1 pwd", "FOR-DEV-ONLY");
 
-	// -- Set root pwd
-	let root_user: User = UserBmc::first_by_username(&ctx, &mm, "root")
+	// -- Set demo2 pwd
+	let demo2_user: User = UserBmc::first_by_username(&ctx, &mm, "demo2")
 		.await?
 		.unwrap();
-	UserBmc::update_pwd(&ctx, &mm, root_user.id, ROOT_PWD).await?;
+	UserBmc::update_pwd(&ctx, &mm, demo2_user.id, DEMO_PWD).await?;
 	info!("{:<12} - init_dev_db - set demo1 pwd", "FOR-DEV-ONLY");
 
 	Ok(())

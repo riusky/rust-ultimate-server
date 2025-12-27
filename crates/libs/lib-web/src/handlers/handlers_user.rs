@@ -7,7 +7,7 @@ use axum::extract::State;
 use axum::Json;
 use lib_auth::pwd::{self, ContentToHash};
 use lib_core::ctx::Ctx;
-use lib_core::model::user::{User, UserBmc, UserForCreate, UserForLogin, UserTyp};
+use lib_core::model::user::{UserBmc, UserForCreate, UserForLogin};
 use lib_core::model::ModelManager;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -16,7 +16,7 @@ use tracing::debug;
 
 // region:    --- Register
 
-/// Register a new user
+/// Register a new user (public - no auth required)
 pub async fn api_register_handler(
 	State(mm): State<ModelManager>,
 	cookies: Cookies,
@@ -71,7 +71,7 @@ pub struct RegisterPayload {
 
 // region:    --- Delete Account
 
-/// Delete user account (requires login)
+/// Delete user account (requires login, user can only delete own account)
 pub async fn api_delete_account_handler(
 	State(mm): State<ModelManager>,
 	cookies: Cookies,
@@ -122,7 +122,7 @@ pub struct DeleteAccountPayload {
 
 // region:    --- Change Password
 
-/// Change password (requires login, need old password)
+/// Change password (requires login, user can only change own password)
 pub async fn api_change_pwd_handler(
 	State(mm): State<ModelManager>,
 	CtxW(ctx): CtxW,
@@ -177,9 +177,15 @@ pub struct ChangePwdPayload {
 // region:    --- Reset Password
 
 /// Reset password (admin only - can reset any user's password without old password)
+#[lib_macros::rest_permission(
+	key = "user:reset-pwd",
+	group = "User Management",
+	display = "Reset User Password",
+	desc = "Admin can reset any user's password"
+)]
 pub async fn api_reset_pwd_handler(
 	State(mm): State<ModelManager>,
-	CtxW(ctx): CtxW,
+	ctx: CtxW,
 	Json(payload): Json<ResetPwdPayload>,
 ) -> Result<Json<Value>> {
 	debug!("{:<12} - api_reset_pwd_handler", "HANDLER");
@@ -194,16 +200,10 @@ pub async fn api_reset_pwd_handler(
 		return Err(Error::RegisterFailPwdTooShort);
 	}
 
-	let operator_id = ctx.user_id();
-
-	// Check if operator is admin (Sys type)
-	let operator: User = UserBmc::get(&ctx, &mm, operator_id).await?;
-	if operator.typ != UserTyp::Sys {
-		return Err(Error::NotAuthorized);
-	}
+	// Permission already checked by #[rest_permission] macro
 
 	// Update password for target user
-	UserBmc::update_pwd(&ctx, &mm, target_user_id, &new_pwd).await?;
+	UserBmc::update_pwd(&ctx.0, &mm, target_user_id, &new_pwd).await?;
 
 	Ok(Json(json!({
 		"result": {

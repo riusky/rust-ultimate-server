@@ -69,3 +69,21 @@ FROM "user" u, role r
 WHERE u.username = 'demo2' AND r.name = 'user';
 
 -- endregion: --- User-Role Associations
+
+-- region: --- Role-Permission Associations
+
+-- Give 'user' role basic permissions (for demo2)
+INSERT INTO role_permission (role_id, permission_id, cid, ctime, mid, mtime)
+SELECT r.id, p.id, 0, now(), 0, now()
+FROM role r, permission p
+WHERE r.name = 'user' AND p.key IN (
+    'agent:read',
+    'agent:list',
+    'conv:read',
+    'conv:list',
+    'conv:create',
+    'conv_msg:read',
+    'conv_msg:create'
+)
+ON CONFLICT DO NOTHING;
+-- endregion: --- Role-Permission Associations

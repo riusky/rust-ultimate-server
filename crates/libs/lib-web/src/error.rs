@@ -48,6 +48,8 @@ pub enum Error {
 	#[from]
 	Token(token::Error),
 	#[from]
+	Ctx(lib_core::ctx::Error),
+	#[from]
 	Rpc(lib_rpc_core::Error),
 	#[from]
 	Rest(lib_rest_core::Error),

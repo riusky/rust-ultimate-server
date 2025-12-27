@@ -11,6 +11,7 @@ lib-rest-core = { path = "../../libs/lib-rest-core"}
 lib-auth = { path = "../../libs/lib-auth"}
 lib-core = { path = "../../libs/lib-core"}
 lib-valkey-core = { path = "../../libs/lib-valkey-core"}
+lib-macros = { path = "../../libs/lib-macros"}
 
 # -- Async
 tokio = { version = "1", features = ["full"] }
@@ -32,6 +33,7 @@ time = { workspace = true }
 uuid = {version = "1", features = ["v4","fast-rng",]}
 strum_macros = "0.26"
 derive_more = { workspace = true }
+inventory = "0.3"
 
 [lints]
 workspace = true
