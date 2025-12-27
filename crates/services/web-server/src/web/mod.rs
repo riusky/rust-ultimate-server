@@ -9,5 +9,5 @@ pub mod rpcs;
 // endregion: --- Modules
 
 // Note: Route handler validation is now done automatically in each module's
-// rpc_router_builder() via validated_rpc_router! macro.
+// rpc_router_builder() via generate_rpc_routes! macro.
 // No need for a central validation function.

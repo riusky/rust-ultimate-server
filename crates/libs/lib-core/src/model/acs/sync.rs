@@ -362,6 +362,7 @@ macro_rules! validate_handlers {
 }
 
 /// Combines validation and router building in one macro.
+/// Generate RPC routes with permission validation.
 /// Validates all handlers have permission annotations, then builds the RPC router.
 /// Uses the current module path to filter handlers (avoids collision with REST handlers).
 ///
@@ -369,7 +370,7 @@ macro_rules! validate_handlers {
 ///
 /// ```rust,ignore
 /// pub fn rpc_router_builder() -> RouterBuilder {
-///     validated_rpc_router!(
+///     generate_rpc_routes!(
 ///         create_agent,
 ///         get_agent,
 ///         list_agents,
@@ -379,7 +380,7 @@ macro_rules! validate_handlers {
 ///
 /// This replaces the need for separate validate_handlers! and router_builder! calls.
 #[macro_export]
-macro_rules! validated_rpc_router {
+macro_rules! generate_rpc_routes {
 	($($handler:ident),* $(,)?) => {{
 		// Validate all handlers have permission annotations in this module
 		let handler_names: &[&str] = &[
@@ -417,7 +418,7 @@ macro_rules! validate_rest_handlers {
 	}};
 }
 
-/// Combines validation and REST router building in one macro.
+/// Generate custom REST routes with permission validation.
 /// Validates all handlers have permission annotations, then builds the Axum router.
 /// This ensures you can't forget to add handlers to validation list.
 ///
@@ -425,7 +426,7 @@ macro_rules! validate_rest_handlers {
 ///
 /// ```rust,ignore
 /// pub fn custom_agent_routes() -> axum::Router<ModelManager> {
-///     validated_rest_router!(
+///     generate_custom_rest_routes!(
 ///         get "/stats" => get_agent_stats,
 ///         post "/{id}/clone" => clone_agent,
 ///         get "/{id}/export" => export_agent,
@@ -433,7 +434,7 @@ macro_rules! validate_rest_handlers {
 /// }
 /// ```
 #[macro_export]
-macro_rules! validated_rest_router {
+macro_rules! generate_custom_rest_routes {
 	($($method:ident $path:literal => $handler:ident),* $(,)?) => {{
 		// Validate all handlers have permission annotations in this module
 		let handler_names: &[&str] = &[

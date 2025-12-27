@@ -53,7 +53,7 @@ async fn main() -> Result<()> {
 	// No need to assign individual permissions to admin role
 
 	// -- Define Routes
-	// Note: validated_rpc_router! in each RPC module validates handlers at runtime
+	// Note: generate_rpc_routes! in each RPC module validates handlers at runtime
 	let routes_rpc = web::routes_rpc::routes(mm.clone())
 		.route_layer(middleware::from_fn(mw_ctx_require));
 
