@@ -120,6 +120,8 @@ pub struct RegisteredRouteHandler {
 	pub name: &'static str,
 	/// Whether the handler is protected or public
 	pub kind: RouteHandlerKind,
+	/// Whether the handler has permission check code injected
+	pub has_check: bool,
 	/// Source module path
 	pub source: &'static str,
 }
@@ -191,6 +193,24 @@ pub fn ensure_handlers_registered_in_module(handler_names: &[&str], module_prefi
 			All route handlers must use #[permission], #[rest_permission], or #[public] macro.",
 			module_prefix,
 			unregistered
+		);
+	}
+
+	// Also check for handlers that have registration but no permission check
+	let no_check: Vec<&str> = inventory::iter::<RegisteredRouteHandler>
+		.into_iter()
+		.filter(|h| h.source.contains(module_prefix))
+		.filter(|h| handler_names.contains(&h.name))
+		.filter(|h| h.kind == RouteHandlerKind::Protected && !h.has_check)
+		.map(|h| h.name)
+		.collect();
+
+	if !no_check.is_empty() {
+		panic!(
+			"Route handlers in module '{}' registered but without permission check: {:?}\n\
+			Use #[permission] or #[rest_permission] instead of #[register_permission] to inject check code.",
+			module_prefix,
+			no_check
 		);
 	}
 }

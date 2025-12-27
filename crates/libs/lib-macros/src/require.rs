@@ -41,6 +41,7 @@ fn generate_handler_registration(fn_name: &str) -> TokenStream2 {
 			::lib_core::model::acs::RegisteredRouteHandler {
 				name: #fn_name,
 				kind: ::lib_core::model::acs::RouteHandlerKind::Protected,
+				has_check: true, // These macros inject permission checks
 				source: module_path!(),
 			}
 		}

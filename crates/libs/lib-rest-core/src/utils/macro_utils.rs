@@ -58,11 +58,12 @@ macro_rules! generate_common_rest_fns {
 		::lib_core::register_crud_permissions!(stringify!($suffix), $display, $group, $desc);
 		::lib_core::register_crud_handlers!(stringify!($suffix));
 
-		// Also register paged list handler
+		// Register paged list handler
 		::inventory::submit! {
 			::lib_core::model::acs::RegisteredRouteHandler {
 				name: concat!("list_", stringify!($suffix), "s_paged"),
 				kind: ::lib_core::model::acs::RouteHandlerKind::Protected,
+				has_check: true, // Permission check is in the function body
 				source: module_path!(),
 			}
 		}

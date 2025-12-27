@@ -22,6 +22,7 @@ pub fn public_impl(_attr: TokenStream, item: TokenStream) -> TokenStream {
 			::lib_core::model::acs::RegisteredRouteHandler {
 				name: #fn_name_str,
 				kind: ::lib_core::model::acs::RouteHandlerKind::Public,
+				has_check: true, // Public handlers are explicitly marked, no check needed
 				source: module_path!(),
 			}
 		}

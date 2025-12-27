@@ -7,6 +7,7 @@
 mod config;
 mod error;
 mod pool;
+pub mod cache_keys;
 pub mod transaction;
 
 pub mod commands;

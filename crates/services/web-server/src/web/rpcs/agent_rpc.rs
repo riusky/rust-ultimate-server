@@ -85,12 +85,12 @@ lib_core::register_crud_permissions!("agent_custom", "Agent Custom", "Agent Mana
 
 /// Clone an existing agent with a new name
 /// RPC method: clone_agent
-// #[lib_macros::permission(
-// 	key = "agent_custom:create",
-// 	group = "Agent Management",
-// 	display = "Clone Agent",
-// 	description = "Create a copy of an existing agent with a new name"
-// )]
+#[lib_macros::permission(
+	key = "agent_custom:create",
+	group = "Agent Management",
+	display = "Clone Agent",
+	description = "Create a copy of an existing agent with a new name"
+)]
 pub async fn clone_agent(
 	ctx: Ctx,
 	mm: ModelManager,
@@ -204,9 +204,8 @@ pub struct AgentReportResult {
 	pub report_type: String,
 }
 
-/// Demo 1: #[register_permission] - Only registers, manual check needed
-/// For RPC, you can still use manual ctx.require_permission()
-#[lib_macros::register_permission(
+/// Export agent - uses #[permission] to register and check
+#[lib_macros::permission(
 	key = "agent:export",
 	group = "Agent Management",
 	display = "Export Agent",
@@ -217,9 +216,6 @@ pub async fn export_agent(
 	mm: ModelManager,
 	params: ExportAgentParams,
 ) -> Result<DataRpcResult<ExportAgentResult>> {
-	// Manual permission check
-	ctx.require_permission("agent:export")?;
-
 	let agent = AgentBmc::get(&ctx, &mm, params.id).await?;
 
 	Ok(ExportAgentResult {

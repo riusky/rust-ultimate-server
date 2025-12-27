@@ -95,13 +95,14 @@ fn generate_registration(attrs: &PermissionAttrs) -> TokenStream2 {
 }
 
 /// Generate route handler registration code
-fn generate_handler_registration(fn_name: &str) -> TokenStream2 {
+fn generate_handler_registration(fn_name: &str, has_check: bool) -> TokenStream2 {
 	quote! {
 		// Route handler registration for startup validation
 		::inventory::submit! {
 			::lib_core::model::acs::RegisteredRouteHandler {
 				name: #fn_name,
 				kind: ::lib_core::model::acs::RouteHandlerKind::Protected,
+				has_check: #has_check,
 				source: module_path!(),
 			}
 		}
@@ -124,7 +125,7 @@ pub fn register_permission_impl(attr: TokenStream, item: TokenStream) -> TokenSt
 	let fn_name_str = fn_name.to_string();
 
 	let registration = generate_registration(&attrs);
-	let handler_registration = generate_handler_registration(&fn_name_str);
+	let handler_registration = generate_handler_registration(&fn_name_str, false); // No check injected
 
 	let fn_vis = &input_fn.vis;
 	let fn_sig = &input_fn.sig;
@@ -151,7 +152,7 @@ pub fn permission_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 	let fn_name_str = fn_name.to_string();
 
 	let registration = generate_registration(&attrs);
-	let handler_registration = generate_handler_registration(&fn_name_str);
+	let handler_registration = generate_handler_registration(&fn_name_str, true); // Check injected
 	let check = generate_check(&attrs.key);
 
 	let fn_vis = &input_fn.vis;
@@ -199,7 +200,7 @@ pub fn rest_permission_impl(attr: TokenStream, item: TokenStream) -> TokenStream
 	let fn_name_str = fn_name.to_string();
 
 	let registration = generate_registration(&attrs);
-	let handler_registration = generate_handler_registration(&fn_name_str);
+	let handler_registration = generate_handler_registration(&fn_name_str, true); // Check injected
 	let check = generate_rest_check(&attrs.key);
 
 	let fn_vis = &input_fn.vis;

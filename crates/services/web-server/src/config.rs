@@ -14,12 +14,18 @@ pub fn web_config() -> &'static WebConfig {
 #[allow(non_snake_case)]
 pub struct WebConfig {
 	pub WEB_FOLDER: String,
+	/// Enable Valkey caching for user permissions
+	pub PERMISSION_CACHE_ENABLED: bool,
 }
 
 impl WebConfig {
 	fn load_from_env() -> lib_utils::envs::Result<WebConfig> {
 		Ok(WebConfig {
 			WEB_FOLDER: get_env("SERVICE_WEB_FOLDER")?,
+			PERMISSION_CACHE_ENABLED: get_env("SERVICE_PERMISSION_CACHE_ENABLED")
+				.unwrap_or_else(|_| "false".to_string())
+				.parse()
+				.unwrap_or(false),
 		})
 	}
 }

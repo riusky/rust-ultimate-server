@@ -302,6 +302,7 @@ macro_rules! register_crud_handlers {
 			$crate::model::acs::RegisteredRouteHandler {
 				name: concat!("create_", $resource),
 				kind: $crate::model::acs::RouteHandlerKind::Protected,
+				has_check: true,
 				source: module_path!(),
 			}
 		}
@@ -309,6 +310,7 @@ macro_rules! register_crud_handlers {
 			$crate::model::acs::RegisteredRouteHandler {
 				name: concat!("get_", $resource),
 				kind: $crate::model::acs::RouteHandlerKind::Protected,
+				has_check: true,
 				source: module_path!(),
 			}
 		}
@@ -316,6 +318,7 @@ macro_rules! register_crud_handlers {
 			$crate::model::acs::RegisteredRouteHandler {
 				name: concat!("list_", $resource, "s"),
 				kind: $crate::model::acs::RouteHandlerKind::Protected,
+				has_check: true,
 				source: module_path!(),
 			}
 		}
@@ -323,6 +326,7 @@ macro_rules! register_crud_handlers {
 			$crate::model::acs::RegisteredRouteHandler {
 				name: concat!("update_", $resource),
 				kind: $crate::model::acs::RouteHandlerKind::Protected,
+				has_check: true,
 				source: module_path!(),
 			}
 		}
@@ -330,6 +334,7 @@ macro_rules! register_crud_handlers {
 			$crate::model::acs::RegisteredRouteHandler {
 				name: concat!("delete_", $resource),
 				kind: $crate::model::acs::RouteHandlerKind::Protected,
+				has_check: true,
 				source: module_path!(),
 			}
 		}

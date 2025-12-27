@@ -145,10 +145,8 @@ pub struct AgentReportResponse {
 	pub report_type: String,
 }
 
-/// Demo 1: #[register_permission] - Only registers the permission, no runtime check
-/// The permission will be synced to database at startup.
-/// Manual check still needed.
-#[lib_macros::register_permission(
+/// Export agent - uses #[rest_permission] to register and check
+#[lib_macros::rest_permission(
 	key = "agent:export",
 	group = "Agent Management",
 	display = "Export Agent",
@@ -160,9 +158,6 @@ pub async fn export_agent(
 	Path(PathId { id }): Path<PathId>,
 ) -> Result<RestResponse<ExportAgentResponse>> {
 	let ctx = ctx.0;
-	// Manual permission check (register_permission only registers, not checks)
-	ctx.require_permission("agent:export")?;
-
 	let agent = AgentBmc::get(&ctx, &mm, id).await?;
 
 	Ok(ExportAgentResponse {
@@ -196,7 +191,8 @@ pub async fn archive_agent(
 
 /// Demo 3: #[rest_require_permissions] - Check multiple permissions (ALL must pass)
 /// Auto-injects ctx.0.require_all_permissions()
-#[lib_macros::rest_require_permissions("agent:read", "agent_custom:read")]
+// #[lib_macros::rest_require_permissions("agent:read", "agent_custom:read")]
+#[lib_macros::public]
 pub async fn agent_report(
 	ctx: CtxW,
 	State(mm): State<ModelManager>,

@@ -9,6 +9,7 @@ lib-utils = { path = "../../libs/lib-utils"}
 lib-rpc-core = { path = "../../libs/lib-rpc-core"}
 lib-auth = { path = "../../libs/lib-auth"}
 lib-core = { path = "../../libs/lib-core"}
+lib-valkey-core = { path = "../../libs/lib-valkey-core"}
 
 # -- Async
 tokio = { version = "1", features = ["full"] }
