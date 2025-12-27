@@ -13,10 +13,15 @@ use serde_with::serde_as;
 use sqlx::types::time::OffsetDateTime;
 use sqlx::FromRow;
 
+#[cfg(feature = "with-ts")]
+use ts_rs::TS;
+
 // region:    --- Agent Types
 
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/agent/"))]
 pub struct Agent {
 	pub id: i64,
 
@@ -32,9 +37,11 @@ pub struct Agent {
 	//    (creator and last modified user_id/time)
 	pub cid: i64,
 	#[serde_as(as = "Rfc3339")]
+	#[cfg_attr(feature = "with-ts", ts(type = "string"))]
 	pub ctime: OffsetDateTime,
 	pub mid: i64,
 	#[serde_as(as = "Rfc3339")]
+	#[cfg_attr(feature = "with-ts", ts(type = "string"))]
 	pub mtime: OffsetDateTime,
 }
 

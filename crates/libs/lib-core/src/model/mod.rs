@@ -32,6 +32,7 @@ pub mod modql_utils;
 pub mod user;
 
 pub use self::error::{Error, Result};
+pub use self::user::{User, UserTyp};
 
 use crate::model::store::dbx::Dbx;
 use crate::model::store::new_db_pool;

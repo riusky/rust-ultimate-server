@@ -11,6 +11,7 @@ workspace = true
 
 [features]
 with-rpc = ["rpc-router"]
+with-ts = ["ts-rs"]
 
 [dependencies]
 # -- App Libs
@@ -34,6 +35,9 @@ uuid = {version = "1", features = ["v4","fast-rng",]}
 time = { workspace = true }
 derive_more = { workspace = true }
 inventory = { workspace = true }
+
+# -- Feature: with-ts
+ts-rs = { workspace = true, optional = true }
 
 # -- Feature: with-rpc
 rpc-router = { workspace = true, optional = true }

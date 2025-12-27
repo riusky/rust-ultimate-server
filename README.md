@@ -95,3 +95,22 @@ lib-valkey-core/
 
 
 数据库表 → 2. ACS 模型 → 3. lib-macros → 4. Ctx 扩展 → 5. 中间件 → 6. 启动检查
+
+
+#[cfg(feature = "with-ts")]
+use ts_rs::TS;
+
+#[derive(Serialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/"))]
+pub struct YourEntity {
+    // 时间字段需要添加类型标注
+    #[cfg_attr(feature = "with-ts", ts(type = "string"))]
+    pub created_at: OffsetDateTime,
+}
+
+```
+# 生成所有的实体类 使用TS-RS
+cargo test -p lib-core --features with-ts export_ts_types -- --nocapture
+
+```

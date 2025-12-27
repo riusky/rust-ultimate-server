@@ -17,10 +17,15 @@ use sqlx::FromRow;
 use std::collections::HashSet;
 use tracing::info;
 
+#[cfg(feature = "with-ts")]
+use ts_rs::TS;
+
 // region:    --- Permission Types
 
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/acs/"))]
 pub struct Permission {
 	pub id: i64,
 
@@ -33,14 +38,18 @@ pub struct Permission {
 	// -- Timestamps
 	pub cid: i64,
 	#[serde_as(as = "Rfc3339")]
+	#[cfg_attr(feature = "with-ts", ts(type = "string"))]
 	pub ctime: OffsetDateTime,
 	pub mid: i64,
 	#[serde_as(as = "Rfc3339")]
+	#[cfg_attr(feature = "with-ts", ts(type = "string"))]
 	pub mtime: OffsetDateTime,
 }
 
 /// Lightweight permission for listing
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/acs/"))]
 pub struct PermissionLite {
 	pub id: i64,
 	pub key: String,

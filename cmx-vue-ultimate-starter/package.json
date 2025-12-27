@@ -28,6 +28,7 @@
         "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
         "lint:eslint": "eslint . --fix",
         "lint": "run-s lint:*",
+        "gen:types": "npx tsx scripts/post-process-ts-types.ts",
         "format": "prettier --write src/",
         "tauri": "tauri",
         "prepare": "husky",

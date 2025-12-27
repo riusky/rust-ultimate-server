@@ -15,8 +15,13 @@ use sqlx::postgres::PgRow;
 use sqlx::FromRow;
 use uuid::Uuid;
 
+#[cfg(feature = "with-ts")]
+use ts_rs::TS;
+
 // region:    --- User Types
 #[derive(Clone, Debug, PartialEq, sqlx::Type, derive_more::Display, Deserialize, Serialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/user/"))]
 #[sqlx(type_name = "user_typ")]
 pub enum UserTyp {
 	Sys,
@@ -29,6 +34,8 @@ impl From<UserTyp> for sea_query::Value {
 }
 
 #[derive(Clone, Fields, FromRow, Debug, Serialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/user/"))]
 pub struct User {
 	pub id: i64,
 	pub username: String,
