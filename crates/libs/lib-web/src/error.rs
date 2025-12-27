@@ -49,6 +49,8 @@ pub enum Error {
 	Token(token::Error),
 	#[from]
 	Rpc(lib_rpc_core::Error),
+	#[from]
+	Rest(lib_rest_core::Error),
 
 	// -- RpcError (deconstructed from rpc_router::Error)
 	// Simple mapping for the RpcRequestParsingError. It will have the eventual id, method context.
@@ -222,6 +224,30 @@ impl Error {
 				)),
 			),
 
+			// -- REST errors (from lib-rest-core)
+			Rest(lib_rest_core::Error::Ctx(lib_core::ctx::Error::PermissionDenied {
+				permission,
+				..
+			})) => (
+				StatusCode::FORBIDDEN,
+				ClientError::PERMISSION_DENIED {
+					permission: permission.clone(),
+				},
+			),
+			Rest(lib_rest_core::Error::Ctx(lib_core::ctx::Error::PermissionAnyDenied {
+				permissions,
+				..
+			})) => (
+				StatusCode::FORBIDDEN,
+				ClientError::PERMISSION_ANY_DENIED {
+					permissions: permissions.clone(),
+				},
+			),
+			Rest(lib_rest_core::Error::Model(model::Error::EntityNotFound { entity, id })) => (
+				StatusCode::NOT_FOUND,
+				ClientError::ENTITY_NOT_FOUND { entity, id: *id },
+			),
+
 			// -- Fallback.
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,
@@ -238,6 +264,10 @@ pub enum ClientError {
 	LOGIN_FAIL,
 	NO_AUTH,
 	ENTITY_NOT_FOUND { entity: &'static str, id: i64 },
+
+	// -- Permission
+	PERMISSION_DENIED { permission: String },
+	PERMISSION_ANY_DENIED { permissions: Vec<String> },
 
 	// -- User Management
 	REGISTER_FAIL_USERNAME_EMPTY,

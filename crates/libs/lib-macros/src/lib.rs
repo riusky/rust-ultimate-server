@@ -6,9 +6,11 @@
 //! - `#[require_permission]` - Check permission at runtime
 //! - `#[permission]` - Both register and check (convenience macro)
 //! - `#[public]` - Mark handler as public (no permission check)
+//! - `#[derive(IntoResponseExt)]` - Implement IntoResponse with extension storage
 
 use proc_macro::TokenStream;
 
+mod into_response;
 mod permission;
 mod public;
 mod require;
@@ -204,4 +206,39 @@ pub fn rest_require_any_permission(attr: TokenStream, item: TokenStream) -> Toke
 #[proc_macro_attribute]
 pub fn public(attr: TokenStream, item: TokenStream) -> TokenStream {
 	public::public_impl(attr, item)
+}
+
+// ============================================================================
+// IntoResponse derive macro
+// ============================================================================
+
+/// Derive macro that implements IntoResponse by storing error in extensions.
+///
+/// This is used for error types that need to be converted to HTTP responses
+/// and processed by middleware (like mw_rest_error).
+///
+/// # Generated Code
+///
+/// ```rust,ignore
+/// impl IntoResponse for Error {
+///     fn into_response(self) -> Response {
+///         let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
+///         response.extensions_mut().insert(Arc::new(self));
+///         response
+///     }
+/// }
+/// ```
+///
+/// # Usage
+///
+/// ```rust,ignore
+/// #[derive(Debug, IntoResponseExt)]
+/// pub enum Error {
+///     Model(lib_core::model::Error),
+///     Ctx(lib_core::ctx::Error),
+/// }
+/// ```
+#[proc_macro_derive(IntoResponseExt)]
+pub fn into_response_ext(input: TokenStream) -> TokenStream {
+	into_response::into_response_ext_impl(input)
 }

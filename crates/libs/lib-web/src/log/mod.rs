@@ -1,6 +1,6 @@
 use crate::middleware::mw_req_stamp::ReqStamp;
-use crate::handlers::handlers_rpc::RpcInfo;
-use crate::error::{Error, ClientError};
+use crate::handlers::api_handlers::ApiInfo;
+use crate::error::Error;
 use crate::error::Result;
 use axum::http::{Method, Uri};
 use lib_core::ctx::Ctx;
@@ -11,14 +11,20 @@ use serde_with::skip_serializing_none;
 use time::Duration;
 use tracing::debug;
 
+/// Client error info for logging
+pub struct ClientErrorInfo {
+	pub error_type: String,
+	pub detail: Option<Value>,
+}
+
 pub async fn log_request(
 	http_method: Method,
 	uri: Uri,
 	req_stamp: ReqStamp,
-	rpc_info: Option<&RpcInfo>,
+	api_info: Option<&ApiInfo>,
 	ctx: Option<Ctx>,
 	web_error: Option<&Error>,
-	client_error: Option<ClientError>,
+	client_error: Option<ClientErrorInfo>,
 ) -> Result<()> {
 	// -- Prep error
 	let error_type = web_error.map(|se| se.as_ref().to_string());
@@ -33,6 +39,25 @@ pub async fn log_request(
 	// duration_ms in milliseconds with microseconds precision.
 	let duration_ms = (duration.as_seconds_f64() * 1_000_000.).floor() / 1_000.;
 
+	// -- Extract API-specific info
+	let (api_type, rpc_id, rpc_method, rest_resource, rest_action) = match api_info {
+		Some(ApiInfo::Rpc { id, method }) => (
+			Some("rpc".to_string()),
+			id.as_ref().map(|id| id.to_string()),
+			Some(method.to_string()),
+			None,
+			None,
+		),
+		Some(ApiInfo::Rest { resource, action }) => (
+			Some("rest".to_string()),
+			None,
+			None,
+			Some(resource.to_string()),
+			Some(action.to_string()),
+		),
+		None => (None, None, None, None, None),
+	};
+
 	// Create the RequestLogLine
 	let log_line = RequestLogLine {
 		uuid: uuid.to_string(),
@@ -43,12 +68,21 @@ pub async fn log_request(
 		http_path: uri.to_string(),
 		http_method: http_method.to_string(),
 
-		rpc_id: rpc_info.and_then(|rpc| rpc.id.as_ref().map(|id| id.to_string())),
-		rpc_method: rpc_info.map(|rpc| rpc.method.to_string()),
+		// API type (rpc/rest)
+		api_type,
+
+		// RPC specific
+		rpc_id,
+		rpc_method,
+
+		// REST specific
+		rest_resource,
+		rest_action,
 
 		user_id: ctx.map(|c| c.user_id()),
 
-		client_error_type: client_error.map(|e| e.as_ref().to_string()),
+		client_error_type: client_error.as_ref().map(|e| e.error_type.clone()),
+		client_error_detail: client_error.and_then(|e| e.detail),
 
 		error_type,
 		error_data,
@@ -76,12 +110,20 @@ struct RequestLogLine {
 	http_path: String,
 	http_method: String,
 
+	// -- API type (rpc/rest)
+	api_type: Option<String>,
+
 	// -- rpc info.
 	rpc_id: Option<String>,
 	rpc_method: Option<String>,
 
+	// -- rest info.
+	rest_resource: Option<String>,
+	rest_action: Option<String>,
+
 	// -- Errors attributes.
 	client_error_type: Option<String>,
+	client_error_detail: Option<Value>,
 	error_type: Option<String>,
 	error_data: Option<Value>,
 }

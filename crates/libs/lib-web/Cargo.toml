@@ -7,6 +7,7 @@ edition = "2021"
 # -- App Libs
 lib-utils = { path = "../../libs/lib-utils"}
 lib-rpc-core = { path = "../../libs/lib-rpc-core"}
+lib-rest-core = { path = "../../libs/lib-rest-core"}
 lib-auth = { path = "../../libs/lib-auth"}
 lib-core = { path = "../../libs/lib-core"}
 lib-valkey-core = { path = "../../libs/lib-valkey-core"}

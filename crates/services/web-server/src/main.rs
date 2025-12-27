@@ -13,6 +13,7 @@ use lib_web::middleware::mw_permission::{
 };
 use lib_web::middleware::mw_req_stamp::mw_req_stamp_resolver;
 use lib_web::middleware::mw_res_map::mw_reponse_map;
+use lib_web::middleware::mw_rest_info::mw_rest_info;
 use lib_web::routes::routes_static;
 
 use crate::web::routes_login;
@@ -64,6 +65,7 @@ async fn main() -> Result<()> {
 		.route_layer(middleware::from_fn(mw_ctx_require));
 
 	let routes_rest = routes_rest::routes(mm.clone())
+		.layer(middleware::from_fn(mw_rest_info))
 		.route_layer(middleware::from_fn(mw_ctx_require));
 
 	// User management routes that require auth
