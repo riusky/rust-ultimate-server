@@ -30,9 +30,11 @@ pub mod conv_msg;
 pub mod conv_user;
 pub mod modql_utils;
 pub mod user;
+pub mod user_info;
 
 pub use self::error::{Error, Result};
 pub use self::user::{User, UserTyp};
+pub use self::user_info::{UserGender, UserInfo, UserStatus};
 
 use crate::model::store::dbx::Dbx;
 use crate::model::store::new_db_pool;

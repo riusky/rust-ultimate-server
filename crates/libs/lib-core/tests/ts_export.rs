@@ -6,6 +6,7 @@
 mod ts_export {
     use lib_core::model::acs::{Permission, PermissionLite, Role, RoleLite};
     use lib_core::model::agent::Agent;
+    use lib_core::model::user_info::{UserGender, UserInfo, UserStatus};
     use lib_core::model::{User, UserTyp};
     use ts_rs::TS;
 
@@ -14,6 +15,11 @@ mod ts_export {
         // Export User types
         UserTyp::export_all().expect("Failed to export UserTyp");
         User::export_all().expect("Failed to export User");
+
+        // Export UserInfo types
+        UserGender::export_all().expect("Failed to export UserGender");
+        UserStatus::export_all().expect("Failed to export UserStatus");
+        UserInfo::export_all().expect("Failed to export UserInfo");
 
         // Export ACS types
         Permission::export_all().expect("Failed to export Permission");

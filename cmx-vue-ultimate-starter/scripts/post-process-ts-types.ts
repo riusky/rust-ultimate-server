@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const GENERATED_DIR = path.resolve(__dirname, '../src/types/generated')
+const GENERATED_DIR = path.resolve(__dirname, '../src/services/types')
 
 // 获取目录下所有 .ts 文件（排除 index.ts）
 function getTypeFiles(dir: string): string[] {
@@ -57,11 +57,6 @@ function generateRootIndex(): void {
   const subDirs = getSubDirs(GENERATED_DIR)
 
   const imports: string[] = []
-  const comments: Record<string, string> = {
-    user: 'User types',
-    acs: 'ACS types (Access Control System)',
-    agent: 'Agent types',
-  }
 
   for (const subDir of subDirs) {
     const fullPath = path.join(GENERATED_DIR, subDir)
@@ -70,9 +65,10 @@ function generateRootIndex(): void {
     if (typeFiles.length === 0) continue
 
     const typeList = typeFiles.join(', ')
-    const comment = comments[subDir] || `${subDir} types`
+    // Capitalize first letter for comment
+    const comment = `${subDir.charAt(0).toUpperCase() + subDir.slice(1)} types`
     imports.push(`// ${comment}`)
-    imports.push(`export type { ${typeList} } from './${subDir}'`)
+    imports.push(`export type { ${typeList} } from './${subDir}/index'`)
     imports.push('')
   }
 

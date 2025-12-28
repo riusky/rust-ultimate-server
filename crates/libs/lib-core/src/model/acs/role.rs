@@ -23,7 +23,7 @@ use ts_rs::TS;
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/acs/"))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/acs/"))]
 pub struct Role {
 	pub id: i64,
 
@@ -46,7 +46,7 @@ pub struct Role {
 /// Lightweight role for listing
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/acs/"))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/acs/"))]
 pub struct RoleLite {
 	pub id: i64,
 	pub name: String,
