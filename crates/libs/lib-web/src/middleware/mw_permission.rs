@@ -215,21 +215,4 @@ async fn load_user_permissions_cached(
 	Ok(permissions)
 }
 
-/// Invalidate user permissions cache
-///
-/// Call this when user's roles or permissions change
-pub async fn invalidate_user_permissions_cache(
-	valkey_pool: &ValkeyPool,
-	user_id: i64,
-) -> lib_valkey_core::Result<()> {
-	let cache_key = CacheKey::UserPermissions(user_id);
-	let mut conn = valkey_pool.get().await?;
-	commands::del_one(&mut *conn, cache_key.as_str()).await?;
-	debug!(
-		"{:<12} - Invalidated permissions cache for user {}",
-		"CACHE", user_id
-	);
-	Ok(())
-}
-
 // endregion: --- With Valkey Cache

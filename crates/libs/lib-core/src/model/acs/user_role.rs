@@ -134,6 +134,25 @@ impl UserRoleBmc {
 		Ok(rows.into_iter().map(|(id,)| id).collect())
 	}
 
+	/// Get all user IDs that have a specific role
+	pub async fn list_user_ids_for_role(
+		_ctx: &Ctx,
+		mm: &ModelManager,
+		role_id: i64,
+	) -> Result<Vec<i64>> {
+		let mut query = Query::select();
+		query
+			.from(Self::table_ref())
+			.column(UserRoleIden::UserId)
+			.and_where(Expr::col(UserRoleIden::RoleId).eq(role_id));
+
+		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+		let sqlx_query = sqlx::query_as_with::<_, (i64,), _>(&sql, values);
+		let rows = mm.dbx().fetch_all(sqlx_query).await?;
+
+		Ok(rows.into_iter().map(|(id,)| id).collect())
+	}
+
 	/// Check if a user has a specific role
 	pub async fn has_role(
 		_ctx: &Ctx,

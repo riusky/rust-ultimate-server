@@ -61,7 +61,7 @@ async fn main() -> Result<()> {
 
 	// -- Define Routes (this validates handler annotations via generate_rpc_routes!)
 	// Note: generate_rpc_routes! in each RPC module validates handlers at runtime
-	let routes_rpc = web::routes_rpc::routes(mm.clone())
+	let routes_rpc = web::routes_rpc::routes(mm.clone(), valkey_pool.clone())
 		.route_layer(middleware::from_fn(mw_ctx_require));
 
 	let routes_rest = routes_rest::routes(mm.clone())
