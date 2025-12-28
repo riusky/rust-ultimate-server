@@ -29,7 +29,7 @@ export function useSystemSidebar() {
           items: [
             { title: '用户管理', url: '/system/users' },
             { title: '角色管理', url: '/system/roles' },
-            { title: '权限分配', url: '/system/permissions' },
+            // { title: '权限分配', url: '/system/permissions' },
           ],
         },
         {

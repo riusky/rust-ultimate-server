@@ -34,6 +34,13 @@ export interface OrderBy {
   dir?: 'asc' | 'desc' | 'ASC' | 'DESC'
 }
 
+/**
+ * RPC result wrapper for single entity responses
+ */
+export interface RpcDataResult<T = unknown> {
+  data: T
+}
+
 export type ListUserInfosResult = RpcListResult<UserInfo>
 
 export interface CreateUserInfoParams {
@@ -97,14 +104,16 @@ export interface DeleteUserInfoParams {
  * Get user info by ID
  */
 export async function getUserInfo(params: GetUserInfoParams): Promise<UserInfo> {
-  return rpcCall<UserInfo, GetUserInfoParams>('get_user_info', params)
+  const result = await rpcCall<RpcDataResult<UserInfo>, GetUserInfoParams>('get_user_info', params)
+  return result.data
 }
 
 /**
  * Get user info by ID (silent, no toast on error)
  */
 export async function getUserInfoSilent(params: GetUserInfoParams): Promise<UserInfo> {
-  return rpcCallSilent<UserInfo, GetUserInfoParams>('get_user_info', params)
+  const result = await rpcCallSilent<RpcDataResult<UserInfo>, GetUserInfoParams>('get_user_info', params)
+  return result.data
 }
 
 /**
@@ -113,7 +122,8 @@ export async function getUserInfoSilent(params: GetUserInfoParams): Promise<User
 export async function getUserInfoByUserId(
   params: GetUserInfoByUserIdParams
 ): Promise<UserInfo> {
-  return rpcCall<UserInfo, GetUserInfoByUserIdParams>('get_user_info_by_user_id', params)
+  const result = await rpcCall<RpcDataResult<UserInfo>, GetUserInfoByUserIdParams>('get_user_info_by_user_id', params)
+  return result.data
 }
 
 /**
@@ -122,21 +132,24 @@ export async function getUserInfoByUserId(
 export async function getUserInfoByUserIdSilent(
   params: GetUserInfoByUserIdParams
 ): Promise<UserInfo> {
-  return rpcCallSilent<UserInfo, GetUserInfoByUserIdParams>('get_user_info_by_user_id', params)
+  const result = await rpcCallSilent<RpcDataResult<UserInfo>, GetUserInfoByUserIdParams>('get_user_info_by_user_id', params)
+  return result.data
 }
 
 /**
  * Get current logged-in user's info
  */
 export async function getCurrentUserInfo(): Promise<UserInfo> {
-  return rpcCall<UserInfo>('get_current_user_info')
+  const result = await rpcCall<RpcDataResult<UserInfo>>('get_current_user_info')
+  return result.data
 }
 
 /**
  * Get current logged-in user's info (silent, no toast on error)
  */
 export async function getCurrentUserInfoSilent(): Promise<UserInfo> {
-  return rpcCallSilent<UserInfo>('get_current_user_info')
+  const result = await rpcCallSilent<RpcDataResult<UserInfo>>('get_current_user_info')
+  return result.data
 }
 
 /**
@@ -169,21 +182,24 @@ export async function listUserInfosSilent(
  * Create a new user info
  */
 export async function createUserInfo(params: CreateUserInfoParams): Promise<UserInfo> {
-  return rpcCall<UserInfo, CreateUserInfoParams>('create_user_info', params)
+  const result = await rpcCall<RpcDataResult<UserInfo>, CreateUserInfoParams>('create_user_info', params)
+  return result.data
 }
 
 /**
  * Update user info
  */
 export async function updateUserInfo(params: UpdateUserInfoParams): Promise<UserInfo> {
-  return rpcCall<UserInfo, UpdateUserInfoParams>('update_user_info', params)
+  const result = await rpcCall<RpcDataResult<UserInfo>, UpdateUserInfoParams>('update_user_info', params)
+  return result.data
 }
 
 /**
  * Delete user info
  */
 export async function deleteUserInfo(params: DeleteUserInfoParams): Promise<UserInfo> {
-  return rpcCall<UserInfo, DeleteUserInfoParams>('delete_user_info', params)
+  const result = await rpcCall<RpcDataResult<UserInfo>, DeleteUserInfoParams>('delete_user_info', params)
+  return result.data
 }
 
 // endregion: --- RPC Methods
