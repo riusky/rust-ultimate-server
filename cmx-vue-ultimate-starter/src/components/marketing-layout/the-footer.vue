@@ -13,7 +13,7 @@ const links = [
   {
     name: 'github',
     icon: 'simple-icons:github',
-    url: 'https://www.github.com/whbbit1999/shadcn-vue-admin',
+    url: 'https://www.github.com/whbbit1999/cmx-vue-ultimate-starter',
   },
   {
     name: 'bilibili',
