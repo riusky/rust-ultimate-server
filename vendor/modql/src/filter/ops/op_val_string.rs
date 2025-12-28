@@ -2,10 +2,17 @@
 
 use crate::filter::OpVal;
 
+#[cfg(feature = "with-ts")]
+use ts_rs::TS;
+
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
 pub struct OpValsString(pub Vec<OpValString>);
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
 pub enum OpValString {
 	Eq(String),
 	Not(String),

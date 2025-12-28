@@ -1,21 +1,36 @@
 use crate::filter::OpVal;
 use serde_json::Value;
 
+#[cfg(feature = "with-ts")]
+use ts_rs::TS;
+
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
 pub struct OpValsValue(pub Vec<OpValValue>);
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
 pub enum OpValValue {
+	#[cfg_attr(feature = "with-ts", ts(type = "unknown"))]
 	Eq(Value),
+	#[cfg_attr(feature = "with-ts", ts(type = "unknown"))]
 	Not(Value),
 
+	#[cfg_attr(feature = "with-ts", ts(type = "Array<unknown>"))]
 	In(Vec<Value>),
+	#[cfg_attr(feature = "with-ts", ts(type = "Array<unknown>"))]
 	NotIn(Vec<Value>),
 
+	#[cfg_attr(feature = "with-ts", ts(type = "unknown"))]
 	Lt(Value),
+	#[cfg_attr(feature = "with-ts", ts(type = "unknown"))]
 	Lte(Value),
 
+	#[cfg_attr(feature = "with-ts", ts(type = "unknown"))]
 	Gt(Value),
+	#[cfg_attr(feature = "with-ts", ts(type = "unknown"))]
 	Gte(Value),
 
 	Null(bool),

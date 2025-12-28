@@ -1,5 +1,8 @@
 use crate::filter::OpVal;
 
+#[cfg(feature = "with-ts")]
+use ts_rs::TS;
+
 /// - `ovs` OpValsType, e.g., `OpValsUint64`
 /// - `ov` OpValType, e.g., `OpValUint64`
 /// - `nt` Number type, e.g., `u64`
@@ -9,9 +12,13 @@ macro_rules! impl_op_val {
 		$(
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
 pub struct $ovs(pub Vec<$ov>);
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
 pub enum $ov {
 	Eq($nt),
 	Not($nt),

@@ -179,6 +179,8 @@ pub struct UserInfoForUpdate {
 
 /// Filter for querying user info
 #[derive(Clone, Debug, FilterNodes, Default, Deserialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
 pub struct UserInfoFilter {
 	pub id: Option<OpValsInt64>,
 	pub user_id: Option<OpValsInt64>,

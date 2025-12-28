@@ -4,7 +4,7 @@
  * RPC methods for user profile information management.
  */
 
-import type { UserInfo } from '@/services/types/user/index'
+import type { UserInfo, UserInfoFilter } from '@/services/types/user/index'
 import { rpcCall, rpcCallSilent } from '../../rpc-client'
 
 // region:    --- Types
@@ -22,38 +22,16 @@ export interface ListUserInfosParams {
   list_options?: ListOptions
 }
 
-export interface UserInfoFilter {
-  id?: OpValsInt64 | null
-  user_id?: OpValsInt64 | null
-  nickname?: OpValsString | null
-  email?: OpValsString | null
-  phone?: OpValsString | null
-  status?: string | null
-}
-
+/** List options for pagination and sorting */
 export interface ListOptions {
   limit?: number
   offset?: number
-  order_bys?: string
+  order_bys?: string | OrderBy[]
 }
 
-export interface OpValsInt64 {
-  $eq?: number
-  $in?: number[]
-  $not?: number
-  $lt?: number
-  $lte?: number
-  $gt?: number
-  $gte?: number
-}
-
-export interface OpValsString {
-  $eq?: string
-  $in?: string[]
-  $not?: string
-  $contains?: string
-  $startsWith?: string
-  $endsWith?: string
+export interface OrderBy {
+  field: string
+  dir?: 'asc' | 'desc' | 'ASC' | 'DESC'
 }
 
 export interface ListUserInfosResult {

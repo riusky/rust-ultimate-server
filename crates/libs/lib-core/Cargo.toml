@@ -11,7 +11,7 @@ workspace = true
 
 [features]
 with-rpc = ["rpc-router"]
-with-ts = ["ts-rs"]
+with-ts = ["ts-rs", "modql/with-ts"]
 
 [dependencies]
 # -- App Libs
