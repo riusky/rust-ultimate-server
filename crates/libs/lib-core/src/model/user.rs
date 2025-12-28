@@ -1,18 +1,23 @@
 use crate::ctx::Ctx;
 use crate::model::base::{self, prep_fields_for_update, DbBmc};
 use crate::model::modql_utils::time_to_sea_value;
+use crate::model::user_info::{UserGender, UserStatus};
 use crate::model::ModelManager;
 use crate::model::{Error, Result};
 use lib_auth::pwd::{self, ContentToHash};
+use lib_utils::time::Rfc3339;
 use modql::field::{Fields, HasSeaFields, SeaField, SeaFields};
 use modql::filter::{
 	FilterNodes, ListOptions, OpValsInt64, OpValsString, OpValsValue,
 };
-use sea_query::{Expr, Iden, PostgresQueryBuilder, Query};
+use sea_query::{Alias, Expr, Iden, PostgresQueryBuilder, Query};
 use sea_query_binder::SqlxBinder;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use sqlx::postgres::PgRow;
-use sqlx::FromRow;
+use sqlx::types::time::OffsetDateTime;
+use sqlx::{FromRow, Row};
+use time::Date;
 use uuid::Uuid;
 
 #[cfg(feature = "with-ts")]
@@ -90,7 +95,7 @@ enum UserIden {
 	Pwd,
 }
 
-#[derive(FilterNodes, Deserialize, Default, Debug)]
+#[derive(FilterNodes, Deserialize, Default, Debug, Clone)]
 pub struct UserFilter {
 	pub id: Option<OpValsInt64>,
 
@@ -104,6 +109,52 @@ pub struct UserFilter {
 	pub mtime: Option<OpValsValue>,
 }
 
+/// User with info - combined view of user and user_info
+#[serde_as]
+#[derive(Debug, Clone, FromRow, Serialize)]
+#[cfg_attr(feature = "with-ts", derive(TS))]
+#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+pub struct UserWithInfo {
+	// -- User fields
+	pub id: i64,
+	pub username: String,
+	pub typ: UserTyp,
+	// -- User timestamps
+	#[serde_as(as = "Rfc3339")]
+	#[cfg_attr(feature = "with-ts", ts(type = "string"))]
+	pub ctime: OffsetDateTime,
+	#[serde_as(as = "Rfc3339")]
+	#[cfg_attr(feature = "with-ts", ts(type = "string"))]
+	pub mtime: OffsetDateTime,
+
+	// -- UserInfo fields (optional, may be null if user_info doesn't exist)
+	pub user_info_id: Option<i64>,
+	pub nickname: Option<String>,
+	pub avatar: Option<String>,
+	pub bio: Option<String>,
+	pub email: Option<String>,
+	pub email_verified: Option<bool>,
+	pub phone: Option<String>,
+	pub phone_verified: Option<bool>,
+	pub gender: Option<UserGender>,
+	#[cfg_attr(feature = "with-ts", ts(type = "string | null"))]
+	pub birthday: Option<Date>,
+	pub country: Option<String>,
+	pub province: Option<String>,
+	pub city: Option<String>,
+	pub address: Option<String>,
+	pub postal_code: Option<String>,
+	pub timezone: Option<String>,
+	pub locale: Option<String>,
+	pub theme: Option<String>,
+	pub status: Option<UserStatus>,
+	#[serde_as(as = "Option<Rfc3339>")]
+	#[cfg_attr(feature = "with-ts", ts(type = "string | null"))]
+	pub last_login_at: Option<OffsetDateTime>,
+	pub last_login_ip: Option<String>,
+	pub login_count: Option<i32>,
+}
+
 // endregion: --- User Types
 
 // region:    --- UserBmc
@@ -115,6 +166,33 @@ impl DbBmc for UserBmc {
 }
 
 impl UserBmc {
+	/// Count users excluding system users
+	pub async fn count(
+		_ctx: &Ctx,
+		mm: &ModelManager,
+		_filter: Option<Vec<UserFilter>>,
+	) -> Result<i64> {
+		let db = mm.dbx().db();
+
+		// Build count query excluding system users (cast to user_typ enum)
+		let query = Query::select()
+			.from(Self::table_ref())
+			.expr(sea_query::Expr::col(sea_query::Asterisk).count())
+			.and_where(Expr::cust("typ != 'Sys'::user_typ"))
+			.to_owned();
+
+		let query_str = query.to_string(PostgresQueryBuilder);
+
+		let result = sqlx::query(&query_str)
+			.fetch_one(db)
+			.await
+			.map_err(|_| Error::CountFail)?;
+
+		let count: i64 = result.try_get("count").map_err(|_| Error::CountFail)?;
+
+		Ok(count)
+	}
+
 	pub async fn create(
 		ctx: &Ctx,
 		mm: &ModelManager,
@@ -242,6 +320,109 @@ impl UserBmc {
 	///       - Remove or clean up any user-specific assets (messages, etc.).
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
 		base::delete::<Self>(ctx, mm, id).await
+	}
+
+	/// List users with their user_info (LEFT JOIN)
+	pub async fn list_with_info(
+		_ctx: &Ctx,
+		mm: &ModelManager,
+		_filter: Option<Vec<UserFilter>>,
+		list_options: Option<ListOptions>,
+	) -> Result<Vec<UserWithInfo>> {
+		// Helper to add multiple columns from a table
+		fn add_columns(
+			query: &mut sea_query::SelectStatement,
+			table: &Alias,
+			fields: &[(&str, &str)], // (column_name, alias)
+		) {
+			for (col, alias) in fields {
+				query.expr_as(
+					Expr::col((table.clone(), Alias::new(*col))),
+					Alias::new(*alias),
+				);
+			}
+		}
+
+		let user_table = Alias::new("user");
+		let user_info_table = Alias::new("user_info");
+
+		let mut query = Query::select();
+		query.from(user_table.clone());
+
+		// User fields
+		add_columns(&mut query, &user_table, &[
+			("id", "id"),
+			("username", "username"),
+			("typ", "typ"),
+			("ctime", "ctime"),
+			("mtime", "mtime"),
+		]);
+
+		// UserInfo fields (with alias for id -> user_info_id)
+		add_columns(&mut query, &user_info_table, &[
+			("id", "user_info_id"),
+			("nickname", "nickname"),
+			("avatar", "avatar"),
+			("bio", "bio"),
+			("email", "email"),
+			("email_verified", "email_verified"),
+			("phone", "phone"),
+			("phone_verified", "phone_verified"),
+			("gender", "gender"),
+			("birthday", "birthday"),
+			("country", "country"),
+			("province", "province"),
+			("city", "city"),
+			("address", "address"),
+			("postal_code", "postal_code"),
+			("timezone", "timezone"),
+			("locale", "locale"),
+			("theme", "theme"),
+			("status", "status"),
+			("last_login_at", "last_login_at"),
+			("last_login_ip", "last_login_ip"),
+			("login_count", "login_count"),
+		]);
+
+		// LEFT JOIN user_info ON user.id = user_info.user_id
+		query.left_join(
+			user_info_table.clone(),
+			Expr::col((user_table.clone(), Alias::new("id")))
+				.equals((user_info_table.clone(), Alias::new("user_id"))),
+		);
+
+		// Exclude system users (typ = 'Sys')
+		query.and_where(Expr::cust("\"user\".typ != 'Sys'::user_typ"));
+
+		// Apply list options (limit, offset, order_by)
+		if let Some(opts) = list_options {
+			if let Some(limit) = opts.limit {
+				query.limit(limit as u64);
+			}
+			if let Some(offset) = opts.offset {
+				query.offset(offset as u64);
+			}
+			// Default order by user.id desc
+			if opts.order_bys.is_none() {
+				query.order_by(
+					(user_table.clone(), Alias::new("id")),
+					sea_query::Order::Desc,
+				);
+			}
+		} else {
+			// Default order by user.id desc
+			query.order_by(
+				(user_table.clone(), Alias::new("id")),
+				sea_query::Order::Desc,
+			);
+		}
+
+		// Execute query
+		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+		let sqlx_query = sqlx::query_as_with::<_, UserWithInfo, _>(&sql, values);
+		let entities = mm.dbx().fetch_all(sqlx_query).await?;
+
+		Ok(entities)
 	}
 }
 

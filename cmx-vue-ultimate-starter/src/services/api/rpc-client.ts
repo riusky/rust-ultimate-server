@@ -34,9 +34,20 @@ export interface RpcRequest<P = unknown> {
 }
 
 /**
- * RPC response structure (same as REST but with result)
+ * JSON-RPC 2.0 response structure
  */
-export type RpcResponse<T = unknown> = ApiSuccessResponse<T>
+export interface RpcResponse<T = unknown> {
+  jsonrpc: '2.0'
+  id: number
+  result: T
+}
+
+/**
+ * RPC list result structure (for list methods)
+ */
+export interface RpcListResult<T = unknown> {
+  data: T[]
+}
 
 // endregion: --- RPC Types
 

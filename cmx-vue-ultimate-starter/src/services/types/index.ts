@@ -16,4 +16,12 @@ export type {
 } from './filter/index'
 
 // User types
-export type { User, UserGender, UserInfo, UserInfoFilter, UserStatus, UserTyp } from './user/index'
+export type {
+  User,
+  UserGender,
+  UserInfo,
+  UserInfoFilter,
+  UserStatus,
+  UserTyp,
+  UserWithInfo,
+} from './user/index'

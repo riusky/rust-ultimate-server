@@ -36,6 +36,26 @@ impl Default for UserGender {
 	}
 }
 
+impl From<String> for UserGender {
+	fn from(s: String) -> Self {
+		match s.as_str() {
+			"Male" => Self::Male,
+			"Female" => Self::Female,
+			_ => Self::Unknown,
+		}
+	}
+}
+
+impl From<&str> for UserGender {
+	fn from(s: &str) -> Self {
+		match s {
+			"Male" => Self::Male,
+			"Female" => Self::Female,
+			_ => Self::Unknown,
+		}
+	}
+}
+
 impl From<UserGender> for sea_query::Value {
 	fn from(val: UserGender) -> Self {
 		val.to_string().into()
@@ -44,7 +64,7 @@ impl From<UserGender> for sea_query::Value {
 
 impl Nullable for UserGender {
 	fn null() -> sea_query::Value {
-		UserGender::Unknown.into()
+		UserGender::Unknown.to_string().into()
 	}
 }
 
@@ -66,6 +86,30 @@ impl Default for UserStatus {
 	}
 }
 
+impl From<String> for UserStatus {
+	fn from(s: String) -> Self {
+		match s.as_str() {
+			"Active" => Self::Active,
+			"Inactive" => Self::Inactive,
+			"Suspended" => Self::Suspended,
+			"Deleted" => Self::Deleted,
+			_ => Self::Active,
+		}
+	}
+}
+
+impl From<&str> for UserStatus {
+	fn from(s: &str) -> Self {
+		match s {
+			"Active" => Self::Active,
+			"Inactive" => Self::Inactive,
+			"Suspended" => Self::Suspended,
+			"Deleted" => Self::Deleted,
+			_ => Self::Active,
+		}
+	}
+}
+
 impl From<UserStatus> for sea_query::Value {
 	fn from(val: UserStatus) -> Self {
 		val.to_string().into()
@@ -74,7 +118,7 @@ impl From<UserStatus> for sea_query::Value {
 
 impl Nullable for UserStatus {
 	fn null() -> sea_query::Value {
-		UserStatus::Active.into()
+		UserStatus::Active.to_string().into()
 	}
 }
 
@@ -131,7 +175,7 @@ pub struct UserInfo {
 }
 
 /// For creating a new user info record
-#[derive(Fields, Deserialize)]
+#[derive(Debug, Fields, Deserialize)]
 pub struct UserInfoForCreate {
 	pub user_id: i64,
 	pub nickname: Option<String>,
@@ -139,6 +183,7 @@ pub struct UserInfoForCreate {
 	pub bio: Option<String>,
 	pub email: Option<String>,
 	pub phone: Option<String>,
+	#[field(cast_as = "user_gender")]
 	pub gender: Option<UserGender>,
 	pub birthday: Option<Date>,
 	pub country: Option<String>,
@@ -152,7 +197,7 @@ pub struct UserInfoForCreate {
 }
 
 /// For updating user info
-#[derive(Fields, Deserialize, Default)]
+#[derive(Debug, Fields, Deserialize, Default)]
 pub struct UserInfoForUpdate {
 	pub nickname: Option<String>,
 	pub avatar: Option<String>,
@@ -161,6 +206,7 @@ pub struct UserInfoForUpdate {
 	pub email_verified: Option<bool>,
 	pub phone: Option<String>,
 	pub phone_verified: Option<bool>,
+	#[field(cast_as = "user_gender")]
 	pub gender: Option<UserGender>,
 	pub birthday: Option<Date>,
 	pub country: Option<String>,
@@ -171,6 +217,7 @@ pub struct UserInfoForUpdate {
 	pub timezone: Option<String>,
 	pub locale: Option<String>,
 	pub theme: Option<String>,
+	#[field(cast_as = "user_status")]
 	pub status: Option<UserStatus>,
 	pub last_login_at: Option<OffsetDateTime>,
 	pub last_login_ip: Option<String>,
@@ -326,10 +373,12 @@ mod tests {
 		};
 		let user_info_id = UserInfoBmc::create(&ctx, &mm, user_info_c).await?;
 
-		// -- Exec
+		// -- Exec: Update with enum fields (gender and status)
 		let user_info_u = UserInfoForUpdate {
 			nickname: Some("Updated Name".to_string()),
 			theme: Some("light".to_string()),
+			gender: Some(UserGender::Female),
+			status: Some(UserStatus::Inactive),
 			..Default::default()
 		};
 		UserInfoBmc::update(&ctx, &mm, user_info_id, user_info_u).await?;
@@ -338,6 +387,8 @@ mod tests {
 		let user_info = UserInfoBmc::get(&ctx, &mm, user_info_id).await?;
 		assert_eq!(user_info.nickname, Some("Updated Name".to_string()));
 		assert_eq!(user_info.theme, Some("light".to_string()));
+		assert_eq!(user_info.gender, UserGender::Female);
+		assert_eq!(user_info.status, UserStatus::Inactive);
 
 		// -- Clean
 		UserBmc::delete(&ctx, &mm, user_id).await?;

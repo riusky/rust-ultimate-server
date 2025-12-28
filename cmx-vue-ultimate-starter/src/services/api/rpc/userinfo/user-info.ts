@@ -5,7 +5,7 @@
  */
 
 import type { UserInfo, UserInfoFilter } from '@/services/types/user/index'
-import { rpcCall, rpcCallSilent } from '../../rpc-client'
+import { rpcCall, rpcCallSilent, type RpcListResult } from '../../rpc-client'
 
 // region:    --- Types
 
@@ -34,9 +34,59 @@ export interface OrderBy {
   dir?: 'asc' | 'desc' | 'ASC' | 'DESC'
 }
 
-export interface ListUserInfosResult {
-  items: UserInfo[]
-  total: number
+export type ListUserInfosResult = RpcListResult<UserInfo>
+
+export interface CreateUserInfoParams {
+  data: UserInfoForCreate
+}
+
+export interface UserInfoForCreate {
+  user_id: number
+  nickname?: string | null
+  avatar?: string | null
+  bio?: string | null
+  email?: string | null
+  phone?: string | null
+  gender?: 'Unknown' | 'Male' | 'Female' | null
+  birthday?: string | null
+  country?: string | null
+  province?: string | null
+  city?: string | null
+  address?: string | null
+  postal_code?: string | null
+  timezone?: string | null
+  locale?: string | null
+  theme?: string | null
+}
+
+export interface UpdateUserInfoParams {
+  id: number
+  data: UserInfoForUpdate
+}
+
+export interface UserInfoForUpdate {
+  nickname?: string | null
+  avatar?: string | null
+  bio?: string | null
+  email?: string | null
+  email_verified?: boolean | null
+  phone?: string | null
+  phone_verified?: boolean | null
+  gender?: 'Unknown' | 'Male' | 'Female' | null
+  birthday?: string | null
+  country?: string | null
+  province?: string | null
+  city?: string | null
+  address?: string | null
+  postal_code?: string | null
+  timezone?: string | null
+  locale?: string | null
+  theme?: string | null
+  status?: 'Active' | 'Inactive' | 'Suspended' | 'Deleted' | null
+}
+
+export interface DeleteUserInfoParams {
+  id: number
 }
 
 // endregion: --- Types
@@ -94,11 +144,12 @@ export async function getCurrentUserInfoSilent(): Promise<UserInfo> {
  */
 export async function listUserInfos(
   params?: ListUserInfosParams
-): Promise<ListUserInfosResult> {
-  return rpcCall<ListUserInfosResult, ListUserInfosParams | undefined>(
+): Promise<UserInfo[]> {
+  const result = await rpcCall<ListUserInfosResult, ListUserInfosParams | undefined>(
     'list_user_infos',
     params
   )
+  return result.data
 }
 
 /**
@@ -106,11 +157,33 @@ export async function listUserInfos(
  */
 export async function listUserInfosSilent(
   params?: ListUserInfosParams
-): Promise<ListUserInfosResult> {
-  return rpcCallSilent<ListUserInfosResult, ListUserInfosParams | undefined>(
+): Promise<UserInfo[]> {
+  const result = await rpcCallSilent<ListUserInfosResult, ListUserInfosParams | undefined>(
     'list_user_infos',
     params
   )
+  return result.data
+}
+
+/**
+ * Create a new user info
+ */
+export async function createUserInfo(params: CreateUserInfoParams): Promise<UserInfo> {
+  return rpcCall<UserInfo, CreateUserInfoParams>('create_user_info', params)
+}
+
+/**
+ * Update user info
+ */
+export async function updateUserInfo(params: UpdateUserInfoParams): Promise<UserInfo> {
+  return rpcCall<UserInfo, UpdateUserInfoParams>('update_user_info', params)
+}
+
+/**
+ * Delete user info
+ */
+export async function deleteUserInfo(params: DeleteUserInfoParams): Promise<UserInfo> {
+  return rpcCall<UserInfo, DeleteUserInfoParams>('delete_user_info', params)
 }
 
 // endregion: --- RPC Methods
