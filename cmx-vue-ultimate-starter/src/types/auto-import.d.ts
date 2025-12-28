@@ -58,6 +58,7 @@ declare global {
   const useAttrs: typeof import('vue')['useAttrs']
   const useAuth: typeof import('../composables/use-auth')['useAuth']
   const useAxios: typeof import('../composables/use-axios')['useAxios']
+  const useBizError: typeof import('../composables/use-biz-error')['useBizError']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useId: typeof import('vue')['useId']

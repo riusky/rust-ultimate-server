@@ -38,6 +38,7 @@ pub async fn mw_reponse_map(
 			.map(|(status_code, client_error)| {
 				let client_error = to_value(client_error).ok();
 				let message = client_error.as_ref().and_then(|v| v.get("message"));
+				let biz_code = client_error.as_ref().and_then(|v| v.get("biz_code"));
 				let detail = client_error.as_ref().and_then(|v| v.get("detail"));
 
 				// Build different error body based on API type
@@ -49,6 +50,7 @@ pub async fn mw_reponse_map(
 							"id": id,
 							"error": {
 								"code": status_code.as_u16(),
+								"biz_code": biz_code,
 								"message": message,
 								"data": {
 									"req_uuid": uuid.to_string(),
@@ -63,6 +65,7 @@ pub async fn mw_reponse_map(
 							"success": false,
 							"error": {
 								"code": status_code.as_u16(),
+								"biz_code": biz_code,
 								"message": message,
 								"detail": detail,
 								"resource": resource,
@@ -79,6 +82,7 @@ pub async fn mw_reponse_map(
 							"success": false,
 							"error": {
 								"code": status_code.as_u16(),
+								"biz_code": biz_code,
 								"message": message,
 								"detail": detail,
 							},
@@ -122,6 +126,8 @@ pub async fn mw_reponse_map(
 #[derive(Debug, Serialize)]
 struct SerializableClientError {
 	message: String,
+	/// Business error code for frontend i18n lookup
+	biz_code: String,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	detail: Option<serde_json::Value>,
 }
@@ -138,6 +144,7 @@ fn get_error_info(
 		let (status, client_error) = web_error.client_status_and_error();
 		let serializable = SerializableClientError {
 			message: client_error.as_ref().to_string(),
+			biz_code: client_error.biz_code().to_string(),
 			detail: to_value(&client_error).ok().and_then(|v| v.get("detail").cloned()),
 		};
 		return (Some((status, serializable)), Some(Arc::clone(web_error)));

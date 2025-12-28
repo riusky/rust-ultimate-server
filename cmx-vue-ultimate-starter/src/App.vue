@@ -17,7 +17,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <Toaster />
+  <Toaster position="top-center" :duration="3000" rich-colors />
   <!-- <VueQueryDevtools /> -->
 
   <Suspense>

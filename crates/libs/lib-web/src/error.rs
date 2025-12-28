@@ -284,4 +284,43 @@ pub enum ClientError {
 
 	SERVICE_ERROR,
 }
+
+impl ClientError {
+	/// Returns the business error code for this error type.
+	/// Format: "CATEGORY#NNN" where:
+	/// - CATEGORY: AUTH, USER, PERM, DATA, RPC, SYS
+	/// - NNN: 3-digit sequential number within category
+	///
+	/// These codes are used by frontend for i18n error message lookup.
+	pub fn biz_code(&self) -> &'static str {
+		use ClientError::*;
+		match self {
+			// -- Auth errors (AUTH#001-099)
+			LOGIN_FAIL => "AUTH#001",
+			NO_AUTH => "AUTH#002",
+
+			// -- User management errors (USER#001-099)
+			REGISTER_FAIL_USERNAME_EMPTY => "USER#001",
+			REGISTER_FAIL_PWD_TOO_SHORT => "USER#002",
+			PWD_VALIDATION_FAIL => "USER#003",
+			USER_NOT_FOUND => "USER#004",
+			NOT_AUTHORIZED => "USER#005",
+
+			// -- Permission errors (PERM#001-099)
+			PERMISSION_DENIED { .. } => "PERM#001",
+			PERMISSION_ANY_DENIED { .. } => "PERM#002",
+
+			// -- Data errors (DATA#001-099)
+			ENTITY_NOT_FOUND { .. } => "DATA#001",
+
+			// -- RPC errors (RPC#001-099)
+			RPC_REQUEST_INVALID(_) => "RPC#001",
+			RPC_REQUEST_METHOD_UNKNOWN(_) => "RPC#002",
+			RPC_PARAMS_INVALID(_) => "RPC#003",
+
+			// -- System errors (SYS#001-099)
+			SERVICE_ERROR => "SYS#001",
+		}
+	}
+}
 // endregion: --- Client Error

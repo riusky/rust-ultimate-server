@@ -88,6 +88,30 @@ errorMessages:
   invalidFormat: "Formato inválido"
   serverError: "Error del servidor"
   notFound: "Recurso no encontrado"
+# Business error codes from backend (biz_code)
+bizErrors:
+  # Auth errors (AUTH#001-099)
+  AUTH#001: "Nombre de usuario o contraseña inválidos"
+  AUTH#002: "Por favor, inicie sesión primero"
+  # User management errors (USER#001-099)
+  USER#001: "El nombre de usuario no puede estar vacío"
+  USER#002: "La contraseña es demasiado corta"
+  USER#003: "Error en la validación de la contraseña"
+  USER#004: "Usuario no encontrado"
+  USER#005: "No autorizado para realizar esta acción"
+  # Permission errors (PERM#001-099)
+  PERM#001: "Permiso denegado"
+  PERM#002: "Faltan permisos requeridos"
+  # Data errors (DATA#001-099)
+  DATA#001: "Datos no encontrados"
+  # RPC errors (RPC#001-099)
+  RPC#001: "Formato de solicitud inválido"
+  RPC#002: "Método no encontrado"
+  RPC#003: "Parámetros de solicitud inválidos"
+  # System errors (SYS#001-099)
+  SYS#001: "Sistema ocupado, por favor inténtelo más tarde"
+  # Default fallback
+  UNKNOWN: "Ha ocurrido un error desconocido"
 successMessages:
   operationSuccess: "Operación exitosa"
   dataSaved: "Datos guardados correctamente"

@@ -88,6 +88,30 @@ errorMessages:
   invalidFormat: "無効な形式"
   serverError: "サーバーエラー"
   notFound: "リソースが見つかりません"
+# Business error codes from backend (biz_code)
+bizErrors:
+  # Auth errors (AUTH#001-099)
+  AUTH#001: "ユーザー名またはパスワードが無効です"
+  AUTH#002: "先にログインしてください"
+  # User management errors (USER#001-099)
+  USER#001: "ユーザー名は空にできません"
+  USER#002: "パスワードが短すぎます"
+  USER#003: "パスワードの検証に失敗しました"
+  USER#004: "ユーザーが見つかりません"
+  USER#005: "この操作を実行する権限がありません"
+  # Permission errors (PERM#001-099)
+  PERM#001: "権限が拒否されました"
+  PERM#002: "必要な権限が不足しています"
+  # Data errors (DATA#001-099)
+  DATA#001: "データが見つかりません"
+  # RPC errors (RPC#001-099)
+  RPC#001: "無効なリクエスト形式です"
+  RPC#002: "メソッドが見つかりません"
+  RPC#003: "無効なリクエストパラメータです"
+  # System errors (SYS#001-099)
+  SYS#001: "システムが混雑しています。後でもう一度お試しください"
+  # Default fallback
+  UNKNOWN: "不明なエラーが発生しました"
 successMessages:
   operationSuccess: "操作が成功しました"
   dataSaved: "データが保存されました"

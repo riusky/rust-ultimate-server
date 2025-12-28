@@ -2,9 +2,12 @@ import { storeToRefs } from 'pinia'
 
 import { useAuthStore } from '@/stores/auth'
 import { login as apiLogin, logoff as apiLogoff } from '@/services/api/auth'
+import { ApiError } from '@/services/api/api-client'
+import { useBizError } from '@/composables/use-biz-error'
 
 export function useAuth() {
   const router = useRouter()
+  const { getBizErrorMessage } = useBizError()
 
   const authStore = useAuthStore()
   const { isLogin, username } = storeToRefs(authStore)
@@ -44,11 +47,11 @@ export function useAuth() {
         }
       }
     } catch (e: unknown) {
-      const axiosError = e as { response?: { status?: number } }
-      if (axiosError.response?.status === 401) {
-        error.value = '用户名或密码错误'
+      // Use ApiError for typed error handling
+      if (e instanceof ApiError) {
+        error.value = getBizErrorMessage(e.bizCode)
       } else {
-        error.value = '登录失败，请稍后重试'
+        error.value = getBizErrorMessage(null)
       }
       throw e
     } finally {

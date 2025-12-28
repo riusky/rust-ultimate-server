@@ -1,10 +1,18 @@
 //! The response module normalizes the REST API response format.
 //!
-//! The primary types are:
+//! All REST responses follow a unified format with `success: true` for successful operations:
 //! - `RestResponse` - Standard response wrapper (200 OK)
 //! - `RestCreated` - Response for create operations (201 Created)
 //! - `RestDeleted` - Response for delete operations (200 OK with deleted entity)
 //! - `RestPagedResponse` - Response for paginated list operations (200 OK with pagination info)
+//!
+//! Response format:
+//! ```json
+//! {
+//!     "success": true,
+//!     "data": { ... }
+//! }
+//! ```
 
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -12,12 +20,15 @@ use axum::Json;
 use serde::Serialize;
 
 /// Standard REST API response wrapper
-/// Returns HTTP 200 OK with JSON body: { "data": ... }
+/// Returns HTTP 200 OK with JSON body: { "success": true, "data": ... }
 #[derive(Debug, Serialize)]
 pub struct RestResponse<T>
 where
 	T: Serialize,
 {
+	/// Always true for successful responses
+	pub success: bool,
+	/// The response data
 	pub data: T,
 }
 
@@ -26,7 +37,10 @@ where
 	T: Serialize,
 {
 	fn from(val: T) -> Self {
-		Self { data: val }
+		Self {
+			success: true,
+			data: val,
+		}
 	}
 }
 
@@ -40,12 +54,15 @@ where
 }
 
 /// REST response for create operations
-/// Returns HTTP 201 Created with JSON body: { "data": ... }
+/// Returns HTTP 201 Created with JSON body: { "success": true, "data": ... }
 #[derive(Debug, Serialize)]
 pub struct RestCreated<T>
 where
 	T: Serialize,
 {
+	/// Always true for successful responses
+	pub success: bool,
+	/// The created entity data
 	pub data: T,
 }
 
@@ -54,7 +71,10 @@ where
 	T: Serialize,
 {
 	fn from(val: T) -> Self {
-		Self { data: val }
+		Self {
+			success: true,
+			data: val,
+		}
 	}
 }
 
@@ -68,12 +88,15 @@ where
 }
 
 /// REST response for delete operations
-/// Returns HTTP 200 OK with JSON body containing the deleted entity: { "data": ... }
+/// Returns HTTP 200 OK with JSON body: { "success": true, "data": ... }
 #[derive(Debug, Serialize)]
 pub struct RestDeleted<T>
 where
 	T: Serialize,
 {
+	/// Always true for successful responses
+	pub success: bool,
+	/// The deleted entity data
 	pub data: T,
 }
 
@@ -82,7 +105,10 @@ where
 	T: Serialize,
 {
 	fn from(val: T) -> Self {
-		Self { data: val }
+		Self {
+			success: true,
+			data: val,
+		}
 	}
 }
 
@@ -130,6 +156,7 @@ impl PageInfo {
 /// REST response for paginated list operations
 /// Returns HTTP 200 OK with JSON body:
 /// {
+///   "success": true,
 ///   "data": [...],
 ///   "page_info": {
 ///     "total": 100,
@@ -144,7 +171,11 @@ pub struct RestPagedResponse<T>
 where
 	T: Serialize,
 {
+	/// Always true for successful responses
+	pub success: bool,
+	/// The list of items for the current page
 	pub data: Vec<T>,
+	/// Pagination metadata
 	pub page_info: PageInfo,
 }
 
@@ -154,6 +185,7 @@ where
 {
 	pub fn new(data: Vec<T>, total: i64, page_size: i64, page_number: i64) -> Self {
 		Self {
+			success: true,
 			data,
 			page_info: PageInfo::new(total, page_size, page_number),
 		}

@@ -1,12 +1,4 @@
-import axios from 'axios'
-
-import env from '@/utils/env'
-
-const apiClient = axios.create({
-  baseURL: env.VITE_SERVER_API_URL,
-  timeout: env.VITE_SERVER_API_TIMEOUT,
-  withCredentials: true, // 重要：发送 cookies
-})
+import { restClient } from './rest-client'
 
 // region:    --- Types
 
@@ -35,13 +27,19 @@ export interface LogoffResponse {
 
 // region:    --- API Functions
 
+/**
+ * Login with username and password
+ */
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
-  const response = await apiClient.post<LoginResponse>('/api/login', payload)
+  const response = await restClient.post<LoginResponse>('/api/login', payload)
   return response.data
 }
 
+/**
+ * Logoff the current user
+ */
 export async function logoff(): Promise<LogoffResponse> {
-  const response = await apiClient.post<LogoffResponse>('/api/logoff', { logoff: true })
+  const response = await restClient.post<LogoffResponse>('/api/logoff', { logoff: true })
   return response.data
 }
 
