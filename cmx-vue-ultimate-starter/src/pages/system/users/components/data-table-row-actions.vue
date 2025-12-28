@@ -2,7 +2,7 @@
 import type { Row } from '@tanstack/vue-table'
 import type { UserWithInfo } from '@/services/types/user/index'
 
-import { KeyRound, MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next'
+import { KeyRound, MoreHorizontal, Pencil, Shield, Trash2 } from 'lucide-vue-next'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -16,6 +16,7 @@ import {
 import UserDelete from './user-delete.vue'
 import UserEdit from './user-edit.vue'
 import UserResetPwd from './user-reset-pwd.vue'
+import UserRoles from './user-roles.vue'
 
 interface DataTableRowActionsProps {
   row: Row<UserWithInfo>
@@ -26,6 +27,7 @@ const props = defineProps<DataTableRowActionsProps>()
 const editOpen = ref(false)
 const deleteOpen = ref(false)
 const resetPwdOpen = ref(false)
+const rolesOpen = ref(false)
 </script>
 
 <template>
@@ -41,6 +43,10 @@ const resetPwdOpen = ref(false)
         <Pencil class="mr-2 size-4" />
         编辑信息
       </DropdownMenuItem>
+      <DropdownMenuItem @click="rolesOpen = true">
+        <Shield class="mr-2 size-4" />
+        分配角色
+      </DropdownMenuItem>
       <DropdownMenuItem @click="resetPwdOpen = true">
         <KeyRound class="mr-2 size-4" />
         重置密码
@@ -54,6 +60,7 @@ const resetPwdOpen = ref(false)
   </DropdownMenu>
 
   <UserEdit v-model:open="editOpen" :user="props.row.original" />
+  <UserRoles v-model:open="rolesOpen" :user="props.row.original" />
   <UserResetPwd v-model:open="resetPwdOpen" :user="props.row.original" />
   <UserDelete v-model:open="deleteOpen" :user="props.row.original" />
 </template>
