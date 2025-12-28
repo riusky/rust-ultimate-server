@@ -1,116 +1,121 @@
-- 搜索 `mm.dbx().begin_txn()` 可以在 `UserBmc::create` 中找到示例。
+# CMX Server
 
-- **3) 声明式宏**
-	- 为了减少样板代码，此 Rust10x 蓝图现在在 `lib_rpc` 和 `lib_core::model` 层级支持灵活的声明式宏（即 `macro_rules`）。这些宏创建通用的基本 CRUD JSON-RPC 函数和通用的 BMC CRUD 方法。
-		- 搜索 `generate_common_bmc_fns` 或 `generate_common_rpc_fns` 查看它们的实际应用。
+基于 Rust + Vue 的全栈 Web 应用框架，提供完整的用户认证、RBAC 权限管理、API 开发等功能。
 
-- **4) 代码更新**
-	- 所有 JSON-RPC 响应现在都包含一个 `.data` 字段作为 `result.data` 来表示请求的数据。这增加了灵活性，便于后续在 `result` 对象的根级别添加元数据（JSON-RPC 规范禁止在 JSON 响应的根级别添加任何内容）。
-		- 这在 `lib_rpc::response` crate/模块中。
-	- 在 `Ctx` 中引入 `conv_id` 为未来的 `访问控制系统` 铺平了道路，该系统将基于权限并与关键容器结构（如 `Org`、`Space`、`Conv`）绑定。
+## 特性
 
-## 启动数据库
+- **后端**: Rust + Axum + PostgreSQL + Valkey
+- **前端**: Vue 3 + TypeScript + Vite + shadcn-vue
+- **认证**: JWT Token + Cookie
+- **权限**: RBAC 模型，代码声明式权限管理
+- **API**: REST + JSON-RPC 双协议支持
+- **类型安全**: 自动生成 TypeScript 类型定义
 
-```sh
-# 启动 postgresql 服务器 docker 镜像:
-docker run --rm --name pg -p 5432:5432 \
-   -e POSTGRES_PASSWORD=welcome \
-   postgres:17
+## 快速开始
 
-# (可选) 在 pg 上运行 psql 终端
-# 在另一个终端（标签页）运行 psql:
-docker exec -it -u postgres pg psql
+### 依赖服务
 
-# (可选) 让 pg 打印所有 sql 语句
-# 在上面启动的 psql 命令行中执行:
-ALTER DATABASE postgres SET log_statement = 'all';
+- PostgreSQL 15+
+- Valkey/Redis（可选，用于权限缓存）
+
+### 本地开发
+
+```bash
+# 安装 cargo-watch
+cargo install cargo-watch
+
+# 终端1 - 后端服务（热重载）
+cargo watch -q -c -w crates/ -x "run -p web-server"
+
+# 终端2 - 前端服务
+cd cmx-vue-ultimate-starter
+bun install
+bun run dev
 ```
 
-## 开发模式 (监听)
+### Docker 模式
 
-> 注意: 使用 `cargo install cargo-watch` 安装 cargo watch。
-
-```sh
-# 终端 1 - 运行服务器
-cargo watch -q -c -w crates/services/web-server/src/ -w crates/libs/ -w .cargo/ -x "run -p web-server"
-
-# 终端 2 - 运行 quick_dev
-cargo watch -q -c -w crates/services/web-server/examples/ -x "run -p web-server --example quick_dev"
+```bash
+docker compose up -d
 ```
 
-## 开发模式
+## 项目结构
 
-```sh
-# 终端 1 - 运行服务器
-cargo run -p web-server
-
-# 终端 2 - 运行测试
-cargo run -p web-server --example quick_dev
+```
+cmx-server/
+├── crates/
+│   ├── libs/                # 核心库
+│   │   ├── lib-core/       # 业务核心（Model、BMC）
+│   │   ├── lib-auth/       # 认证模块
+│   │   ├── lib-web/        # Web 层（中间件、处理器）
+│   │   ├── lib-rpc-core/   # RPC 核心
+│   │   ├── lib-rest-core/  # REST 核心
+│   │   ├── lib-macros/     # 过程宏
+│   │   └── lib-valkey-core/# Valkey 客户端
+│   └── services/
+│       └── web-server/     # Web 服务入口
+├── cmx-vue-ultimate-starter/  # 前端项目
+├── sql/dev_initial/           # 数据库初始化脚本
+└── docs/                      # 开发文档
 ```
 
-## 单元测试 (监听)
+## 核心特性
 
-```sh
-cargo watch -q -c -x "test -- --nocapture"
+| 特性 | 说明 |
+|------|------|
+| 声明式宏 | `generate_common_bmc_fns!`、`generate_common_rpc_fns!` 减少样板代码 |
+| 权限宏 | `#[permission(...)]` 自动注册权限并检查 |
+| 数据库事务 | `ModelManager` 支持按需事务控制 |
+| TypeScript 支持 | `with-ts` feature 自动生成前端类型 |
+| 权限缓存 | Valkey 缓存用户权限，减少数据库查询 |
 
-# 使用过滤器运行特定测试
-cargo watch -q -c -x "test -p lib-core test_create -- --nocapture"
-```
+## 常用命令
 
-## 单元测试
+```bash
+# 生成密钥
+cargo run -p gen-key
 
-```sh
+# 运行测试
 cargo test -- --nocapture
 
-cargo watch -q -c -x "test -p lib-core model::task::tests::test_create -- --nocapture"
+# 生成 TypeScript 类型
+cargo test -p lib-core --features with-ts export_ts_types
+cd cmx-vue-ultimate-starter && bun run gen:types
 ```
 
-## 工具
+## 文档索引
 
-```sh
-cargo run -p gen-key
-```
+| 文档 | 说明 |
+|------|------|
+| [开发手册](./docs/DEVELOPMENT.md) | 完整开发流程、架构设计、代码规范 |
+| [权限系统指南](./docs/PERMISSION.md) | RBAC 权限模型、定义与使用 |
+| [错误处理系统设计](./docs/ERROR_DESIGN.md) | 错误分层、错误码与国际化处理 |
+| [过滤与分页指南](./docs/FILTER_USAGE.md) | REST/RPC 过滤、排序、分页功能 |
+| [TypeScript 类型导出](./docs/TS_EXPORT.md) | 后端类型自动生成到前端 |
 
-<br />
+## API 响应格式
 
----
+### RPC 响应
 
-lib-valkey-core/
-├── Cargo.toml
-└── src/
-    ├── lib.rs          # 入口
-    ├── config.rs       # 配置管理
-    ├── error.rs        # 错误处理
-    ├── pool.rs         # bb8 连接池
-    ├── extractor.rs    # Axum extractor
-    ├── commands/       # Redis 命令封装
-    │   ├── mod.rs
-    │   ├── string.rs   # GET/SET/MGET/MSET/INCR/DECR
-    │   ├── hash.rs     # HGET/HSET/HDEL/HGETALL
-    │   ├── key.rs      # DEL/EXISTS/EXPIRE/TTL/SCAN
-    │   └── json.rs     # JSON 序列化封装
-    └── utils/          # 工具
-        ├── mod.rs
-        └── lock.rs     # 分布式锁
-
-
-数据库表 → 2. ACS 模型 → 3. lib-macros → 4. Ctx 扩展 → 5. 中间件 → 6. 启动检查
-
-
-#[cfg(feature = "with-ts")]
-use ts_rs::TS;
-
-#[derive(Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/"))]
-pub struct YourEntity {
-    // 时间字段需要添加类型标注
-    #[cfg_attr(feature = "with-ts", ts(type = "string"))]
-    pub created_at: OffsetDateTime,
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "data": { ... }
+    }
 }
-
 ```
-# 生成所有的实体类 使用TS-RS
-cargo test -p lib-core --features with-ts export_ts_types -- --nocapture
 
+### REST 响应
+
+```json
+{
+    "success": true,
+    "data": { ... }
+}
 ```
+
+## 许可证
+
+MIT

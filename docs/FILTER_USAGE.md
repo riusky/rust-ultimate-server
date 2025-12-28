@@ -36,8 +36,6 @@ pub struct AgentFilter {
 
 ## 二、过滤操作符
 
-项目使用 [modql](https://github.com/jeremychone/rust-modql) 库提供的过滤操作符。
-
 ### 2.1 OpValsInt64 / OpValsInt32 (整数类型)
 
 | 操作符 | 说明 | JSON 示例 |
