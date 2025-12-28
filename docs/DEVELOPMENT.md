@@ -313,6 +313,7 @@ bun run gen:types
 ## 相关文档
 
 - [权限系统指南](./PERMISSION.md) - 权限定义、分配与使用
+- [认证系统设计](./AUTH_DESIGN.md) - Token 机制、密码哈希多模式切换
 - [错误处理系统设计](./ERROR_DESIGN.md) - 错误分层、错误码与国际化
 - [过滤与分页指南](./FILTER_USAGE.md) - REST/RPC 过滤、排序、分页
 - [TypeScript 类型导出指南](./TS_EXPORT.md) - 后端类型到前端的自动生成

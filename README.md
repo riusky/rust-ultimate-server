@@ -89,6 +89,7 @@ cd cmx-vue-ultimate-starter && bun run gen:types
 |------|------|
 | [开发手册](./docs/DEVELOPMENT.md) | 完整开发流程、架构设计、代码规范 |
 | [权限系统指南](./docs/PERMISSION.md) | RBAC 权限模型、定义与使用 |
+| [认证系统设计](./docs/AUTH_DESIGN.md) | Token 机制、密码哈希多模式切换 |
 | [错误处理系统设计](./docs/ERROR_DESIGN.md) | 错误分层、错误码与国际化处理 |
 | [过滤与分页指南](./docs/FILTER_USAGE.md) | REST/RPC 过滤、排序、分页功能 |
 | [TypeScript 类型导出](./docs/TS_EXPORT.md) | 后端类型自动生成到前端 |
