@@ -24,9 +24,11 @@ import { createApiClient, type ApiSuccessResponse } from './api-client'
 // region:    --- RPC Types
 
 /**
- * RPC request payload structure
+ * RPC request payload structure (JSON-RPC 2.0)
  */
 export interface RpcRequest<P = unknown> {
+  jsonrpc: '2.0'
+  id: number
   method: string
   params?: P
 }
@@ -60,6 +62,14 @@ export const rpcClientSilent = createApiClient({
 // region:    --- RPC Helper Functions
 
 const RPC_ENDPOINT = '/api/rpc'
+let rpcRequestId = 0
+
+/**
+ * Generate a unique request ID for JSON-RPC
+ */
+function getNextRequestId(): number {
+  return ++rpcRequestId
+}
 
 /**
  * Make an RPC call with automatic type inference
@@ -77,6 +87,8 @@ export async function rpcCall<TResult = unknown, TParams = unknown>(
   const client = options?.silent ? rpcClientSilent : rpcClient
 
   const response = await client.post<RpcResponse<TResult>>(RPC_ENDPOINT, {
+    jsonrpc: '2.0',
+    id: getNextRequestId(),
     method,
     params,
   })

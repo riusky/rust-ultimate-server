@@ -9,6 +9,7 @@ pub fn rpc_router_builder() -> RouterBuilder {
 		// -- Query endpoints
 		get_user_info,
 		get_user_info_by_user_id,
+		get_current_user_info,
 		list_user_infos,
 	)
 }
@@ -93,6 +94,34 @@ pub async fn get_user_info_by_user_id(
 		.ok_or(lib_core::model::Error::EntityNotFound {
 			entity: "user_info",
 			id: params.user_id,
+		})?;
+
+	Ok(user_info.into())
+}
+
+/// Get current logged-in user's info
+#[lib_macros::permission(
+	key = "user_info:read",
+	group = "User Management",
+	display = "Get Current User Info",
+	description = "View current logged-in user's profile information"
+)]
+pub async fn get_current_user_info(
+	ctx: Ctx,
+	mm: ModelManager,
+) -> Result<DataRpcResult<UserInfo>> {
+	let user_id = ctx.user_id();
+
+	let filter = UserInfoFilter {
+		user_id: Some(user_id.into()),
+		..Default::default()
+	};
+
+	let user_info = UserInfoBmc::first(&ctx, &mm, Some(vec![filter]), None)
+		.await?
+		.ok_or(lib_core::model::Error::EntityNotFound {
+			entity: "user_info",
+			id: user_id,
 		})?;
 
 	Ok(user_info.into())

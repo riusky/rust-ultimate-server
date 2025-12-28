@@ -6,6 +6,8 @@
  * @example
  * ```ts
  * import { restClient, rpcCall, ApiError } from '@/services/api'
+ * import { login, logoff } from '@/services/api/rest'
+ * import { getUserInfoByUserId } from '@/services/api/rpc'
  * ```
  */
 
@@ -37,3 +39,9 @@ export {
   type RpcRequest,
   type RpcResponse,
 } from './rpc-client'
+
+// REST API modules
+export * from './rest/index'
+
+// RPC API modules
+export * from './rpc/index'

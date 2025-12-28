@@ -1,7 +1,7 @@
 import { storeToRefs } from 'pinia'
 
 import { useAuthStore } from '@/stores/auth'
-import { login as apiLogin, logoff as apiLogoff } from '@/services/api/auth'
+import { login as apiLogin, logoff as apiLogoff } from '@/services/api/rest/user/auth'
 import { ApiError } from '@/services/api/api-client'
 import { useBizError } from '@/composables/use-biz-error'
 

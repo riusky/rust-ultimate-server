@@ -226,6 +226,30 @@ impl Error {
 				)),
 			),
 
+			// -- RPC errors (from lib-rpc-core)
+			RpcLibRpc(lib_rpc_core::Error::Ctx(lib_core::ctx::Error::PermissionDenied {
+				permission,
+				..
+			})) => (
+				StatusCode::FORBIDDEN,
+				ClientError::PERMISSION_DENIED {
+					permission: permission.clone(),
+				},
+			),
+			RpcLibRpc(lib_rpc_core::Error::Ctx(lib_core::ctx::Error::PermissionAnyDenied {
+				permissions,
+				..
+			})) => (
+				StatusCode::FORBIDDEN,
+				ClientError::PERMISSION_ANY_DENIED {
+					permissions: permissions.clone(),
+				},
+			),
+			RpcLibRpc(lib_rpc_core::Error::Model(model::Error::EntityNotFound { entity, id })) => (
+				StatusCode::NOT_FOUND,
+				ClientError::ENTITY_NOT_FOUND { entity, id: *id },
+			),
+
 			// -- REST errors (from lib-rest-core)
 			Rest(lib_rest_core::Error::Ctx(lib_core::ctx::Error::PermissionDenied {
 				permission,

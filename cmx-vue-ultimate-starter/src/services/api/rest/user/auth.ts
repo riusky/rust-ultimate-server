@@ -1,4 +1,8 @@
-import { restClient } from './rest-client'
+/**
+ * User Authentication REST API
+ */
+
+import { restClient } from '../../rest-client'
 
 // region:    --- Types
 
