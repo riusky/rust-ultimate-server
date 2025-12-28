@@ -102,6 +102,7 @@ declare module 'vue-router/auto-routes' {
     '/system/terminal/': RouteRecordInfo<'/system/terminal/', '/system/terminal', Record<never, never>, Record<never, never>>,
     '/system/users/': RouteRecordInfo<'/system/users/', '/system/users', Record<never, never>, Record<never, never>>,
     '/system/vulnerability-scan/': RouteRecordInfo<'/system/vulnerability-scan/', '/system/vulnerability-scan', Record<never, never>, Record<never, never>>,
+    '/tasks/': RouteRecordInfo<'/tasks/', '/tasks', Record<never, never>, Record<never, never>>,
   }
 
   /**
@@ -449,6 +450,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/system/vulnerability-scan/index.vue': {
       routes: '/system/vulnerability-scan/'
+      views: never
+    }
+    'src/pages/tasks/index.vue': {
+      routes: '/tasks/'
       views: never
     }
   }
