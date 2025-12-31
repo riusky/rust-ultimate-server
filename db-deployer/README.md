@@ -307,6 +307,20 @@ require_confirmation = true
 | `retain_versions` | usize | 3 | 保留的历史版本数量 |
 | `require_confirmation` | bool | true | 是否要求确认 |
 
+#### [project] 项目部署配置（可选）
+
+完整部署流程（`full-deploy` 命令）需要此配置。
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| `repo_url` | String | - | 项目 Git 仓库地址（必填） |
+| `branch` | String | "main" | 部署分支 |
+| `project_dir` | String | - | 项目存放目录（必填） |
+| `docker_compose_file` | String | "docker-compose.yml" | Docker Compose 文件路径 |
+| `sql_source_dir` | String | "sql" | 项目中的 SQL 目录 |
+| `service_name` | String | "web-server" | 服务名称 |
+| `db_url_env_name` | String | "SERVICE_DB_URL" | 数据库连接环境变量名 |
+
 ---
 
 ## 使用方法
@@ -317,9 +331,10 @@ require_confirmation = true
 db-deployer [OPTIONS] <COMMAND>
 
 Commands:
-  deploy     执行数据库部署或升级
-  status     查看当前部署状态
-  init-keys  生成 RSA 密钥对
+  deploy       仅执行数据库部署或升级
+  full-deploy  完整部署：更新项目、部署数据库、重启服务
+  status       查看当前部署状态
+  init-keys    生成 RSA 密钥对
 
 Options:
   -c, --config <FILE>  配置文件路径 [默认: db-deployer.toml]
@@ -495,6 +510,142 @@ Committing to git...
 
   Update your application configuration:
   DATABASE_URL=postgres://postgres:****@localhost:5432/myapp_20251231_183000
+```
+
+---
+
+### full-deploy - 完整部署
+
+执行完整的部署流程：更新项目代码 → 同步 SQL → 停止服务 → 部署数据库 → 修改配置 → 启动服务。
+
+**注意**：此命令需要配置 `[project]` 部分。
+
+```bash
+# 执行完整部署
+db-deployer full-deploy
+
+# 强制使用 INIT 模式
+db-deployer full-deploy --init
+
+# 强制使用 UPGRADE 模式
+db-deployer full-deploy --upgrade
+
+# 跳过确认提示
+db-deployer full-deploy -y
+
+# 试运行（不实际执行）
+db-deployer full-deploy --dry-run
+```
+
+**参数说明：**
+
+| 参数 | 说明 |
+|------|------|
+| `--init` | 强制使用 INIT 模式 |
+| `--upgrade` | 强制使用 UPGRADE 模式 |
+| `-y, --yes` | 跳过确认提示 |
+| `--dry-run` | 试运行，不实际执行任何操作 |
+
+**执行流程：**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                 Full Deploy 流程                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Step 1: 权限检查                                              │
+│  ├── 检查 Docker 是否可用                                      │
+│  ├── 检查本地仓库 Git 权限                                     │
+│  └── 检查项目仓库 Git 权限                                     │
+│                                                             │
+│  Step 2: 更新项目仓库                                         │
+│  ├── git fetch origin                                       │
+│  ├── git clean -fd (清理未跟踪文件)                            │
+│  └── git reset --hard origin/{branch}                       │
+│                                                             │
+│  Step 3: 同步 SQL 文件                                        │
+│  └── 复制 {project_dir}/sql → 部署工具 sql 目录              │
+│                                                             │
+│  Step 4: 停止服务                                              │
+│  └── docker compose stop {service_name}                     │
+│                                                             │
+│  Step 5: 部署数据库                                            │
+│  └── 执行 INIT 或 UPGRADE 模式                                 │
+│                                                             │
+│  Step 6: 修改 docker-compose.yml                              │
+│  └── 更新 SERVICE_DB_URL 为新数据库地址                        │
+│  └── 注意：此修改不会提交到 Git，避免泄露数据库地址             │
+│                                                             │
+│  Step 7: 启动服务                                              │
+│  └── docker compose up -d {service_name}                    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**输出示例（成功）：**
+
+```
+============================================================
+  Full Deployment Workflow
+============================================================
+
+Deployment Plan:
+  1. Check Git permissions
+  2. Update project repository (branch: main)
+  3. Sync SQL files from project
+  4. Stop service: web-server
+  5. Deploy/upgrade database
+  6. Update docker-compose.yml (SERVICE_DB_URL)
+  7. Start service: web-server
+
+WARNING: This will:
+  - Discard all local changes in the project repository
+  - Stop the running service (downtime expected)
+  - Modify docker-compose.yml locally (will NOT be committed)
+
+Proceed with full deployment? [y/N] y
+
+Step 1: Checking permissions...
+  Docker: OK
+  Local Git permission: OK
+  Project Git permission: OK
+
+Step 2: Updating project repository...
+  Fetching from origin...
+  Cleaning untracked files...
+  Resetting to origin/main...
+  Current commit: abc1234 feat: add new feature
+  Repository updated
+
+Step 3: Syncing SQL files...
+  Synced init SQL: /opt/apps/project/sql/init -> sql/init
+  Synced updates SQL: /opt/apps/project/sql/updates -> sql/updates
+
+Step 4: Stopping service...
+  Service stopped
+
+Step 5: Deploying database...
+  [UPGRADE mode deployment output]
+
+Step 6: Updating docker-compose.yml...
+  Updated SERVICE_DB_URL to use database: myapp_20251231_190000
+  NOTE: This change is local only. Do NOT commit this change to git.
+
+Step 7: Starting service...
+  Service started
+
+============================================================
+  Full Deployment Successful!
+============================================================
+
+  New database: myapp_20251231_190000
+  Service: web-server (running)
+
+Rollback info:
+  If you need to rollback, update docker-compose.yml:
+  SERVICE_DB_URL: postgres://user:****@localhost:5432/myapp_20251230_183000
+  Then restart the service:
+  docker compose -f /opt/apps/project/docker-compose.yml restart web-server
 ```
 
 ---

@@ -1,8 +1,10 @@
 mod deploy;
+mod full_deploy;
 mod init_keys;
 mod status;
 
 pub use deploy::DeployArgs;
+pub use full_deploy::FullDeployArgs;
 pub use init_keys::InitKeysArgs;
 pub use status::StatusArgs;
 
@@ -22,8 +24,11 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Deploy or upgrade database
+    /// Deploy or upgrade database only (without service management)
     Deploy(DeployArgs),
+
+    /// Full deployment: update project, deploy database, restart service
+    FullDeploy(FullDeployArgs),
 
     /// Show current deployment status
     Status(StatusArgs),
@@ -36,6 +41,7 @@ impl Cli {
     pub async fn execute(self) -> anyhow::Result<()> {
         match self.command {
             Commands::Deploy(args) => deploy::execute(args, &self.config).await,
+            Commands::FullDeploy(args) => full_deploy::execute(args, &self.config).await,
             Commands::Status(args) => status::execute(args, &self.config).await,
             Commands::InitKeys(args) => init_keys::execute(args, &self.config),
         }

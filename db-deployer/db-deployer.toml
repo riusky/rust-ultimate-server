@@ -5,8 +5,8 @@
 host = "localhost"
 port = 5432
 user = "postgres"
-password = "your-password-here"
-name_prefix = "myapp"
+password = "dev_only_pwd"
+name_prefix = "app_db"
 admin_db = "postgres"
 
 [paths]
@@ -32,13 +32,13 @@ require_confirmation = true
 # ============================================================
 [project]
 # 项目 Git 仓库地址
-repo_url = "git@github.com:your-org/your-project.git"
+repo_url = "git@github.com:riusky/cmx-server.git"
 
 # 部署分支
 branch = "main"
 
 # 项目存放目录（克隆/更新位置）
-project_dir = "/opt/apps/your-project"
+project_dir = "D:\\devlopment"
 
 # Docker Compose 文件路径（相对于 project_dir）
 docker_compose_file = "docker-compose.yml"

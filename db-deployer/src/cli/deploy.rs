@@ -3,7 +3,7 @@ use clap::Args;
 use console::style;
 use dialoguer::Confirm;
 
-use crate::deploy::{detect_mode, execute_init, execute_upgrade, DeployLock, DetectedMode};
+use crate::deploy::{detect_mode, init_mode, upgrade_mode, DeployLock, DetectedMode};
 
 #[derive(Args)]
 pub struct DeployArgs {
@@ -74,8 +74,8 @@ pub async fn execute(args: DeployArgs, config_path: &str) -> Result<()> {
 
     // Execute deployment
     let result = match mode {
-        DetectedMode::Init => execute_init(&config).await,
-        DetectedMode::Upgrade => execute_upgrade(&config).await,
+        DetectedMode::Init => init_mode::execute_init(&config).await,
+        DetectedMode::Upgrade => upgrade_mode::execute_upgrade(&config).await,
     };
 
     // Release lock

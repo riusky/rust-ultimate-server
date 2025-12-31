@@ -70,6 +70,17 @@ pub enum DeployError {
     #[error("Git operation failed: {0}")]
     GitOperationFailed(String),
 
+    #[error("Git error: {0}")]
+    Git(String),
+
+    // Docker errors
+    #[error("Docker error: {0}")]
+    Docker(String),
+
+    // Config errors (generic)
+    #[error("Configuration error: {0}")]
+    Config(String),
+
     // IO errors
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
