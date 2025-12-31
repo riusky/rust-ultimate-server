@@ -16,6 +16,7 @@ WORKDIR /app
 # 复制依赖文件
 COPY Cargo.toml Cargo.lock ./
 COPY crates/ crates/
+COPY vendor/ vendor/
 
 # 构建 release 版本
 RUN cargo build --release -p web-server
