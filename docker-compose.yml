@@ -56,8 +56,8 @@ services:
       # 数据库连接
       SERVICE_DB_URL: postgres://app_user:dev_only_pwd@postgres:5432/app_db
       # 开发初始化数据库连接 (Docker 环境使用服务名)
-      DEV_POSTGRES_URL: postgres://postgres:dev_only_pwd@postgres:5432/postgres
-      DEV_APP_URL: postgres://app_user:dev_only_pwd@postgres:5432/app_db
+      # DEV_POSTGRES_URL: postgres://postgres:dev_only_pwd@postgres:5432/postgres
+      # DEV_APP_URL: postgres://app_user:dev_only_pwd@postgres:5432/app_db
       # Web 静态文件目录
       SERVICE_WEB_FOLDER: /app/web-folder
       # 密码加密密钥 (base64url 编码，仅用于开发)
