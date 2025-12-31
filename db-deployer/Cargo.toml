@@ -1,0 +1,54 @@
+[package]
+name = "db-deployer"
+version = "0.1.0"
+edition = "2021"
+description = "Database deployment and upgrade tool with RSA signature verification"
+authors = ["CMX Team"]
+
+[workspace]
+
+[[bin]]
+name = "db-deployer"
+path = "src/main.rs"
+
+[dependencies]
+# CLI
+clap = { version = "4", features = ["derive", "env"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Database
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres"] }
+
+# Crypto
+rsa = { version = "0.9", features = ["sha2"] }
+sha2 = "0.10"
+base64 = "0.22"
+rand = "0.8"
+pkcs8 = { version = "0.10", features = ["pem", "encryption"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# Git
+git2 = "0.19"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Utilities
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dialoguer = "0.11"
+console = "0.15"
+indicatif = "0.17"
+walkdir = "2"
+hostname = "0.4"
+
+[dev-dependencies]
+tempfile = "3"

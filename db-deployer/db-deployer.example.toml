@@ -1,0 +1,28 @@
+# Database Deployer Configuration
+# Copy this file to db-deployer.toml and modify as needed
+
+[database]
+host = "localhost"
+port = 5432
+user = "postgres"
+password = "your-password-here"
+name_prefix = "myapp"
+admin_db = "postgres"
+
+[paths]
+init_sql_dir = "sql/init"
+updates_sql_dir = "sql/updates"
+records_dir = "db-upgrade"
+
+[keys]
+private_key = "keys/private.pem"
+public_key = "keys/public.pem"
+
+[git]
+auto_commit = true
+auto_push = true
+commit_prefix = "chore(db)"
+
+[deploy]
+retain_versions = 3
+require_confirmation = true
