@@ -41,6 +41,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
+      pull: false  # 使用本地镜像，不检查远程
     container_name: rust-web-app-server
     restart: unless-stopped
     depends_on:
