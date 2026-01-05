@@ -43,3 +43,6 @@ derive_more = {version = "1.0.0-beta", features = ["from", "display"] }
 inventory = "0.3"
 # -- TypeScript bindings
 ts-rs = { version = "10", features = ["serde-compat", "uuid-impl"] }
+# -- Database migrations
+refinery = { version = "0.8", features = ["tokio-postgres"] }
+tokio-postgres = "0.7"

@@ -35,6 +35,9 @@ uuid = {version = "1", features = ["v4","fast-rng",]}
 time = { workspace = true }
 derive_more = { workspace = true }
 inventory = { workspace = true }
+# -- Database migrations
+refinery = { workspace = true }
+tokio-postgres = { workspace = true }
 
 # -- Feature: with-ts
 ts-rs = { workspace = true, optional = true }

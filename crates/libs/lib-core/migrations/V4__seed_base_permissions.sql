@@ -1,29 +1,10 @@
-/*
- Navicat Premium Dump SQL
+-- Base permission seed data
+-- Note: Permissions are also auto-synced from code at startup via PermissionBmc::sync_from_registry
 
- Source Server         : DockerPostgreSQL
- Source Server Type    : PostgreSQL
- Source Server Version : 170007 (170007)
- Source Host           : localhost:5432
- Source Catalog        : app_db
- Source Schema         : public
-
- Target Server Type    : PostgreSQL
- Target Server Version : 170007 (170007)
- File Encoding         : 65001
-
- Date: 27/12/2025 18:02:10
-*/
-
-
--- ----------------------------
--- Clear existing permission data
--- ----------------------------
+-- Clear existing permission data (for fresh install)
 TRUNCATE TABLE "public"."permission" CASCADE;
 
--- ----------------------------
 -- Records of permission
--- ----------------------------
 INSERT INTO "public"."permission" VALUES (1000, 'conv:create', 'Conversation Management', 'Create Conversation', 'Create a new conversation entity for chat sessions', 0, '2025-12-27 10:01:46.755048+00', 0, '2025-12-27 10:01:46.755048+00');
 INSERT INTO "public"."permission" VALUES (1001, 'agent:export', 'Agent Management', 'Export Agent', 'Export agent data in various formats', 0, '2025-12-27 10:01:46.787582+00', 0, '2025-12-27 10:01:46.787582+00');
 INSERT INTO "public"."permission" VALUES (1002, 'agent_custom:update', 'Agent Management', 'Update Agent Custom', 'Modify existing custom agent operations', 0, '2025-12-27 10:01:46.791435+00', 0, '2025-12-27 10:01:46.791435+00');
@@ -45,7 +26,5 @@ INSERT INTO "public"."permission" VALUES (1017, 'agent:update', 'Agent Managemen
 INSERT INTO "public"."permission" VALUES (1018, 'conv_msg:read', 'Conversation Management', 'Get Conversation Message', 'View a specific message from a conversation', 0, '2025-12-27 10:01:46.85177+00', 0, '2025-12-27 10:01:46.85177+00');
 INSERT INTO "public"."permission" VALUES (1019, 'user:reset-pwd', 'User Management', 'Reset User Password', 'Admin can reset any user''s password', 0, '2025-12-27 10:01:46.855511+00', 0, '2025-12-27 10:01:46.855511+00');
 
--- ----------------------------
 -- Reset sequence for permission
--- ----------------------------
 SELECT setval('"public"."permission_id_seq"', 1019, true);

@@ -37,7 +37,7 @@ pub use self::user::{User, UserTyp};
 pub use self::user_info::{UserGender, UserInfo, UserStatus};
 
 use crate::model::store::dbx::Dbx;
-use crate::model::store::new_db_pool;
+use crate::model::store::{new_db_pool, run_db_migrations};
 
 // endregion: --- Modules
 
@@ -52,6 +52,12 @@ pub struct ModelManager {
 impl ModelManager {
 	/// Constructor
 	pub async fn new() -> Result<Self> {
+		// 1. Run database migrations first
+		run_db_migrations()
+			.await
+			.map_err(|ex| Error::CantCreateModelManagerProvider(ex.to_string()))?;
+
+		// 2. Create sqlx connection pool
 		let db_pool = new_db_pool()
 			.await
 			.map_err(|ex| Error::CantCreateModelManagerProvider(ex.to_string()))?;

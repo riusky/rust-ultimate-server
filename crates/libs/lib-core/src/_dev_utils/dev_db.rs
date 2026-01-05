@@ -13,18 +13,12 @@ type Db = Pool<Postgres>;
 // NOTE: Hardcode to prevent deployed system db update.
 // Can be overridden by environment variables for Docker.
 const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:dev_only_pwd@localhost/postgres";
-const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db";
 
 // Environment variable names for Docker override
 const ENV_DEV_POSTGRES_URL: &str = "DEV_POSTGRES_URL";
-const ENV_DEV_APP_URL: &str = "DEV_APP_URL";
 
 fn get_postgres_url() -> String {
 	std::env::var(ENV_DEV_POSTGRES_URL).unwrap_or_else(|_| PG_DEV_POSTGRES_URL.to_string())
-}
-
-fn get_app_url() -> String {
-	std::env::var(ENV_DEV_APP_URL).unwrap_or_else(|_| PG_DEV_APP_URL.to_string())
 }
 
 // sql files
@@ -49,36 +43,19 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	};
 	let sql_dir = base_dir.join(SQL_DIR);
 
-	// -- Create the app_db/app_user with the postgres user.
+	// -- 1) Create the app_db/app_user with the postgres user (superuser).
 	{
 		let sql_recreate_db_file = sql_dir.join(SQL_RECREATE_DB_FILE_NAME);
 		let root_db = new_db_pool(&get_postgres_url()).await?;
 		pexec(&root_db, &sql_recreate_db_file).await?;
 	}
 
-	// -- Get sql files.
-	let mut paths: Vec<PathBuf> = fs::read_dir(sql_dir)?
-		.filter_map(|entry| entry.ok().map(|e| e.path()))
-		.collect();
-	paths.sort();
-
-	// -- SQL Execute each file.
-	let app_db = new_db_pool(&get_app_url()).await?;
-
-	for path in paths {
-		let path_str = path.to_string_lossy();
-
-		if path_str.ends_with(".sql")
-			&& !path_str.ends_with(SQL_RECREATE_DB_FILE_NAME)
-		{
-			pexec(&app_db, &path).await?;
-		}
-	}
-
-	// -- Init model layer.
+	// -- 2) Run Refinery migrations via ModelManager::new()
+	// This will automatically execute all V1..Vn migrations
 	let mm = ModelManager::new().await?;
 	let ctx = Ctx::root_ctx();
 
+	// -- 3) Set demo user passwords
 	// -- Set demo1 pwd
 	let demo1_user: User = UserBmc::first_by_username(&ctx, &mm, "demo1")
 		.await?
@@ -91,7 +68,7 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 		.await?
 		.unwrap();
 	UserBmc::update_pwd(&ctx, &mm, demo2_user.id, DEMO_PWD).await?;
-	info!("{:<12} - init_dev_db - set demo1 pwd", "FOR-DEV-ONLY");
+	info!("{:<12} - init_dev_db - set demo2 pwd", "FOR-DEV-ONLY");
 
 	Ok(())
 }
