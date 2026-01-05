@@ -235,8 +235,9 @@ mod tests {
 		// -- Exec
 		let count = pubsub_numpat(&mut *conn).await?;
 
-		// -- Check (should succeed, value depends on server state)
-		assert!(count >= 0);
+		// -- Check (should succeed without error, actual value depends on server state)
+		// count is u64, always >= 0, so we just verify the call succeeded
+		let _ = count;
 
 		Ok(())
 	}
