@@ -1,4 +1,5 @@
 // region:    --- Modules
+pub mod menu_permissions;
 pub mod routes_login;
 pub mod routes_rest;
 pub mod routes_rpc;

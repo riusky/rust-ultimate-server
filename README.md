@@ -36,7 +36,20 @@ bun run dev
 ### Docker 模式
 
 ```bash
+
+
+# 0. 首次部署 / 新机器
+docker pull rust:1.92.0-slim-bullseye
+docker pull debian:bullseye-slim
+
+# 1. 启动所有服务
 docker compose up -d
+
+# 2. 重新构建（利用缓存，只改代码时约 20 秒）
+docker compose build web-server
+
+# 3. 重启服务
+docker compose up -d web-server
 ```
 
 ## 项目结构
