@@ -23,15 +23,21 @@ services:
     container_name: rust-web-app-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: app_user
       POSTGRES_PASSWORD: dev_only_pwd
-      POSTGRES_DB: postgres
+      POSTGRES_DB: app_db
+      # Default PostgreSQL user and database
+      # POSTGRES_USER: postgres
+      # POSTGRES_PASSWORD: dev_only_pwd
+      # POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app_db"]
+      # Default PostgreSQL healthcheck
+      # test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 5

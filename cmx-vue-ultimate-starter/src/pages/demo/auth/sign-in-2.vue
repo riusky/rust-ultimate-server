@@ -2,6 +2,7 @@
 import LoginForm from './components/login-form.vue'
 import SignUp from './sign-up.vue'
 import { ref, onMounted } from 'vue'
+import logo from '@/assets/app-icon.png'
 // 新增：导入粒子配置
 const particleOptions = {
   background: {
@@ -246,7 +247,7 @@ onMounted(() => {
         </h2>
         <div class="w-48 h-48 mx-auto mb-8">
           <img
-            src="/app-icon.png"
+            :src="logo"
             alt="App Icon"
             class="w-full h-full object-contain animate-float"
           />
