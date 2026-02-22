@@ -1,5 +1,5 @@
 # ================================
-# 阶段1: 安装 cargo-chef
+# 阶段1: 安装构建工具
 # ================================
 FROM rust:1.92.0-slim-bullseye AS chef
 
@@ -26,7 +26,6 @@ COPY Cargo.toml Cargo.lock ./
 COPY crates/ crates/
 COPY vendor/ vendor/
 
-# 生成依赖配方（只包含依赖信息，不包含源代码）
 RUN cargo chef prepare --recipe-path recipe.json
 
 # ================================
@@ -37,26 +36,21 @@ FROM chef AS cacher
 COPY --from=planner /app/recipe.json recipe.json
 COPY vendor/ vendor/
 
-# 只编译依赖，这一层会被缓存
-# 只有 Cargo.toml/Cargo.lock 变化时才重新执行
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # ================================
-# 阶段4: 构建业务代码
+# 阶段4: 构建网关二进制
 # ================================
 FROM chef AS builder
 
-# 复制已编译的依赖
 COPY --from=cacher /app/target target
 COPY --from=cacher /usr/local/cargo /usr/local/cargo
 
-# 复制源代码
 COPY Cargo.toml Cargo.lock ./
 COPY crates/ crates/
 COPY vendor/ vendor/
 
-# 只编译业务代码（依赖已缓存）
-RUN cargo build --release -p web-server
+RUN cargo build --release -p pingora-gateway
 
 # ================================
 # 阶段5: 运行时镜像
@@ -71,14 +65,12 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# 从构建阶段复制二进制文件
-COPY --from=builder /app/target/release/web-server /app/web-server
+COPY --from=builder /app/target/release/pingora-gateway /app/pingora-gateway
 
-# 创建非 root 用户
 RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-EXPOSE 8080
+EXPOSE 80
 
-CMD ["/app/web-server"]
+CMD ["/app/pingora-gateway"]

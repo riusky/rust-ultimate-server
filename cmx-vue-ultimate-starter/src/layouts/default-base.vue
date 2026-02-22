@@ -15,7 +15,7 @@ import logo from '@/assets/app-icon.png'
     <!-- 添加的图标和文字部分 -->
     <div class="flex items-center gap-2 mr-auto">
       <img :src="logo" alt="Logo" class="h-8 w-8 object-contain" />
-      <span class="text-lg font-semibold hidden sm:inline-block">普联软件</span>
+      <span class="text-lg font-semibold hidden sm:inline-block">Riusky软件</span>
     </div>
 
     <div class="flex items-center gap-1">

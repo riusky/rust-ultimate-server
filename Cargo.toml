@@ -17,6 +17,7 @@ members = [
 
     # -- Application Services
     "crates/services/web-server",
+    "crates/services/pingora-gateway",
 
     # -- Tools
     "crates/tools/gen-key", 

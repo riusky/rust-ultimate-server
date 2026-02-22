@@ -10,7 +10,7 @@
 <template>
   <h1 class="flex items-center gap-2 text-xl font-bold">
     <!-- <img :src="logo"> -->
-    <span>普联软件</span>
+    <span>Riusky软件</span>
   </h1>
 </template>
 

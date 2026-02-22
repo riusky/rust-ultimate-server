@@ -25,7 +25,7 @@ const isOpen = ref(false)
           <section>
             <h3 class="font-semibold text-base mb-2">引言</h3>
             <p class="text-muted-foreground leading-relaxed">
-              欢迎您使用普联软件的产品和服务。我们深知个人信息对您的重要性，因此制定本隐私政策来说明我们如何收集、使用、存储和保护您的个人信息。请您仔细阅读并充分理解本隐私政策。
+              欢迎您使用Riusky软件的产品和服务。我们深知个人信息对您的重要性，因此制定本隐私政策来说明我们如何收集、使用、存储和保护您的个人信息。请您仔细阅读并充分理解本隐私政策。
             </p>
           </section>
 

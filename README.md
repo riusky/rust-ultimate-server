@@ -6,6 +6,7 @@
 
 - **后端**: Rust + Axum + PostgreSQL + Valkey
 - **前端**: Vue 3 + TypeScript + Vite + shadcn-vue
+- **网关**: Cloudflare Pingora（Rust 高性能反向代理）
 - **认证**: JWT Token + Cookie
 - **权限**: RBAC 模型，代码声明式权限管理
 - **API**: REST + JSON-RPC 双协议支持
@@ -35,21 +36,28 @@ bun run dev
 
 ### Docker 模式
 
+架构：`Client → Pingora Gateway(:80) → web-server(:8080) / frontend(Nginx)`
+
 ```bash
-
-
-# 0. 首次部署 / 新机器
+# 0. 首次部署 / 新机器（预拉取基础镜像）
 docker pull rust:1.92.0-slim-bullseye
 docker pull debian:bullseye-slim
 
-# 1. 启动所有服务
+# 1. 构建并启动所有服务（包含网关、后端、前端、数据库、缓存）
+docker compose up -d --build
+
+# 2. 访问应用
+# http://localhost        — 通过 Pingora 网关访问完整应用
+# /api/*                  — 自动转发到后端 web-server
+# 其余路径                — 自动转发到前端 Nginx
+
+# 3. 单独重建某个服务
+docker compose build web-server    # 仅重建后端
+docker compose build frontend      # 仅重建前端
+docker compose build gateway        # 仅重建网关
+
+# 4. 重启
 docker compose up -d
-
-# 2. 重新构建（利用缓存，只改代码时约 20 秒）
-docker compose build web-server
-
-# 3. 重启服务
-docker compose up -d web-server
 ```
 
 ## 项目结构
@@ -66,8 +74,9 @@ cmx-server/
 │   │   ├── lib-macros/     # 过程宏
 │   │   └── lib-valkey-core/# Valkey 客户端
 │   └── services/
-│       └── web-server/     # Web 服务入口
-├── cmx-vue-ultimate-starter/  # 前端项目
+│       ├── web-server/        # Web 服务入口 (Axum)
+│       └── pingora-gateway/   # Pingora 反向代理网关
+├── cmx-vue-ultimate-starter/  # 前端项目 (Vue 3)
 ├── sql/dev_initial/           # 数据库初始化脚本
 └── docs/                      # 开发文档
 ```

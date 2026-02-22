@@ -25,7 +25,7 @@ const isOpen = ref(false)
           <section>
             <h3 class="font-semibold text-base mb-2">1. 服务说明</h3>
             <p class="text-muted-foreground leading-relaxed">
-              欢迎使用普联软件提供的服务。本服务条款是您与普联软件之间的法律协议，适用于您使用普联软件提供的所有产品和服务。使用我们的服务即表示您同意接受本服务条款的约束。
+              欢迎使用Riusky软件提供的服务。本服务条款是您与Riusky软件之间的法律协议，适用于您使用Riusky软件提供的所有产品和服务。使用我们的服务即表示您同意接受本服务条款的约束。
             </p>
           </section>
 
@@ -62,10 +62,10 @@ const isOpen = ref(false)
             <h3 class="font-semibold text-base mb-2">4. 知识产权</h3>
             <p class="text-muted-foreground leading-relaxed mb-2">
               4.1
-              本服务中包含的所有内容，包括但不限于文字、图片、音频、视频、软件、程序、版面设计等，其知识产权均归普联软件或相关权利人所有。
+              本服务中包含的所有内容，包括但不限于文字、图片、音频、视频、软件、程序、版面设计等，其知识产权均归Riusky软件或相关权利人所有。
             </p>
             <p class="text-muted-foreground leading-relaxed">
-              4.2 未经普联软件书面许可，您不得以任何形式使用本服务中的内容。
+              4.2 未经Riusky软件书面许可，您不得以任何形式使用本服务中的内容。
             </p>
           </section>
 
@@ -113,7 +113,7 @@ const isOpen = ref(false)
             </p>
             <p class="text-muted-foreground leading-relaxed">
               9.2
-              若双方发生争议，应友好协商解决；协商不成的，任何一方可向普联软件所在地人民法院提起诉讼。
+              若双方发生争议，应友好协商解决；协商不成的，任何一方可向Riusky软件所在地人民法院提起诉讼。
             </p>
           </section>
 
