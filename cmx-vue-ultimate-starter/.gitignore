@@ -7,7 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-bun.lock
+# bun.lock
 
 node_modules
 .DS_Store
@@ -20,7 +20,7 @@ coverage
 /cypress/screenshots/
 
 # bun.lockb
-bun.lockb
+# bun.lockb
 
 # unplugin-vue-components
 .components-info.json
