@@ -65,6 +65,9 @@ services:
       SERVICE_VALKEY_POOL_MAX_SIZE: "10"
       SERVICE_VALKEY_POOL_MIN_IDLE: "2"
       SERVICE_PERMISSION_CACHE_ENABLED: "true"
+      # Initial admin: set password for user (default demo1) only when user has no password yet
+      INIT_ADMIN_USERNAME: "demo1"
+      INIT_ADMIN_PASSWORD: "changeme"
     volumes:
       - ./sql:/app/sql:ro
 

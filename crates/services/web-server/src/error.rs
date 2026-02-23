@@ -12,6 +12,7 @@ pub enum Error {
 	// -- Startup errors
 	PermissionSync(String),
 	ValkeyPool(String),
+	Server(String),
 }
 
 // region:    --- Error Boilerplate

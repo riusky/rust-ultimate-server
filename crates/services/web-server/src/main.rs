@@ -24,6 +24,7 @@ use axum::{middleware, Router};
 use lib_core::_dev_utils;
 use lib_core::ctx::Ctx;
 use lib_core::model::acs::PermissionBmc;
+use lib_core::model::user::{UserBmc, UserForLogin};
 use lib_core::model::ModelManager;
 use lib_valkey_core::{new_valkey_pool, ValkeyPool};
 use tokio::net::TcpListener;
@@ -32,6 +33,50 @@ use tracing::info;
 use tracing_subscriber::EnvFilter;
 
 // endregion: --- Modules
+
+/// Sets initial admin password from env when `INIT_ADMIN_PASSWORD` is set.
+/// Idempotent: skips if the user already has a password (avoids overwriting).
+async fn ensure_initial_admin_password(mm: &ModelManager) -> Result<()> {
+	let pwd = match std::env::var("INIT_ADMIN_PASSWORD") {
+		Ok(p) => p,
+		Err(_) => return Ok(()),
+	};
+	let username = std::env::var("INIT_ADMIN_USERNAME").unwrap_or_else(|_| "demo1".into());
+	let ctx = Ctx::root_ctx();
+
+	let user = match UserBmc::first_by_username::<UserForLogin>(&ctx, mm, &username).await {
+		Ok(Some(u)) => u,
+		Ok(None) => {
+			tracing::warn!(
+				"{:<12} - Initial admin user '{}' not found, skip",
+				"INIT-ADMIN", username
+			);
+			return Ok(());
+		}
+		Err(e) => {
+			tracing::error!("Failed to resolve initial admin user: {:?}", e);
+			return Err(e.into());
+		}
+	};
+
+	let already_has_pwd = user.pwd.as_ref().map_or(false, |s| !s.trim().is_empty());
+	if already_has_pwd {
+		info!(
+			"{:<12} - Initial admin '{}' already has password, skip",
+			"INIT-ADMIN", username
+		);
+		return Ok(());
+	}
+
+	UserBmc::update_pwd(&ctx, mm, user.id, &pwd)
+		.await
+		.inspect_err(|e| tracing::error!("Failed to set initial admin password: {:?}", e))?;
+	info!(
+		"{:<12} - Set initial admin password for '{}'",
+		"INIT-ADMIN", username
+	);
+	Ok(())
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -48,13 +93,16 @@ async fn main() -> Result<()> {
 	let mm = ModelManager::new().await?;
 	let config = web_config();
 
+	ensure_initial_admin_password(&mm).await?;
+
 	// -- Initialize Valkey pool if caching is enabled
 	let valkey_pool: Option<ValkeyPool> = if config.PERMISSION_CACHE_ENABLED {
 		info!("{:<12} - Permission cache ENABLED (Valkey)", "CONFIG");
-		Some(new_valkey_pool().await.map_err(|e| {
-			tracing::error!("Failed to create Valkey pool: {:?}", e);
-			Error::ValkeyPool(e.to_string())
-		})?)
+		new_valkey_pool()
+			.await
+			.inspect_err(|e| tracing::error!("Failed to create Valkey pool: {:?}", e))
+			.map_err(|e| Error::ValkeyPool(e.to_string()))
+			.map(Some)?
 	} else {
 		info!("{:<12} - Permission cache DISABLED", "CONFIG");
 		None
@@ -74,12 +122,11 @@ async fn main() -> Result<()> {
 		.route_layer(middleware::from_fn(mw_ctx_require));
 
 	// -- Sync permissions from code to database
-	// This ensures the permission table is always in sync with code-defined permissions
 	let ctx = Ctx::root_ctx();
-	PermissionBmc::sync_from_registry(&ctx, &mm).await.map_err(|e| {
-		tracing::error!("Failed to sync permissions: {:?}", e);
-		Error::PermissionSync(e.to_string())
-	})?;
+	PermissionBmc::sync_from_registry(&ctx, &mm)
+		.await
+		.inspect_err(|e| tracing::error!("Failed to sync permissions: {:?}", e))
+		.map_err(|e| Error::PermissionSync(e.to_string()))?;
 
 	// Note: Admin role bypasses all permission checks in Ctx::require_permission()
 	// No need to assign individual permissions to admin role
@@ -119,12 +166,13 @@ async fn main() -> Result<()> {
 		.fallback_service(routes_static::serve_dir(&config.WEB_FOLDER));
 
 	// region:    --- Start Server
-	// Note: For this block, ok to unwrap.
-	let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
+	let listener = TcpListener::bind("0.0.0.0:8080")
+		.await
+		.map_err(|e| Error::Server(format!("bind: {e}")))?;
 	info!("{:<12} - {:?}\n", "LISTENING", listener.local_addr());
 	axum::serve(listener, routes_all.into_make_service())
 		.await
-		.unwrap();
+		.map_err(|e| Error::Server(format!("serve: {e}")))?;
 	// endregion: --- Start Server
 
 	Ok(())
