@@ -1,6 +1,6 @@
 //! User management routes: register, delete account, change password, reset password
 
-use axum::routing::post;
+use axum::routing::{get, post};
 use axum::Router;
 use lib_core::model::ModelManager;
 use lib_web::handlers::handlers_user;
@@ -15,6 +15,7 @@ pub fn routes_public(mm: ModelManager) -> Router {
 /// Routes that require authentication (need mw_ctx_require middleware)
 pub fn routes_auth(mm: ModelManager) -> Router {
 	Router::new()
+		.route("/api/me", get(handlers_user::api_me_handler))
 		.route(
 			"/api/user/delete-account",
 			post(handlers_user::api_delete_account_handler),

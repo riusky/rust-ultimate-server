@@ -1,8 +1,11 @@
 import { createApp } from 'vue'
 
 import App from './App.vue'
+import { setOn401Auth002Callback } from '@/services/api/api-client'
+import pinia from '@/plugins/pinia'
 import { setupPlugins } from './plugins'
 import router from './router'
+import { useAuthStore } from '@/stores/auth'
 import '@/assets/index.css'
 import '@/assets/scrollbar.css'
 import '@/assets/themes.css'
@@ -26,6 +29,15 @@ function bootstrap() {
   setupPlugins(app)
 
   app.use(router)
+
+  setOn401Auth002Callback(() => {
+    useAuthStore(pinia).clearLogin()
+    router.push({
+      path: '/auth/sign-in-2',
+      query: { redirect: router.currentRoute.value.fullPath },
+    })
+  })
+
   app.mount('#app')
 }
 

@@ -69,6 +69,29 @@ pub struct RegisterPayload {
 
 // endregion: --- Register
 
+// region:    --- Me (session check)
+
+/// Get current user (requires valid auth cookie). Used by frontend to validate session.
+/// Returns 401 if no/invalid token (handled by mw_ctx_require before reaching this handler).
+pub async fn api_me_handler(
+	State(mm): State<ModelManager>,
+	CtxW(ctx): CtxW,
+) -> Result<Json<Value>> {
+	debug!("{:<12} - api_me_handler", "HANDLER");
+
+	let user_id = ctx.user_id();
+	let user: UserForLogin = UserBmc::get(&ctx, &mm, user_id).await?;
+
+	Ok(Json(json!({
+		"result": {
+			"user_id": user.id,
+			"username": user.username
+		}
+	})))
+}
+
+// endregion: --- Me (session check)
+
 // region:    --- Delete Account
 
 /// Delete user account (requires login, user can only delete own account)

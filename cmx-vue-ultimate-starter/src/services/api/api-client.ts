@@ -139,6 +139,17 @@ function isApiErrorResponse(data: unknown): data is ApiErrorResponse {
 
 // endregion: --- Error Handling Utils
 
+// region:    --- 401 AUTH#002 callback (avoid circular dependency with router/pinia)
+
+/** Called when any request returns 401 with biz_code AUTH#002. Register in app bootstrap to clear login and redirect. */
+let on401Auth002Callback: (() => void) | null = null
+
+export function setOn401Auth002Callback(cb: () => void) {
+  on401Auth002Callback = cb
+}
+
+// endregion: --- 401 AUTH#002 callback
+
 // region:    --- Base Client Configuration
 
 /**
@@ -187,6 +198,14 @@ function createErrorInterceptor(showToast = true) {
       if (error.response?.data && isApiErrorResponse(error.response.data)) {
         // Business error with biz_code
         const errorData = error.response.data
+        const is401NoAuth =
+          error.response.status === 401 && errorData.error.biz_code === 'AUTH#002'
+
+        if (is401NoAuth && on401Auth002Callback) {
+          on401Auth002Callback()
+          return Promise.reject(new ApiError(errorData))
+        }
+
         message = getBizErrorMessage(errorData.error.biz_code)
 
         console.log('[API] Business error:', { bizCode: errorData.error.biz_code, message, showToast })

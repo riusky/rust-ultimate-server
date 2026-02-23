@@ -2,7 +2,7 @@
  * User Authentication REST API
  */
 
-import { restClient } from '../../rest-client'
+import { restClient, restClientSilent } from '../../rest-client'
 
 // region:    --- Types
 
@@ -27,6 +27,14 @@ export interface LogoffResponse {
   }
 }
 
+/** Response from GET /api/me (session check). */
+export interface MeResponse {
+  result: {
+    user_id: number
+    username: string
+  }
+}
+
 // endregion: --- Types
 
 // region:    --- API Functions
@@ -44,6 +52,15 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
  */
 export async function logoff(): Promise<LogoffResponse> {
   const response = await restClient.post<LogoffResponse>('/api/logoff', { logoff: true })
+  return response.data
+}
+
+/**
+ * Get current user (session check). Uses silent client so 401 does not show toast.
+ * Caller should clear login state and redirect to login on rejection.
+ */
+export async function getCurrentUser(): Promise<MeResponse> {
+  const response = await restClientSilent.get<MeResponse>('/api/me')
   return response.data
 }
 
