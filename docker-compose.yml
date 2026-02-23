@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Valkey (Redis 兼容缓存)
   valkey:
