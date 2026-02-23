@@ -184,8 +184,8 @@ impl Error {
 				ClientError::NOT_AUTHORIZED,
 			),
 
-			// -- Auth
-			CtxExt(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			// -- Auth (401 = unauthenticated / invalid token; 403 = authenticated but forbidden)
+			CtxExt(_) => (StatusCode::UNAUTHORIZED, ClientError::NO_AUTH),
 
 			// -- Model
 			Model(model::Error::EntityNotFound { entity, id }) => (
