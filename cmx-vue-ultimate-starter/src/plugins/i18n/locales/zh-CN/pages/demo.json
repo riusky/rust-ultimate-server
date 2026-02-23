@@ -1,0 +1,25 @@
+{
+  "dashboard": {
+    "tabs": {
+      "overview": "概览",
+      "analytics": "分析",
+      "reports": "报表",
+      "settings": "设置"
+    },
+    "page": {
+      "title": "仪表板",
+      "description": "系统概览和关键指标"
+    },
+    "comingSoon": "功能开发中...",
+    "stats": {
+      "totalUsers": "总用户数",
+      "usersDescription": "相比上月增长",
+      "totalRevenue": "总收入",
+      "revenueDescription": "相比上月增长",
+      "activeProjects": "活跃项目",
+      "projectsDescription": "当前进行中的项目",
+      "conversionRate": "转化率",
+      "conversionDescription": "相比上月增长"
+    }
+  }
+}

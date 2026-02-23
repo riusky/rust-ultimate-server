@@ -1,0 +1,28 @@
+{
+  "bizErrors": {
+    "UNKNOWN": "An unknown error occurred, please try again later",
+    
+    "SYS#001": "System service error",
+    "SYS#002": "Database connection failed",
+    "SYS#003": "Configuration error",
+    
+    "AUTH#001": "User not authenticated",
+    "AUTH#002": "Authentication expired",
+    "AUTH#003": "Invalid credentials",
+    
+    "PERM#001": "Insufficient permissions",
+    "PERM#002": "Resource access denied",
+    
+    "DATA#001": "Data not found",
+    "DATA#002": "Data validation failed",
+    "DATA#003": "Invalid data format",
+    "DATA#004": "Data already exists",
+    
+    "FILTER#001": "Invalid filter condition",
+    "FILTER#002": "Invalid query parameters",
+    
+    "MODEL#001": "Model not found",
+    "MODEL#002": "Model creation failed",
+    "MODEL#003": "Model update failed"
+  }
+}

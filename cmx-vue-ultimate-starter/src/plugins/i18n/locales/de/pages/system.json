@@ -1,0 +1,78 @@
+{
+  "ecg": {
+    "tabs": {
+      "overview": "Echtzeitüberwachung",
+      "analytics": "Datenanalyse",
+      "reports": "Berichtsaufzeichnung",
+      "notifications": "Alarmbenachrichtigungen"
+    },
+    "page": {
+      "title": "EKG-Überwachungsarbeitsplatz",
+      "description": "Echtzeitüberwachung von EKG-Daten und Vitalzeichen des Patienten"
+    },
+    "metrics": {
+      "heartRate": "Herzfrequenz",
+      "bloodPressure": "Blutdruck",
+      "oxygenSaturation": "Sauerstoffsättigung",
+      "temperature": "Körpertemperatur"
+    },
+    "units": {
+      "bpm": "bpm",
+      "mmHg": "mmHg",
+      "percent": "%",
+      "celsius": "°C"
+    },
+    "ranges": {
+      "heartRate": "Normalbereich (60-100 bpm)",
+      "bloodPressure": "Normaler Blutdruck",
+      "oxygenSaturation": "Normalbereich (95-100%)",
+      "temperature": "Normale Körpertemperatur"
+    },
+    "monitoring": {
+      "title": "Echtzeit-EKG-Überwachung",
+      "description": "Patienten-ID: PT-20230905 | Letzte Aktualisierung: 10:25:47"
+    },
+    "patientStatus": {
+      "title": "Patientenstatus",
+      "description": "Aktuelle Überwachungsparameter und Alarmstatus"
+    },
+    "patient": {
+      "infoTitle": "Patienteninformationen",
+      "infoDescription": "Aktueller Überwachungsstatus",
+      "fields": {
+        "name": "Name",
+        "age": "Alter",
+        "gender": "Geschlecht",
+        "patientId": "Patienten-ID",
+        "diagnosis": "Diagnose",
+        "doctor": "Behandelnder Arzt",
+        "admissionDate": "Aufnahmedatum",
+        "lastUpdate": "Letzte Aktualisierung"
+      }
+    },
+    "alerts": {
+      "title": "Alarmaufzeichnung",
+      "description": "Letzte Überwachungsalarme",
+      "types": {
+        "heartRate": "Abnormale Herzfrequenz",
+        "bloodPressure": "Hoher Blutdruck",
+        "oxygen": "Normale Sauerstoffsättigung"
+      },
+      "messages": {
+        "heartRate": "Herzfrequenz kurzzeitig auf 120 bpm erhöht",
+        "bloodPressure": "Systolischer Druck erreicht 145 mmHg",
+        "oxygen": "Sauerstoffsättigung bei 98% gehalten"
+      }
+    },
+    "actions": {
+      "refresh": "Daten aktualisieren",
+      "contact": "Arzt kontaktieren",
+      "resolve": "Lösen",
+      "resolved": "Gelöst"
+    },
+    "status": {
+      "stable": "Stabil",
+      "unstable": "Instabil"
+    }
+  }
+}

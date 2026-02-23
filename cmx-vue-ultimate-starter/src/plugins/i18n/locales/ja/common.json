@@ -1,0 +1,113 @@
+{
+  "common": {
+    "buttons": {
+      "theme": "テーマ",
+      "search": "検索",
+      "add": "追加",
+      "showfields": "フィールド表示",
+      "update": "更新",
+      "delete": "削除",
+      "actions": "操作"
+    },
+    "theme": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "auto": "システム"
+    },
+    "interfaceLabel": {
+      "customize": "テーマカスタマイズ",
+      "color": "テーマカラー",
+      "radius": "角丸",
+      "colorMode": "カラーモード"
+    },
+    "interfaceMessage": {
+      "themePick": "コンポーネントのスタイルと色を選択してください。"
+    },
+    "themes": {
+      "default": "デフォルト",
+      "cyberpunk": "サイバーパンク",
+      "amber-minimal": "琥珀ミニマル",
+      "amethyst-haze": "アメジストヘイズ",
+      "bold-tech": "ボールドテック",
+      "bubblegum": "バブルガム",
+      "caffeine": "カフェイン",
+      "candyland": "キャンディランド",
+      "catppuccin": "キャトプッチン",
+      "claude": "クロード",
+      "claymorphism": "クレイモーフィズム",
+      "clean-slate": "クリーンスレート",
+      "cosmic-night": "コズミックナイト",
+      "doom-64": "ドゥーム64",
+      "elegant-luxury": "エレガントラグジュアリー",
+      "graphite": "グラファイト",
+      "kodama-grove": "木霊の森",
+      "midnight-bloom": "ミッドナイトブルーム",
+      "mocha-mousse": "モカムース",
+      "modern-minimal": "モダンミニマル",
+      "mono": "モノ",
+      "nature": "ネイチャー",
+      "neo-brutalism": "ネオブルータリズム",
+      "northern-lights": "ノーザンライツ",
+      "notebook": "ノートブック",
+      "ocean-breeze": "オーシャンブリーズ",
+      "pastel-dreams": "パステルドリーム",
+      "perpetuity": "パーペチュイティ",
+      "quantum-rose": "クォンタムローズ",
+      "retro-arcade": "レトロアーケード",
+      "soft-pop": "ソフトポップ",
+      "solar-dusk": "ソーラーダスク",
+      "starry-night": "スターナイト",
+      "sunset-horizon": "サンセットホライズン",
+      "supabase": "Supabase",
+      "t3-chat": "T3チャット",
+      "tangerine": "タンジェリン",
+      "twitter": "Twitter",
+      "vercel": "Vercel",
+      "vintage-paper": "ヴィンテージペーパー",
+      "violet-bloom": "バイオレットブルーム"
+    }
+  },
+  "userInterface": {
+    "header": "ページヘッダー",
+    "sidebar": "サイドバー",
+    "footer": "フッター",
+    "notifications": "通知"
+  },
+  "dataManagement": {
+    "create": "データ作成",
+    "read": "データ表示",
+    "update": "データ更新",
+    "delete": "データ削除",
+    "import": "データインポート",
+    "export": "データエクスポート"
+  },
+  "authentication": {
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "register": "登録",
+    "forgotPassword": "パスワードを忘れた"
+  },
+  "errorMessages": {
+    "required": "この項目は必須です",
+    "invalidFormat": "無効な形式",
+    "serverError": "サーバーエラー",
+    "notFound": "リソースが見つかりません"
+  },
+  "successMessages": {
+    "operationSuccess": "操作が成功しました",
+    "dataSaved": "データが保存されました",
+    "changesUpdated": "変更が更新されました"
+  },
+  "form": {
+    "validation": "フォーム検証",
+    "submission": "フォーム送信",
+    "labels": "フォームラベル",
+    "placeholders": "入力プレースホルダー"
+  },
+  "table": {
+    "pagination": "ページネーション",
+    "sorting": "ソート",
+    "filtering": "フィルタリング",
+    "rowSelection": "行選択"
+  }
+}

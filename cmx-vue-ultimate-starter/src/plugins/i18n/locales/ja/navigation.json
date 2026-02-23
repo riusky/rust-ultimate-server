@@ -1,0 +1,8 @@
+{
+  "navigation": {
+    "dashboard": "ダッシュボード",
+    "userManagement": "ユーザー管理",
+    "systemSettings": "システム設定",
+    "dataAnalysis": "データ分析"
+  }
+}

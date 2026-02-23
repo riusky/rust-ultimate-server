@@ -1,0 +1,25 @@
+{
+  "dashboard": {
+    "tabs": {
+      "overview": "Resumen",
+      "analytics": "Análisis",
+      "reports": "Informes",
+      "settings": "Configuración"
+    },
+    "page": {
+      "title": "Panel",
+      "description": "Vista general del sistema y métricas clave"
+    },
+    "comingSoon": "Próximamente...",
+    "stats": {
+      "totalUsers": "Total de usuarios",
+      "usersDescription": "Aumento respecto al mes pasado",
+      "totalRevenue": "Ingresos totales",
+      "revenueDescription": "Aumento respecto al mes pasado",
+      "activeProjects": "Proyectos activos",
+      "projectsDescription": "Proyectos en curso",
+      "conversionRate": "Tasa de conversión",
+      "conversionDescription": "Aumento respecto al mes pasado"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "ecg": {
+    "tabs": {
+      "overview": "Surveillance en Temps Réel",
+      "analytics": "Analyse des Données",
+      "reports": "Enregistrements de Rapports",
+      "notifications": "Notifications d'Alerte"
+    },
+    "page": {
+      "title": "Tableau de Bord de Surveillance ECG",
+      "description": "Surveillance en temps réel des données ECG et des signes vitaux du patient"
+    },
+    "metrics": {
+      "heartRate": "Fréquence Cardiaque",
+      "bloodPressure": "Pression Artérielle",
+      "oxygenSaturation": "Saturation en Oxygène",
+      "temperature": "Température Corporelle"
+    },
+    "units": {
+      "bpm": "bpm",
+      "mmHg": "mmHg",
+      "percent": "%",
+      "celsius": "°C"
+    },
+    "ranges": {
+      "heartRate": "Plage normale (60-100 bpm)",
+      "bloodPressure": "Pression artérielle normale",
+      "oxygenSaturation": "Plage normale (95-100%)",
+      "temperature": "Température corporelle normale"
+    },
+    "monitoring": {
+      "title": "Surveillance ECG en Temps Réel",
+      "description": "ID patient: PT-20230905 | Dernière mise à jour: 10:25:47"
+    },
+    "patientStatus": {
+      "title": "État du Patient",
+      "description": "Paramètres de surveillance actuels et état d'alerte"
+    },
+    "patient": {
+      "infoTitle": "Informations sur le Patient",
+      "infoDescription": "État actuel de surveillance",
+      "fields": {
+        "name": "Nom",
+        "age": "Âge",
+        "gender": "Genre",
+        "patientId": "ID Patient",
+        "diagnosis": "Diagnostic",
+        "doctor": "Médecin Traitant",
+        "admissionDate": "Date d'Admission",
+        "lastUpdate": "Dernière Mise à Jour"
+      }
+    },
+    "alerts": {
+      "title": "Enregistrements d'Alerte",
+      "description": "Alertes de surveillance récentes",
+      "types": {
+        "heartRate": "Fréquence Cardiaque Anormale",
+        "bloodPressure": "Pression Artérielle Élevée",
+        "oxygen": "Niveau d'Oxygène Normal"
+      },
+      "messages": {
+        "heartRate": "Fréquence cardiaque brièvement augmentée à 120 bpm",
+        "bloodPressure": "Pression systolique atteinte 145 mmHg",
+        "oxygen": "Saturation en oxygène maintenue à 98%"
+      }
+    },
+    "actions": {
+      "refresh": "Actualiser les Données",
+      "contact": "Contacter le Médecin",
+      "resolve": "Résoudre",
+      "resolved": "Résolu"
+    },
+    "status": {
+      "stable": "Stable",
+      "unstable": "Instable"
+    }
+  }
+}

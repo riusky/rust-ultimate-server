@@ -1,0 +1,19 @@
+{
+  "bizErrors": {
+    "AUTH#001": "Nombre de usuario o contraseña inválidos",
+    "AUTH#002": "Por favor, inicie sesión primero",
+    "USER#001": "El nombre de usuario no puede estar vacío",
+    "USER#002": "La contraseña es demasiado corta",
+    "USER#003": "Error en la validación de la contraseña",
+    "USER#004": "Usuario no encontrado",
+    "USER#005": "No autorizado para realizar esta acción",
+    "PERM#001": "Permiso denegado",
+    "PERM#002": "Faltan permisos requeridos",
+    "DATA#001": "Datos no encontrados",
+    "RPC#001": "Formato de solicitud inválido",
+    "RPC#002": "Método no encontrado",
+    "RPC#003": "Parámetros de solicitud inválidos",
+    "SYS#001": "Sistema ocupado, por favor inténtelo más tarde",
+    "UNKNOWN": "Ha ocurrido un error desconocido"
+  }
+}

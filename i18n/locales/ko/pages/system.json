@@ -1,0 +1,78 @@
+{
+  "ecg": {
+    "tabs": {
+      "overview": "실시간 모니터링",
+      "analytics": "데이터 분석",
+      "reports": "보고서 기록",
+      "notifications": "알림"
+    },
+    "page": {
+      "title": "심전도 모니터링 대시보드",
+      "description": "환자 심전도 데이터 및 생체 신호 실시간 모니터링"
+    },
+    "metrics": {
+      "heartRate": "심박수",
+      "bloodPressure": "혈압",
+      "oxygenSaturation": "산소 포화도",
+      "temperature": "체온"
+    },
+    "units": {
+      "bpm": "bpm",
+      "mmHg": "mmHg",
+      "percent": "%",
+      "celsius": "°C"
+    },
+    "ranges": {
+      "heartRate": "정상 범위 (60-100 bpm)",
+      "bloodPressure": "정상 혈압",
+      "oxygenSaturation": "정상 범위 (95-100%)",
+      "temperature": "정상 체온"
+    },
+    "monitoring": {
+      "title": "실시간 심전도 모니터링",
+      "description": "환자 ID: PT-20230905 | 마지막 업데이트: 10:25:47"
+    },
+    "patientStatus": {
+      "title": "환자 상태",
+      "description": "현재 모니터링 매개변수 및 경고 상태"
+    },
+    "patient": {
+      "infoTitle": "환자 정보",
+      "infoDescription": "현재 모니터링 상태",
+      "fields": {
+        "name": "이름",
+        "age": "나이",
+        "gender": "성별",
+        "patientId": "환자 ID",
+        "diagnosis": "진단",
+        "doctor": "주치의",
+        "admissionDate": "입원 날짜",
+        "lastUpdate": "마지막 업데이트"
+      }
+    },
+    "alerts": {
+      "title": "경고 기록",
+      "description": "최근 모니터링 경고",
+      "types": {
+        "heartRate": "비정상 심박수",
+        "bloodPressure": "고혈압",
+        "oxygen": "정상 산소 수준"
+      },
+      "messages": {
+        "heartRate": "심박수가 일시적으로 120bpm으로 증가",
+        "bloodPressure": "수축기 혈압이 145mmHg에 도달",
+        "oxygen": "산소 포화도 98% 유지"
+      }
+    },
+    "actions": {
+      "refresh": "데이터 새로고침",
+      "contact": "의사 연락",
+      "resolve": "해결",
+      "resolved": "해결됨"
+    },
+    "status": {
+      "stable": "안정적",
+      "unstable": "불안정"
+    }
+  }
+}

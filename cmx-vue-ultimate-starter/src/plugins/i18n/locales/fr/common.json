@@ -1,0 +1,113 @@
+{
+  "common": {
+    "buttons": {
+      "theme": "Thème",
+      "search": "Rechercher",
+      "add": "Ajouter",
+      "showfields": "Afficher les champs",
+      "update": "Mettre à jour",
+      "delete": "Supprimer",
+      "actions": "Actions"
+    },
+    "theme": {
+      "light": "Clair",
+      "dark": "Sombre",
+      "auto": "Système"
+    },
+    "interfaceLabel": {
+      "customize": "Personnalisation du thème",
+      "color": "Couleur du thème",
+      "radius": "Rayon de bordure",
+      "colorMode": "Mode de couleur"
+    },
+    "interfaceMessage": {
+      "themePick": "Choisissez les styles et couleurs pour vos composants."
+    },
+    "themes": {
+      "default": "Par défaut",
+      "cyberpunk": "Cyberpunk",
+      "amber-minimal": "Ambre Minimaliste",
+      "amethyst-haze": "Brume d'Améthyste",
+      "bold-tech": "Technologie Audacieuse",
+      "bubblegum": "Bubblegum",
+      "caffeine": "Caféine",
+      "candyland": "Pays des Bonbons",
+      "catppuccin": "Catppuccin",
+      "claude": "Claude",
+      "claymorphism": "Argile Morphisme",
+      "clean-slate": "Ardoise Propre",
+      "cosmic-night": "Nuit Cosmique",
+      "doom-64": "Doom 64",
+      "elegant-luxury": "Luxe Élégant",
+      "graphite": "Graphite",
+      "kodama-grove": "Bosquet Kodama",
+      "midnight-bloom": "Floraison Minuit",
+      "mocha-mousse": "Mousse Mocha",
+      "modern-minimal": "Minimaliste Moderne",
+      "mono": "Mono",
+      "nature": "Nature",
+      "neo-brutalism": "Néo Brutalisme",
+      "northern-lights": "Aurores Boréales",
+      "notebook": "Carnet",
+      "ocean-breeze": "Brise Océanique",
+      "pastel-dreams": "Rêves Pastel",
+      "perpetuity": "Perpétuité",
+      "quantum-rose": "Rose Quantique",
+      "retro-arcade": "Arcade Rétro",
+      "soft-pop": "Pop Doux",
+      "solar-dusk": "Crépuscule Solaire",
+      "starry-night": "Nuit Étoilée",
+      "sunset-horizon": "Horizon du Coucher de Soleil",
+      "supabase": "Supabase",
+      "t3-chat": "T3 Chat",
+      "tangerine": "Mandarine",
+      "twitter": "Twitter",
+      "vercel": "Vercel",
+      "vintage-paper": "Papier Vintage",
+      "violet-bloom": "Floraison Violette"
+    }
+  },
+  "userInterface": {
+    "header": "En-tête",
+    "sidebar": "Barre latérale",
+    "footer": "Pied de page",
+    "notifications": "Notifications"
+  },
+  "dataManagement": {
+    "create": "Créer des données",
+    "read": "Voir les données",
+    "update": "Mettre à jour les données",
+    "delete": "Supprimer les données",
+    "import": "Importer des données",
+    "export": "Exporter des données"
+  },
+  "authentication": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "register": "S'inscrire",
+    "forgotPassword": "Mot de passe oublié"
+  },
+  "errorMessages": {
+    "required": "Ce champ est obligatoire",
+    "invalidFormat": "Format invalide",
+    "serverError": "Erreur serveur",
+    "notFound": "Ressource introuvable"
+  },
+  "successMessages": {
+    "operationSuccess": "Opération réussie",
+    "dataSaved": "Données enregistrées avec succès",
+    "changesUpdated": "Modifications mises à jour"
+  },
+  "form": {
+    "validation": "Validation de formulaire",
+    "submission": "Soumission de formulaire",
+    "labels": "Étiquettes de formulaire",
+    "placeholders": "Textes indicatifs"
+  },
+  "table": {
+    "pagination": "Pagination",
+    "sorting": "Tri",
+    "filtering": "Filtrage",
+    "rowSelection": "Sélection de ligne"
+  }
+}

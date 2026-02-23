@@ -1,0 +1,19 @@
+{
+  "bizErrors": {
+    "AUTH#001": "Nom d'utilisateur ou mot de passe invalide",
+    "AUTH#002": "Veuillez d'abord vous connecter",
+    "USER#001": "Le nom d'utilisateur ne peut pas être vide",
+    "USER#002": "Le mot de passe est trop court",
+    "USER#003": "Échec de la vérification du mot de passe",
+    "USER#004": "Utilisateur introuvable",
+    "USER#005": "Non autorisé à effectuer cette action",
+    "PERM#001": "Permission refusée",
+    "PERM#002": "Permissions requises manquantes",
+    "DATA#001": "Données introuvables",
+    "RPC#001": "Format de requête invalide",
+    "RPC#002": "Méthode introuvable",
+    "RPC#003": "Paramètres de requête invalides",
+    "SYS#001": "Système occupé, veuillez réessayer plus tard",
+    "UNKNOWN": "Une erreur inconnue s'est produite"
+  }
+}

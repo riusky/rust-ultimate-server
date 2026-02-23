@@ -1,0 +1,19 @@
+{
+  "bizErrors": {
+    "AUTH#001": "Ungültiger Benutzername oder Passwort",
+    "AUTH#002": "Bitte melden Sie sich zuerst an",
+    "USER#001": "Benutzername darf nicht leer sein",
+    "USER#002": "Passwort ist zu kurz",
+    "USER#003": "Passwortüberprüfung fehlgeschlagen",
+    "USER#004": "Benutzer nicht gefunden",
+    "USER#005": "Keine Berechtigung für diese Aktion",
+    "PERM#001": "Zugriff verweigert",
+    "PERM#002": "Erforderliche Berechtigungen fehlen",
+    "DATA#001": "Daten nicht gefunden",
+    "RPC#001": "Ungültiges Anforderungsformat",
+    "RPC#002": "Methode nicht gefunden",
+    "RPC#003": "Ungültige Anforderungsparameter",
+    "SYS#001": "System beschäftigt, bitte später erneut versuchen",
+    "UNKNOWN": "Ein unbekannter Fehler ist aufgetreten"
+  }
+}

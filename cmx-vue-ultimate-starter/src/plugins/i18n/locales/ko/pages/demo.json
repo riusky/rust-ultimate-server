@@ -1,0 +1,25 @@
+{
+  "dashboard": {
+    "tabs": {
+      "overview": "개요",
+      "analytics": "분석",
+      "reports": "보고서",
+      "settings": "설정"
+    },
+    "page": {
+      "title": "대시보드",
+      "description": "시스템 개요 및 주요 지표"
+    },
+    "comingSoon": "곧 제공됩니다...",
+    "stats": {
+      "totalUsers": "총 사용자 수",
+      "usersDescription": "지난달 대비 증가",
+      "totalRevenue": "총 수익",
+      "revenueDescription": "지난달 대비 증가",
+      "activeProjects": "활성 프로젝트",
+      "projectsDescription": "진행 중인 프로젝트",
+      "conversionRate": "전환율",
+      "conversionDescription": "지난달 대비 증가"
+    }
+  }
+}

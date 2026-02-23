@@ -1,0 +1,25 @@
+{
+  "dashboard": {
+    "tabs": {
+      "overview": "概要",
+      "analytics": "分析",
+      "reports": "レポート",
+      "settings": "設定"
+    },
+    "page": {
+      "title": "ダッシュボード",
+      "description": "システム概要と主要指標"
+    },
+    "comingSoon": "近日公開...",
+    "stats": {
+      "totalUsers": "総ユーザー数",
+      "usersDescription": "先月比増加",
+      "totalRevenue": "総収益",
+      "revenueDescription": "先月比増加",
+      "activeProjects": "アクティブプロジェクト",
+      "projectsDescription": "進行中のプロジェクト",
+      "conversionRate": "コンバージョン率",
+      "conversionDescription": "先月比増加"
+    }
+  }
+}

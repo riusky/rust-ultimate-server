@@ -1,0 +1,8 @@
+{
+  "navigation": {
+    "dashboard": "Панель управления",
+    "userManagement": "Управление пользователями",
+    "systemSettings": "Системные настройки",
+    "dataAnalysis": "Анализ данных"
+  }
+}

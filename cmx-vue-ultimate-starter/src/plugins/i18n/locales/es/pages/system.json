@@ -1,0 +1,78 @@
+{
+  "ecg": {
+    "tabs": {
+      "overview": "Monitorización en Tiempo Real",
+      "analytics": "Análisis de Datos",
+      "reports": "Registros de Informes",
+      "notifications": "Notificaciones de Alerta"
+    },
+    "page": {
+      "title": "Panel de Monitorización ECG",
+      "description": "Monitorización en tiempo real de datos ECG y signos vitales del paciente"
+    },
+    "metrics": {
+      "heartRate": "Frecuencia Cardíaca",
+      "bloodPressure": "Presión Arterial",
+      "oxygenSaturation": "Saturación de Oxígeno",
+      "temperature": "Temperatura Corporal"
+    },
+    "units": {
+      "bpm": "lpm",
+      "mmHg": "mmHg",
+      "percent": "%",
+      "celsius": "°C"
+    },
+    "ranges": {
+      "heartRate": "Rango normal (60-100 lpm)",
+      "bloodPressure": "Presión arterial normal",
+      "oxygenSaturation": "Rango normal (95-100%)",
+      "temperature": "Temperatura corporal normal"
+    },
+    "monitoring": {
+      "title": "Monitorización ECG en Tiempo Real",
+      "description": "ID del paciente: PT-20230905 | Última actualización: 10:25:47"
+    },
+    "patientStatus": {
+      "title": "Estado del Paciente",
+      "description": "Parámetros de monitorización actuales y estado de alerta"
+    },
+    "patient": {
+      "infoTitle": "Información del Paciente",
+      "infoDescription": "Estado actual de monitorización",
+      "fields": {
+        "name": "Nombre",
+        "age": "Edad",
+        "gender": "Género",
+        "patientId": "ID del Paciente",
+        "diagnosis": "Diagnóstico",
+        "doctor": "Médico Tratante",
+        "admissionDate": "Fecha de Ingreso",
+        "lastUpdate": "Última Actualización"
+      }
+    },
+    "alerts": {
+      "title": "Registros de Alertas",
+      "description": "Alertas recientes de monitorización",
+      "types": {
+        "heartRate": "Frecuencia Cardíaca Anormal",
+        "bloodPressure": "Presión Arterial Alta",
+        "oxygen": "Nivel de Oxígeno Normal"
+      },
+      "messages": {
+        "heartRate": "Frecuencia cardíaca aumentó brevemente a 120 lpm",
+        "bloodPressure": "Presión sistólica alcanzó 145 mmHg",
+        "oxygen": "Saturación de oxígeno mantenida en 98%"
+      }
+    },
+    "actions": {
+      "refresh": "Actualizar Datos",
+      "contact": "Contactar Médico",
+      "resolve": "Resolver",
+      "resolved": "Resuelto"
+    },
+    "status": {
+      "stable": "Estable",
+      "unstable": "Inestable"
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "common": {
+    "buttons": {
+      "theme": "Thema",
+      "search": "Suchen",
+      "add": "Hinzufügen",
+      "showfields": "Felder anzeigen",
+      "update": "Aktualisieren",
+      "delete": "Löschen",
+      "actions": "Aktionen"
+    },
+    "theme": {
+      "light": "Hell",
+      "dark": "Dunkel",
+      "auto": "System"
+    },
+    "interfaceLabel": {
+      "customize": "Themenanpassung",
+      "color": "Themenfarbe",
+      "radius": "Rahmenradius",
+      "colorMode": "Farbmodus"
+    },
+    "interfaceMessage": {
+      "themePick": "Wählen Sie Stile und Farben für Ihre Komponenten."
+    },
+    "themes": {
+      "default": "Standard",
+      "cyberpunk": "Cyberpunk",
+      "amber-minimal": "Bernstein Minimal",
+      "amethyst-haze": "Amethyst Dunst",
+      "bold-tech": "Mutige Technik",
+      "bubblegum": "Bubblegum",
+      "caffeine": "Koffein",
+      "candyland": "Bonbonland",
+      "catppuccin": "Catppuccin",
+      "claude": "Claude",
+      "claymorphism": "Lehm Morphismus",
+      "clean-slate": "Saubere Tafel",
+      "cosmic-night": "Kosmische Nacht",
+      "doom-64": "Doom 64",
+      "elegant-luxury": "Eleganter Luxus",
+      "graphite": "Graphit",
+      "kodama-grove": "Kodama Hain",
+      "midnight-bloom": "Mitternachtsblüte",
+      "mocha-mousse": "Mocha Mousse",
+      "modern-minimal": "Modern Minimal",
+      "mono": "Mono",
+      "nature": "Natur",
+      "neo-brutalism": "Neo Brutalismus",
+      "northern-lights": "Nordlichter",
+      "notebook": "Notizbuch",
+      "ocean-breeze": "Meeresbrise",
+      "pastel-dreams": "Pastellträume",
+      "perpetuity": "Ewigkeit",
+      "quantum-rose": "Quantenrose",
+      "retro-arcade": "Retro Arcade",
+      "soft-pop": "Sanfter Pop",
+      "solar-dusk": "Sonnenabend",
+      "starry-night": "Sternennacht",
+      "sunset-horizon": "Sonnenuntergangshorizont",
+      "supabase": "Supabase",
+      "t3-chat": "T3 Chat",
+      "tangerine": "Mandarine",
+      "twitter": "Twitter",
+      "vercel": "Vercel",
+      "vintage-paper": "Vintage Papier",
+      "violet-bloom": "Violette Blüte"
+    }
+  },
+  "userInterface": {
+    "header": "Kopfzeile",
+    "sidebar": "Seitenleiste",
+    "footer": "Fußzeile",
+    "notifications": "Benachrichtigungen"
+  },
+  "dataManagement": {
+    "create": "Daten erstellen",
+    "read": "Daten anzeigen",
+    "update": "Daten aktualisieren",
+    "delete": "Daten löschen",
+    "import": "Daten importieren",
+    "export": "Daten exportieren"
+  },
+  "authentication": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren",
+    "forgotPassword": "Passwort vergessen"
+  },
+  "errorMessages": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalidFormat": "Ungültiges Format",
+    "serverError": "Serverfehler",
+    "notFound": "Ressource nicht gefunden"
+  },
+  "successMessages": {
+    "operationSuccess": "Operation erfolgreich",
+    "dataSaved": "Daten erfolgreich gespeichert",
+    "changesUpdated": "Änderungen aktualisiert"
+  },
+  "form": {
+    "validation": "Formularvalidierung",
+    "submission": "Formularübermittlung",
+    "labels": "Formularetiketten",
+    "placeholders": "Eingabehinweise"
+  },
+  "table": {
+    "pagination": "Paginierung",
+    "sorting": "Sortierung",
+    "filtering": "Filterung",
+    "rowSelection": "Zeilenauswahl"
+  }
+}

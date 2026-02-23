@@ -1,0 +1,25 @@
+{
+  "dashboard": {
+    "tabs": {
+      "overview": "Обзор",
+      "analytics": "Аналитика",
+      "reports": "Отчеты",
+      "settings": "Настройки"
+    },
+    "page": {
+      "title": "Панель управления",
+      "description": "Обзор системы и ключевые показатели"
+    },
+    "comingSoon": "Скоро...",
+    "stats": {
+      "totalUsers": "Всего пользователей",
+      "usersDescription": "Рост по сравнению с прошлым месяцем",
+      "totalRevenue": "Общий доход",
+      "revenueDescription": "Рост по сравнению с прошлым месяцем",
+      "activeProjects": "Активные проекты",
+      "projectsDescription": "Текущие проекты",
+      "conversionRate": "Коэффициент конверсии",
+      "conversionDescription": "Рост по сравнению с прошлым месяцем"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "ecg": {
+    "tabs": {
+      "overview": "实时监测",
+      "analytics": "数据分析",
+      "reports": "报告记录",
+      "notifications": "警报通知"
+    },
+    "page": {
+      "title": "心电监测工作台",
+      "description": "实时监控患者心电图数据与生命体征"
+    },
+    "metrics": {
+      "heartRate": "心率",
+      "bloodPressure": "血压",
+      "oxygenSaturation": "血氧饱和度",
+      "temperature": "体温"
+    },
+    "units": {
+      "bpm": "bpm",
+      "mmHg": "mmHg",
+      "percent": "%",
+      "celsius": "°C"
+    },
+    "ranges": {
+      "heartRate": "正常范围 (60-100 bpm)",
+      "bloodPressure": "正常血压",
+      "oxygenSaturation": "正常范围 (95-100%)",
+      "temperature": "正常体温"
+    },
+    "monitoring": {
+      "title": "心电图实时监测",
+      "description": "患者ID: PT-20230905 | 最后更新: 10:25:47"
+    },
+    "patientStatus": {
+      "title": "患者状态",
+      "description": "当前监测参数和警报状态"
+    },
+    "patient": {
+      "infoTitle": "患者信息",
+      "infoDescription": "当前监测状态",
+      "fields": {
+        "name": "姓名",
+        "age": "年龄",
+        "gender": "性别",
+        "patientId": "患者ID",
+        "diagnosis": "诊断",
+        "doctor": "主治医生",
+        "admissionDate": "入院日期",
+        "lastUpdate": "最后更新"
+      }
+    },
+    "alerts": {
+      "title": "警报记录",
+      "description": "最近监测警报",
+      "types": {
+        "heartRate": "心率异常",
+        "bloodPressure": "血压偏高",
+        "oxygen": "血氧正常"
+      },
+      "messages": {
+        "heartRate": "心率短暂升高至120bpm",
+        "bloodPressure": "收缩压达到145mmHg",
+        "oxygen": "血氧饱和度维持在98%"
+      }
+    },
+    "actions": {
+      "refresh": "刷新数据",
+      "contact": "联系医生",
+      "resolve": "解决",
+      "resolved": "已解决"
+    },
+    "status": {
+      "stable": "稳定",
+      "unstable": "不稳定"
+    }
+  }
+}

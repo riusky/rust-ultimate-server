@@ -1,0 +1,8 @@
+{
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "userManagement": "Gestion des utilisateurs",
+    "systemSettings": "Paramètres système",
+    "dataAnalysis": "Analyse de données"
+  }
+}

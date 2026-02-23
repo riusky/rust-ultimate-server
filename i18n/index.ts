@@ -2,7 +2,7 @@
 import { createI18n, type I18n } from 'vue-i18n'
 import { ref, watch, type Ref } from 'vue'
 
-// Static import all locale modules (by directory, same as reference i18n)
+// 静态导入所有语言模块（按目录组织）
 import zhCN from './locales/zh-CN'
 import en from './locales/en'
 import de from './locales/de'
@@ -12,16 +12,20 @@ import ja from './locales/ja'
 import ko from './locales/ko'
 import ru from './locales/ru'
 
+// 1. 定义语言消息对象
 const messages: Record<string, any> = {
   'zh-CN': zhCN,
-  en,
-  de,
-  es,
-  fr,
-  ja,
-  ko,
-  ru,
+  'en': en,
+  'de': de,
+  'es': es,
+  'fr': fr,
+  'ja': ja,
+  'ko': ko,
+  'ru': ru,
 }
+
+console.log('[i18n] Loaded locales:', Object.keys(messages))
+console.log('[i18n] zh-CN sample:', zhCN?.common?.buttons?.theme)
 
 // 监听 localStorage 变化以实现多标签页同步
 window.addEventListener('storage', (event) => {

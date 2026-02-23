@@ -1,0 +1,113 @@
+{
+  "common": {
+    "buttons": {
+      "theme": "Tema",
+      "search": "Buscar",
+      "add": "Agregar",
+      "showfields": "Mostrar campos",
+      "update": "Actualizar",
+      "delete": "Eliminar",
+      "actions": "Acciones"
+    },
+    "theme": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "auto": "Sistema"
+    },
+    "interfaceLabel": {
+      "customize": "Personalización de tema",
+      "color": "Color del tema",
+      "radius": "Radio de borde",
+      "colorMode": "Modo de color"
+    },
+    "interfaceMessage": {
+      "themePick": "Elige estilos y colores para tus componentes."
+    },
+    "themes": {
+      "default": "Predeterminado",
+      "cyberpunk": "Cyberpunk",
+      "amber-minimal": "Ámbar Minimalista",
+      "amethyst-haze": "Niebla Amatista",
+      "bold-tech": "Tecnología Audaz",
+      "bubblegum": "Chicle",
+      "caffeine": "Cafeína",
+      "candyland": "Tierra de Dulces",
+      "catppuccin": "Catppuccin",
+      "claude": "Claude",
+      "claymorphism": "Arcilla Morfismo",
+      "clean-slate": "Pizarra Limpia",
+      "cosmic-night": "Noche Cósmica",
+      "doom-64": "Doom 64",
+      "elegant-luxury": "Lujo Elegante",
+      "graphite": "Grafito",
+      "kodama-grove": "Bosque Kodama",
+      "midnight-bloom": "Floración Nocturna",
+      "mocha-mousse": "Mousse de Mocha",
+      "modern-minimal": "Minimalista Moderno",
+      "mono": "Mono",
+      "nature": "Naturaleza",
+      "neo-brutalism": "Neo Brutalismo",
+      "northern-lights": "Auroras Boreales",
+      "notebook": "Cuaderno",
+      "ocean-breeze": "Brisa Marina",
+      "pastel-dreams": "Sueños Pastel",
+      "perpetuity": "Perpetuidad",
+      "quantum-rose": "Rosa Cuántica",
+      "retro-arcade": "Arcade Retro",
+      "soft-pop": "Pop Suave",
+      "solar-dusk": "Atardecer Solar",
+      "starry-night": "Noche Estrellada",
+      "sunset-horizon": "Horizonte del Atardecer",
+      "supabase": "Supabase",
+      "t3-chat": "T3 Chat",
+      "tangerine": "Mandarina",
+      "twitter": "Twitter",
+      "vercel": "Vercel",
+      "vintage-paper": "Papel Vintage",
+      "violet-bloom": "Floración Violeta"
+    }
+  },
+  "userInterface": {
+    "header": "Encabezado",
+    "sidebar": "Barra lateral",
+    "footer": "Pie de página",
+    "notifications": "Notificaciones"
+  },
+  "dataManagement": {
+    "create": "Crear datos",
+    "read": "Ver datos",
+    "update": "Actualizar datos",
+    "delete": "Eliminar datos",
+    "import": "Importar datos",
+    "export": "Exportar datos"
+  },
+  "authentication": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "register": "Registrarse",
+    "forgotPassword": "Olvidé mi contraseña"
+  },
+  "errorMessages": {
+    "required": "Este campo es obligatorio",
+    "invalidFormat": "Formato inválido",
+    "serverError": "Error del servidor",
+    "notFound": "Recurso no encontrado"
+  },
+  "successMessages": {
+    "operationSuccess": "Operación exitosa",
+    "dataSaved": "Datos guardados correctamente",
+    "changesUpdated": "Cambios actualizados"
+  },
+  "form": {
+    "validation": "Validación de formulario",
+    "submission": "Envío de formulario",
+    "labels": "Etiquetas del formulario",
+    "placeholders": "Marcadores de posición"
+  },
+  "table": {
+    "pagination": "Paginación",
+    "sorting": "Ordenación",
+    "filtering": "Filtrado",
+    "rowSelection": "Selección de filas"
+  }
+}

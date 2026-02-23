@@ -1,0 +1,113 @@
+{
+  "common": {
+    "buttons": {
+      "theme": "Theme",
+      "search": "Search",
+      "add": "Add",
+      "showfields": "Show Fields",
+      "update": "Update",
+      "delete": "Delete",
+      "actions": "Actions"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "System"
+    },
+    "interfaceLabel": {
+      "customize": "Theme Customization",
+      "color": "Theme Color",
+      "radius": "Border Radius",
+      "colorMode": "Color Mode"
+    },
+    "interfaceMessage": {
+      "themePick": "Choose styles and colors for your components."
+    },
+    "themes": {
+      "default": "Default",
+      "cyberpunk": "Cyberpunk",
+      "amber-minimal": "Amber Minimal",
+      "amethyst-haze": "Amethyst Haze",
+      "bold-tech": "Bold Tech",
+      "bubblegum": "Bubblegum",
+      "caffeine": "Caffeine",
+      "candyland": "Candyland",
+      "catppuccin": "Catppuccin",
+      "claude": "Claude",
+      "claymorphism": "Claymorphism",
+      "clean-slate": "Clean Slate",
+      "cosmic-night": "Cosmic Night",
+      "doom-64": "Doom 64",
+      "elegant-luxury": "Elegant Luxury",
+      "graphite": "Graphite",
+      "kodama-grove": "Kodama Grove",
+      "midnight-bloom": "Midnight Bloom",
+      "mocha-mousse": "Mocha Mousse",
+      "modern-minimal": "Modern Minimal",
+      "mono": "Mono",
+      "nature": "Nature",
+      "neo-brutalism": "Neo Brutalism",
+      "northern-lights": "Northern Lights",
+      "notebook": "Notebook",
+      "ocean-breeze": "Ocean Breeze",
+      "pastel-dreams": "Pastel Dreams",
+      "perpetuity": "Perpetuity",
+      "quantum-rose": "Quantum Rose",
+      "retro-arcade": "Retro Arcade",
+      "soft-pop": "Soft Pop",
+      "solar-dusk": "Solar Dusk",
+      "starry-night": "Starry Night",
+      "sunset-horizon": "Sunset Horizon",
+      "supabase": "Supabase",
+      "t3-chat": "T3 Chat",
+      "tangerine": "Tangerine",
+      "twitter": "Twitter",
+      "vercel": "Vercel",
+      "vintage-paper": "Vintage Paper",
+      "violet-bloom": "Violet Bloom"
+    }
+  },
+  "userInterface": {
+    "header": "Page Header",
+    "sidebar": "Sidebar",
+    "footer": "Footer",
+    "notifications": "Notifications"
+  },
+  "dataManagement": {
+    "create": "Create Data",
+    "read": "View Data",
+    "update": "Update Data",
+    "delete": "Delete Data",
+    "import": "Import Data",
+    "export": "Export Data"
+  },
+  "authentication": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "forgotPassword": "Forgot Password"
+  },
+  "errorMessages": {
+    "required": "This field is required",
+    "invalidFormat": "Invalid format",
+    "serverError": "Server error",
+    "notFound": "Resource not found"
+  },
+  "successMessages": {
+    "operationSuccess": "Operation successful",
+    "dataSaved": "Data saved successfully",
+    "changesUpdated": "Changes updated"
+  },
+  "form": {
+    "validation": "Form Validation",
+    "submission": "Form Submission",
+    "labels": "Form Labels",
+    "placeholders": "Input Placeholders"
+  },
+  "table": {
+    "pagination": "Pagination",
+    "sorting": "Sorting",
+    "filtering": "Filtering",
+    "rowSelection": "Row Selection"
+  }
+}

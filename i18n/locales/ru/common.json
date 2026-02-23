@@ -1,0 +1,113 @@
+{
+  "common": {
+    "buttons": {
+      "theme": "Тема",
+      "search": "Поиск",
+      "add": "Добавить",
+      "showfields": "Показать поля",
+      "update": "Обновить",
+      "delete": "Удалить",
+      "actions": "Действия"
+    },
+    "theme": {
+      "light": "Светлая",
+      "dark": "Темная",
+      "auto": "Системная"
+    },
+    "interfaceLabel": {
+      "customize": "Настройка темы",
+      "color": "Цвет темы",
+      "radius": "Скругление углов",
+      "colorMode": "Цветовой режим"
+    },
+    "interfaceMessage": {
+      "themePick": "Выберите стили и цвета для ваших компонентов."
+    },
+    "themes": {
+      "default": "По умолчанию",
+      "cyberpunk": "Киберпанк",
+      "amber-minimal": "Янтарный Минимализм",
+      "amethyst-haze": "Аметистовая Дымка",
+      "bold-tech": "Смелый Техно",
+      "bubblegum": "Жвачка",
+      "caffeine": "Кофеин",
+      "candyland": "Конфетная Страна",
+      "catppuccin": "Катппуччино",
+      "claude": "Клод",
+      "claymorphism": "Глиняный Морфизм",
+      "clean-slate": "Чистый Лист",
+      "cosmic-night": "Космическая Ночь",
+      "doom-64": "Doom 64",
+      "elegant-luxury": "Элегантная Роскошь",
+      "graphite": "Графит",
+      "kodama-grove": "Роща Кодама",
+      "midnight-bloom": "Полуночное Цветение",
+      "mocha-mousse": "Мокка Мусс",
+      "modern-minimal": "Современный Минимализм",
+      "mono": "Моно",
+      "nature": "Природа",
+      "neo-brutalism": "Нео Брутализм",
+      "northern-lights": "Северное Сияние",
+      "notebook": "Блокнот",
+      "ocean-breeze": "Морской Бриз",
+      "pastel-dreams": "Пастельные Сны",
+      "perpetuity": "Вечность",
+      "quantum-rose": "Квантовая Роза",
+      "retro-arcade": "Ретро Аркада",
+      "soft-pop": "Мягкий Поп",
+      "solar-dusk": "Солнечные Сумерки",
+      "starry-night": "Звездная Ночь",
+      "sunset-horizon": "Горизонт Заката",
+      "supabase": "Supabase",
+      "t3-chat": "T3 Чат",
+      "tangerine": "Мандарин",
+      "twitter": "Twitter",
+      "vercel": "Vercel",
+      "vintage-paper": "Винтажная Бумага",
+      "violet-bloom": "Фиолетовое Цветение"
+    }
+  },
+  "userInterface": {
+    "header": "Заголовок страницы",
+    "sidebar": "Боковая панель",
+    "footer": "Подвал",
+    "notifications": "Уведомления"
+  },
+  "dataManagement": {
+    "create": "Создать данные",
+    "read": "Просмотреть данные",
+    "update": "Обновить данные",
+    "delete": "Удалить данные",
+    "import": "Импорт данных",
+    "export": "Экспорт данных"
+  },
+  "authentication": {
+    "login": "Вход",
+    "logout": "Выход",
+    "register": "Регистрация",
+    "forgotPassword": "Забыли пароль"
+  },
+  "errorMessages": {
+    "required": "Это поле обязательно",
+    "invalidFormat": "Неверный формат",
+    "serverError": "Ошибка сервера",
+    "notFound": "Ресурс не найден"
+  },
+  "successMessages": {
+    "operationSuccess": "Операция успешна",
+    "dataSaved": "Данные сохранены",
+    "changesUpdated": "Изменения обновлены"
+  },
+  "form": {
+    "validation": "Проверка формы",
+    "submission": "Отправка формы",
+    "labels": "Метки формы",
+    "placeholders": "Заполнители"
+  },
+  "table": {
+    "pagination": "Пагинация",
+    "sorting": "Сортировка",
+    "filtering": "Фильтрация",
+    "rowSelection": "Выбор строки"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "bizErrors": {
+    "AUTH#001": "Invalid username or password",
+    "AUTH#002": "Please login first",
+    "USER#001": "Username cannot be empty",
+    "USER#002": "Password is too short",
+    "USER#003": "Password validation failed",
+    "USER#004": "User not found",
+    "USER#005": "Not authorized to perform this action",
+    "PERM#001": "Permission denied",
+    "PERM#002": "Missing required permissions",
+    "DATA#001": "Data not found",
+    "RPC#001": "Invalid request format",
+    "RPC#002": "Method not found",
+    "RPC#003": "Invalid request parameters",
+    "SYS#001": "System busy, please try again later",
+    "UNKNOWN": "An unknown error occurred"
+  }
+}

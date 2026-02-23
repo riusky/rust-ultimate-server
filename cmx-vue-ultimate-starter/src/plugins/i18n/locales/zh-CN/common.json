@@ -1,0 +1,113 @@
+{
+  "common": {
+    "buttons": {
+      "theme": "主题",
+      "search": "搜索",
+      "add": "添加",
+      "showfields": "显示字段",
+      "update": "更新",
+      "delete": "删除",
+      "actions": "操作"
+    },
+    "theme": {
+      "light": "光系",
+      "dark": "暗系",
+      "auto": "自然系"
+    },
+    "interfaceLabel": {
+      "customize": "主题自定义",
+      "color": "主题色",
+      "radius": "圆角",
+      "colorMode": "主题模式"
+    },
+    "interfaceMessage": {
+      "themePick": "为你的组件选择样式和颜色。"
+    },
+    "themes": {
+      "default": "默认主题",
+      "cyberpunk": "赛博朋克",
+      "amber-minimal": "琥珀极简",
+      "amethyst-haze": "紫晶迷雾",
+      "bold-tech": "科技炫酷",
+      "bubblegum": "泡泡糖",
+      "caffeine": "咖啡因",
+      "candyland": "糖果乐园",
+      "catppuccin": "猫猫咖啡",
+      "claude": "克劳德",
+      "claymorphism": "粘土风格",
+      "clean-slate": "清新白板",
+      "cosmic-night": "宇宙之夜",
+      "doom-64": "毁灭战士64",
+      "elegant-luxury": "优雅奢华",
+      "graphite": "石墨灰",
+      "kodama-grove": "木灵森林",
+      "midnight-bloom": "午夜绽放",
+      "mocha-mousse": "摩卡慕斯",
+      "modern-minimal": "现代极简",
+      "mono": "单色",
+      "nature": "自然",
+      "neo-brutalism": "新粗野主义",
+      "northern-lights": "北极光",
+      "notebook": "笔记本",
+      "ocean-breeze": "海洋微风",
+      "pastel-dreams": "柔彩梦境",
+      "perpetuity": "永恒",
+      "quantum-rose": "量子玫瑰",
+      "retro-arcade": "复古街机",
+      "soft-pop": "柔和流行",
+      "solar-dusk": "落日余晖",
+      "starry-night": "星空之夜",
+      "sunset-horizon": "日落地平线",
+      "supabase": "Supabase",
+      "t3-chat": "T3聊天",
+      "tangerine": "柑橘橙",
+      "twitter": "推特蓝",
+      "vercel": "Vercel",
+      "vintage-paper": "复古纸张",
+      "violet-bloom": "紫罗兰绽放"
+    }
+  },
+  "userInterface": {
+    "header": "页面头部",
+    "sidebar": "侧边栏",
+    "footer": "页脚",
+    "notifications": "通知中心"
+  },
+  "dataManagement": {
+    "create": "创建数据",
+    "read": "查看数据",
+    "update": "更新数据",
+    "delete": "删除数据",
+    "import": "导入数据",
+    "export": "导出数据"
+  },
+  "authentication": {
+    "login": "登录",
+    "logout": "退出登录",
+    "register": "注册",
+    "forgotPassword": "忘记密码"
+  },
+  "errorMessages": {
+    "required": "该字段为必填项",
+    "invalidFormat": "格式不正确",
+    "serverError": "服务器错误",
+    "notFound": "资源未找到"
+  },
+  "successMessages": {
+    "operationSuccess": "操作成功",
+    "dataSaved": "数据保存成功",
+    "changesUpdated": "变更已更新"
+  },
+  "form": {
+    "validation": "表单验证",
+    "submission": "表单提交",
+    "labels": "表单标签",
+    "placeholders": "输入提示"
+  },
+  "table": {
+    "pagination": "分页",
+    "sorting": "排序",
+    "filtering": "过滤",
+    "rowSelection": "行选择"
+  }
+}
