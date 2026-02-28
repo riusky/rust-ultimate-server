@@ -1,0 +1,18 @@
+###################################
+# 🦎 KOMODO CORE CONFIG OVERLAY 🦎 #
+###################################
+
+# Private Docker Registry (self-hosted, no auth)
+[[docker_registry]]
+domain = "127.0.0.1:5000"
+accounts = [
+  { username = "local", token = "local" }
+]
+
+# Git provider for public GitHub repos (no token needed)
+# Uncomment and add token if repo becomes private:
+# [[git_provider]]
+# domain = "github.com"
+# accounts = [
+#   { username = "riusky", token = "ghp_your_token_here" }
+# ]
