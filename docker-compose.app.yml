@@ -9,7 +9,7 @@ networks:
 
 services:
   web-server:
-    image: ${REGISTRY_HOST:-127.0.0.1}:5000/web-server:${APP_VERSION:-latest}
+    image: ${REGISTRY_HOST:-127.0.0.1}:5000/local/web-server:${APP_VERSION:-latest}
     container_name: rust-web-app-server
     restart: unless-stopped
     networks:
@@ -31,7 +31,7 @@ services:
       INIT_ADMIN_PASSWORD: ${INIT_ADMIN_PASSWORD}
 
   frontend:
-    image: ${REGISTRY_HOST:-127.0.0.1}:5000/frontend:${APP_VERSION:-latest}
+    image: ${REGISTRY_HOST:-127.0.0.1}:5000/local/frontend:${APP_VERSION:-latest}
     container_name: rust-web-app-frontend
     restart: unless-stopped
     networks:
@@ -40,7 +40,7 @@ services:
       - "80"
 
   gateway:
-    image: ${REGISTRY_HOST:-127.0.0.1}:5000/gateway:${APP_VERSION:-latest}
+    image: ${REGISTRY_HOST:-127.0.0.1}:5000/local/gateway:${APP_VERSION:-latest}
     container_name: rust-web-app-gateway
     restart: unless-stopped
     networks:
