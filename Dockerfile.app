@@ -74,6 +74,9 @@ WORKDIR /app
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/target/release/web-server /app/web-server
 
+# Bundle SQL migrations for multi-server deployment (no volume mount needed)
+COPY sql/ /app/sql/
+
 # 创建非 root 用户
 RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app

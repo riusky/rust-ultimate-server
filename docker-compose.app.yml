@@ -1,0 +1,59 @@
+# Application stack: web-server + frontend + gateway
+# Requires rust-app-network and pre-built images in Registry (deploy infra + registry first, then run Komodo Build).
+# Komodo Stack: app
+
+networks:
+  app-network:
+    name: rust-app-network
+    external: true
+
+services:
+  web-server:
+    image: 152.136.33.66:5000/web-server:${APP_VERSION:-latest}
+    container_name: rust-web-app-server
+    restart: unless-stopped
+    networks:
+      - app-network
+    expose:
+      - "8080"
+    environment:
+      RUST_LOG: ${RUST_LOG:-"web_server=info,lib_core=info,lib_web=info,lib_auth=info"}
+      SERVICE_DB_URL: postgres://${POSTGRES_USER:-app_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-app_db}
+      SERVICE_WEB_FOLDER: /app/web-folder
+      SERVICE_PWD_KEY: ${SERVICE_PWD_KEY}
+      SERVICE_TOKEN_KEY: ${SERVICE_TOKEN_KEY}
+      SERVICE_TOKEN_DURATION_SEC: ${SERVICE_TOKEN_DURATION_SEC:-86400}
+      SERVICE_VALKEY_URL: ${SERVICE_VALKEY_URL:-redis://valkey:6379}
+      SERVICE_VALKEY_POOL_MAX_SIZE: ${SERVICE_VALKEY_POOL_MAX_SIZE:-10}
+      SERVICE_VALKEY_POOL_MIN_IDLE: ${SERVICE_VALKEY_POOL_MIN_IDLE:-2}
+      SERVICE_PERMISSION_CACHE_ENABLED: ${SERVICE_PERMISSION_CACHE_ENABLED:-true}
+      INIT_ADMIN_USERNAME: ${INIT_ADMIN_USERNAME:-demo1}
+      INIT_ADMIN_PASSWORD: ${INIT_ADMIN_PASSWORD}
+
+  frontend:
+    image: 152.136.33.66:5000/frontend:${APP_VERSION:-latest}
+    container_name: rust-web-app-frontend
+    restart: unless-stopped
+    networks:
+      - app-network
+    expose:
+      - "80"
+
+  gateway:
+    image: 152.136.33.66:5000/gateway:${APP_VERSION:-latest}
+    container_name: rust-web-app-gateway
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      - web-server
+      - frontend
+    ports:
+      - "80:80"
+    environment:
+      RUST_LOG: ${GATEWAY_LOG_LEVEL:-info}
+      UPSTREAM_API_ADDR: web-server
+      UPSTREAM_API_PORT: "8080"
+      UPSTREAM_FRONTEND_ADDR: frontend
+      UPSTREAM_FRONTEND_PORT: "80"
+      GATEWAY_LISTEN_PORT: "80"
