@@ -27,8 +27,9 @@ pub async fn sync_permissions(mm: &ModelManager) -> Result<SyncResult> {
 	let mut result = SyncResult::default();
 
 	// Collect all registered permissions
-	let registered: Vec<&RegisteredPermission> =
-		inventory::iter::<RegisteredPermission>.into_iter().collect();
+	let registered: Vec<&RegisteredPermission> = inventory::iter::<RegisteredPermission>
+		.into_iter()
+		.collect();
 
 	info!(
 		"Permission sync: Found {} registered permissions",
@@ -36,8 +37,10 @@ pub async fn sync_permissions(mm: &ModelManager) -> Result<SyncResult> {
 	);
 
 	// Get existing permissions from database
-	let existing_keys: HashSet<String> =
-		PermissionBmc::list_all_keys(&ctx, mm).await?.into_iter().collect();
+	let existing_keys: HashSet<String> = PermissionBmc::list_all_keys(&ctx, mm)
+		.await?
+		.into_iter()
+		.collect();
 
 	// Process each registered permission
 	for perm in &registered {
@@ -73,16 +76,16 @@ pub async fn sync_permissions(mm: &ModelManager) -> Result<SyncResult> {
 	for key in &existing_keys {
 		if !registered_keys.contains(key.as_str()) {
 			result.orphaned.push(key.clone());
-			warn!(
-				"Orphaned permission in database (not in code): {}",
-				key
-			);
+			warn!("Orphaned permission in database (not in code): {}", key);
 		}
 	}
 
 	info!(
 		"Permission sync complete: {} created, {} existing, {} orphaned, {} errors",
-		result.created, result.existing, result.orphaned.len(), result.errors
+		result.created,
+		result.existing,
+		result.orphaned.len(),
+		result.errors
 	);
 
 	Ok(result)

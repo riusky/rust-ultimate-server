@@ -4,10 +4,10 @@
 
 // region:    --- Modules
 
+pub mod cache_keys;
 mod config;
 mod error;
 mod pool;
-pub mod cache_keys;
 pub mod transaction;
 
 pub mod commands;
@@ -24,7 +24,9 @@ pub mod _dev_utils;
 
 pub use self::config::{valkey_config, ValkeyConfig};
 pub use self::error::{Error, Result};
-pub use self::pool::{new_valkey_pool, new_valkey_pool_with_config, ValkeyConnection, ValkeyManager, ValkeyPool};
+pub use self::pool::{
+	new_valkey_pool, new_valkey_pool_with_config, ValkeyConnection, ValkeyManager, ValkeyPool,
+};
 
 #[cfg(feature = "with-axum")]
 pub use self::extractor::ValkeyConn;

@@ -389,7 +389,13 @@ mod tests {
 		let key = format!("{}:events", prefix);
 
 		// -- Exec
-		let id1 = xadd(&mut *conn, &key, None, &[("type", "click"), ("user", "alice")]).await?;
+		let id1 = xadd(
+			&mut *conn,
+			&key,
+			None,
+			&[("type", "click"), ("user", "alice")],
+		)
+		.await?;
 		let id2 = xadd(&mut *conn, &key, None, &[("type", "view"), ("user", "bob")]).await?;
 
 		let len = xlen(&mut *conn, &key).await?;

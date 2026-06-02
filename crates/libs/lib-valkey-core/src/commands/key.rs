@@ -99,10 +99,7 @@ where
 	C: AsyncCommands,
 	K: redis::ToRedisArgs + Send + Sync,
 {
-	let key_type: String = redis::cmd("TYPE")
-		.arg(key)
-		.query_async(conn)
-		.await?;
+	let key_type: String = redis::cmd("TYPE").arg(key).query_async(conn).await?;
 	Ok(key_type)
 }
 
@@ -176,7 +173,7 @@ mod tests {
 
 		// -- Exec
 		string::set(&mut *conn, &key, "value", None).await?;
-		
+
 		// No expiry set
 		let t = ttl(&mut *conn, &key).await?;
 		assert_eq!(t, -1);

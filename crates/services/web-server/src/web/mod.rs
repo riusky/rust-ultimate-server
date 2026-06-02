@@ -1,10 +1,10 @@
 // region:    --- Modules
 pub mod menu_permissions;
+pub mod rests;
 pub mod routes_login;
 pub mod routes_rest;
 pub mod routes_rpc;
 pub mod routes_user;
-pub mod rests;
 pub mod rpcs;
 
 // endregion: --- Modules

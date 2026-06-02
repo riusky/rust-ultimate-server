@@ -26,9 +26,7 @@ pub async fn new_valkey_pool_with_config(
 	// Test connection
 	{
 		let mut conn = pool.get().await?;
-		redis::cmd("PING")
-			.query_async::<String>(&mut *conn)
-			.await?;
+		redis::cmd("PING").query_async::<String>(&mut *conn).await?;
 	}
 
 	info!("Successfully connected to Valkey");

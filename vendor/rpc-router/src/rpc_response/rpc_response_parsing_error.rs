@@ -1,7 +1,7 @@
 use crate::RpcId;
 use serde::Serialize;
 use serde_json::Value;
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{DisplayFromStr, serde_as};
 
 /// Error type for failures during `RpcResponse` parsing or validation.
 #[serde_as]

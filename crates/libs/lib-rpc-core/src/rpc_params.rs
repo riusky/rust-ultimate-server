@@ -49,7 +49,4 @@ where
 	pub list_options: Option<ListOptions>,
 }
 
-impl<D> IntoDefaultRpcParams for ParamsList<D> where
-	D: DeserializeOwned + Send + Default
-{
-}
+impl<D> IntoDefaultRpcParams for ParamsList<D> where D: DeserializeOwned + Send + Default {}

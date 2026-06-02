@@ -59,17 +59,19 @@ impl Parse for PermissionAttrs {
 		}
 
 		if key.is_empty() {
-			return Err(syn::Error::new(
-				input.span(),
-				"Permission key is required",
-			));
+			return Err(syn::Error::new(input.span(), "Permission key is required"));
 		}
 
 		if display.is_empty() {
 			display = key.clone();
 		}
 
-		Ok(Self { key, group, display, description })
+		Ok(Self {
+			key,
+			group,
+			display,
+			description,
+		})
 	}
 }
 

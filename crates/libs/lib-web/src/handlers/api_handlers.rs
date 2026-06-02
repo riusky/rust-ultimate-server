@@ -19,10 +19,7 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub enum ApiInfo {
 	/// JSON-RPC request info
-	Rpc {
-		id: Option<Value>,
-		method: String,
-	},
+	Rpc { id: Option<Value>, method: String },
 	/// REST API request info
 	Rest {
 		/// Resource name (e.g., "agent", "conv")
@@ -103,10 +100,7 @@ pub async fn rpc_axum_handler(
 
 	// -- Create the API Info (RPC type)
 	//    (will be set to the response.extensions)
-	let api_info = ApiInfo::rpc(
-		Some(rpc_req.id.to_value()),
-		rpc_req.method.clone(),
-	);
+	let api_info = ApiInfo::rpc(Some(rpc_req.id.to_value()), rpc_req.method.clone());
 
 	// -- Add the request specific resources
 	// Note: Since Ctx is per axum request, we construct additional RPC resources.

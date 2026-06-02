@@ -3,12 +3,7 @@
 use crate::Result;
 
 /// Execute a Lua script
-pub async fn eval<C, R>(
-	conn: &mut C,
-	script: &str,
-	keys: &[&str],
-	args: &[&str],
-) -> Result<R>
+pub async fn eval<C, R>(conn: &mut C, script: &str, keys: &[&str], args: &[&str]) -> Result<R>
 where
 	C: redis::aio::ConnectionLike + Send,
 	R: redis::FromRedisValue,
@@ -22,12 +17,7 @@ where
 }
 
 /// Execute a script by SHA1 hash (must be loaded first)
-pub async fn evalsha<C, R>(
-	conn: &mut C,
-	sha1: &str,
-	keys: &[&str],
-	args: &[&str],
-) -> Result<R>
+pub async fn evalsha<C, R>(conn: &mut C, sha1: &str, keys: &[&str], args: &[&str]) -> Result<R>
 where
 	C: redis::aio::ConnectionLike + Send,
 	R: redis::FromRedisValue,
@@ -128,12 +118,7 @@ impl CachedScript {
 	}
 
 	/// Execute with typed keys and args
-	pub async fn invoke_typed<C, K, A, R>(
-		&self,
-		conn: &mut C,
-		keys: &[K],
-		args: &[A],
-	) -> Result<R>
+	pub async fn invoke_typed<C, K, A, R>(&self, conn: &mut C, keys: &[K], args: &[A]) -> Result<R>
 	where
 		C: redis::aio::ConnectionLike + Send,
 		K: redis::ToRedisArgs,

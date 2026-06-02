@@ -65,7 +65,9 @@ where
 	K: redis::ToRedisArgs + Send + Sync,
 	V: redis::FromRedisValue,
 {
-	let values: Vec<V> = conn.lpop(key, Some(std::num::NonZeroUsize::new(count).unwrap())).await?;
+	let values: Vec<V> = conn
+		.lpop(key, Some(std::num::NonZeroUsize::new(count).unwrap()))
+		.await?;
 	Ok(values)
 }
 
@@ -87,7 +89,9 @@ where
 	K: redis::ToRedisArgs + Send + Sync,
 	V: redis::FromRedisValue,
 {
-	let values: Vec<V> = conn.rpop(key, Some(std::num::NonZeroUsize::new(count).unwrap())).await?;
+	let values: Vec<V> = conn
+		.rpop(key, Some(std::num::NonZeroUsize::new(count).unwrap()))
+		.await?;
 	Ok(values)
 }
 
@@ -156,7 +160,8 @@ where
 	C: AsyncCommands,
 	K: redis::ToRedisArgs + Send + Sync,
 {
-	conn.ltrim::<_, ()>(key, start as isize, stop as isize).await?;
+	conn.ltrim::<_, ()>(key, start as isize, stop as isize)
+		.await?;
 	Ok(())
 }
 

@@ -1,7 +1,7 @@
 use crate::ctx::Ctx;
 use crate::model::base::{
-	prep_fields_for_create, prep_fields_for_update, CommonIden, DbBmc,
-	LIST_LIMIT_DEFAULT, LIST_LIMIT_MAX,
+	prep_fields_for_create, prep_fields_for_update, CommonIden, DbBmc, LIST_LIMIT_DEFAULT,
+	LIST_LIMIT_MAX,
 };
 use crate::model::ModelManager;
 use crate::model::{Error, Result};
@@ -43,11 +43,7 @@ where
 	Ok(id)
 }
 
-pub async fn create_many<MC, E>(
-	ctx: &Ctx,
-	mm: &ModelManager,
-	data: Vec<E>,
-) -> Result<Vec<i64>>
+pub async fn create_many<MC, E>(ctx: &Ctx, mm: &ModelManager, data: Vec<E>) -> Result<Vec<i64>>
 where
 	MC: DbBmc,
 	E: HasSeaFields,
@@ -102,14 +98,14 @@ where
 	// -- Exec query
 	let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
 	let sqlx_query = sqlx::query_as_with::<_, E, _>(&sql, values);
-	let entity =
-		mm.dbx()
-			.fetch_optional(sqlx_query)
-			.await?
-			.ok_or(Error::EntityNotFound {
-				entity: MC::TABLE,
-				id,
-			})?;
+	let entity = mm
+		.dbx()
+		.fetch_optional(sqlx_query)
+		.await?
+		.ok_or(Error::EntityNotFound {
+			entity: MC::TABLE,
+			id,
+		})?;
 
 	Ok(entity)
 }
@@ -134,8 +130,7 @@ where
 
 			// Don't change order_bys if not empty,
 			// otherwise, set it to id (creation asc order)
-			list_options.order_bys =
-				list_options.order_bys.or_else(|| Some("id".into()));
+			list_options.order_bys = list_options.order_bys.or_else(|| Some("id".into()));
 
 			list_options
 		}
@@ -186,11 +181,7 @@ where
 	Ok(entities)
 }
 
-pub async fn count<MC, F>(
-	_ctx: &Ctx,
-	mm: &ModelManager,
-	filter: Option<F>,
-) -> Result<i64>
+pub async fn count<MC, F>(_ctx: &Ctx, mm: &ModelManager, filter: Option<F>) -> Result<i64>
 where
 	MC: DbBmc,
 	F: Into<FilterGroups>,
@@ -221,12 +212,7 @@ where
 	Ok(count)
 }
 
-pub async fn update<MC, E>(
-	ctx: &Ctx,
-	mm: &ModelManager,
-	id: i64,
-	data: E,
-) -> Result<()>
+pub async fn update<MC, E>(ctx: &Ctx, mm: &ModelManager, id: i64, data: E) -> Result<()>
 where
 	MC: DbBmc,
 	E: HasSeaFields,
@@ -285,11 +271,7 @@ where
 	}
 }
 
-pub async fn delete_many<MC>(
-	_ctx: &Ctx,
-	mm: &ModelManager,
-	ids: Vec<i64>,
-) -> Result<u64>
+pub async fn delete_many<MC>(_ctx: &Ctx, mm: &ModelManager, ids: Vec<i64>) -> Result<u64>
 where
 	MC: DbBmc,
 {
@@ -319,9 +301,7 @@ where
 	}
 }
 
-pub fn compute_list_options(
-	list_options: Option<ListOptions>,
-) -> Result<ListOptions> {
+pub fn compute_list_options(list_options: Option<ListOptions>) -> Result<ListOptions> {
 	if let Some(mut list_options) = list_options {
 		// Validate the limit.
 		if let Some(limit) = list_options.limit {

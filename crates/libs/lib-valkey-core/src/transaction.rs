@@ -172,9 +172,7 @@ where
 		}
 
 		// Start transaction
-		redis::cmd("MULTI")
-			.query_async::<()>(self.conn)
-			.await?;
+		redis::cmd("MULTI").query_async::<()>(self.conn).await?;
 
 		// Queue all commands
 		for cmd in &self.commands {
@@ -182,18 +180,14 @@ where
 		}
 
 		// Execute and get results
-		let results: Vec<redis::Value> = redis::cmd("EXEC")
-			.query_async(self.conn)
-			.await?;
+		let results: Vec<redis::Value> = redis::cmd("EXEC").query_async(self.conn).await?;
 
 		Ok(results)
 	}
 
 	/// Discard the transaction
 	pub async fn discard(self) -> Result<()> {
-		redis::cmd("DISCARD")
-			.query_async::<()>(self.conn)
-			.await?;
+		redis::cmd("DISCARD").query_async::<()>(self.conn).await?;
 		Ok(())
 	}
 }
@@ -217,9 +211,7 @@ pub async fn unwatch<C>(conn: &mut C) -> Result<()>
 where
 	C: redis::aio::ConnectionLike + Send,
 {
-	redis::cmd("UNWATCH")
-		.query_async::<()>(conn)
-		.await?;
+	redis::cmd("UNWATCH").query_async::<()>(conn).await?;
 	Ok(())
 }
 

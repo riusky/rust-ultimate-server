@@ -28,8 +28,7 @@ fn hash(key: &[u8], to_hash: &ContentToHash) -> Result<String> {
 	let ContentToHash { content, salt } = to_hash;
 
 	// -- Create a HMAC-SHA-512 from key.
-	let mut hmac_sha512 =
-		Hmac::<Sha512>::new_from_slice(key).map_err(|_| Error::Key)?;
+	let mut hmac_sha512 = Hmac::<Sha512>::new_from_slice(key).map_err(|_| Error::Key)?;
 
 	// -- Add content.
 	hmac_sha512.update(content.as_bytes());

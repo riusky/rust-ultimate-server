@@ -32,72 +32,71 @@ pub async fn mw_reponse_map(
 	let (client_status_error, web_error) = get_error_info(&res);
 
 	// -- If client error, build the new response based on API type
-	let error_response =
-		client_status_error
-			.as_ref()
-			.map(|(status_code, client_error)| {
-				let client_error = to_value(client_error).ok();
-				let message = client_error.as_ref().and_then(|v| v.get("message"));
-				let biz_code = client_error.as_ref().and_then(|v| v.get("biz_code"));
-				let detail = client_error.as_ref().and_then(|v| v.get("detail"));
+	let error_response = client_status_error
+		.as_ref()
+		.map(|(status_code, client_error)| {
+			let client_error = to_value(client_error).ok();
+			let message = client_error.as_ref().and_then(|v| v.get("message"));
+			let biz_code = client_error.as_ref().and_then(|v| v.get("biz_code"));
+			let detail = client_error.as_ref().and_then(|v| v.get("detail"));
 
-				// Build different error body based on API type
-				let client_error_body = match api_info {
-					// JSON-RPC format error response
-					Some(ApiInfo::Rpc { id, .. }) => {
-						json!({
-							"jsonrpc": "2.0",
-							"id": id,
-							"error": {
-								"code": status_code.as_u16(),
-								"biz_code": biz_code,
-								"message": message,
-								"data": {
-									"req_uuid": uuid.to_string(),
-									"detail": detail
-								},
-							}
-						})
-					}
-					// REST format error response
-					Some(ApiInfo::Rest { resource, action }) => {
-						json!({
-							"success": false,
-							"error": {
-								"code": status_code.as_u16(),
-								"biz_code": biz_code,
-								"message": message,
-								"detail": detail,
-								"resource": resource,
-								"action": action,
-							},
-							"meta": {
+			// Build different error body based on API type
+			let client_error_body = match api_info {
+				// JSON-RPC format error response
+				Some(ApiInfo::Rpc { id, .. }) => {
+					json!({
+						"jsonrpc": "2.0",
+						"id": id,
+						"error": {
+							"code": status_code.as_u16(),
+							"biz_code": biz_code,
+							"message": message,
+							"data": {
 								"req_uuid": uuid.to_string(),
-							}
-						})
-					}
-					// Default/fallback format (generic REST-like)
-					None => {
-						json!({
-							"success": false,
-							"error": {
-								"code": status_code.as_u16(),
-								"biz_code": biz_code,
-								"message": message,
-								"detail": detail,
+								"detail": detail
 							},
-							"meta": {
-								"req_uuid": uuid.to_string(),
-							}
-						})
-					}
-				};
+						}
+					})
+				}
+				// REST format error response
+				Some(ApiInfo::Rest { resource, action }) => {
+					json!({
+						"success": false,
+						"error": {
+							"code": status_code.as_u16(),
+							"biz_code": biz_code,
+							"message": message,
+							"detail": detail,
+							"resource": resource,
+							"action": action,
+						},
+						"meta": {
+							"req_uuid": uuid.to_string(),
+						}
+					})
+				}
+				// Default/fallback format (generic REST-like)
+				None => {
+					json!({
+						"success": false,
+						"error": {
+							"code": status_code.as_u16(),
+							"biz_code": biz_code,
+							"message": message,
+							"detail": detail,
+						},
+						"meta": {
+							"req_uuid": uuid.to_string(),
+						}
+					})
+				}
+			};
 
-				debug!("CLIENT ERROR BODY:\n{client_error_body}");
+			debug!("CLIENT ERROR BODY:\n{client_error_body}");
 
-				// Build the new response from the client_error_body
-				(*status_code, Json(client_error_body)).into_response()
-			});
+			// Build the new response from the client_error_body
+			(*status_code, Json(client_error_body)).into_response()
+		});
 
 	// -- Build and log the server log line.
 	let client_error_info = client_status_error.map(|(_, ce)| ClientErrorInfo {
@@ -145,7 +144,9 @@ fn get_error_info(
 		let serializable = SerializableClientError {
 			message: client_error.as_ref().to_string(),
 			biz_code: client_error.biz_code().to_string(),
-			detail: to_value(&client_error).ok().and_then(|v| v.get("detail").cloned()),
+			detail: to_value(&client_error)
+				.ok()
+				.and_then(|v| v.get("detail").cloned()),
 		};
 		return (Some((status, serializable)), Some(Arc::clone(web_error)));
 	}

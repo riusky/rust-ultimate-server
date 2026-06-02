@@ -140,12 +140,7 @@ where
 }
 
 /// Get range of members by score
-pub async fn zrangebyscore<C, K, V>(
-	conn: &mut C,
-	key: K,
-	min: f64,
-	max: f64,
-) -> Result<Vec<V>>
+pub async fn zrangebyscore<C, K, V>(conn: &mut C, key: K, min: f64, max: f64) -> Result<Vec<V>>
 where
 	C: AsyncCommands,
 	K: redis::ToRedisArgs + Send + Sync,
@@ -245,7 +240,9 @@ where
 	C: AsyncCommands,
 	K: redis::ToRedisArgs + Send + Sync,
 {
-	let removed: u64 = conn.zremrangebyrank(key, start as isize, stop as isize).await?;
+	let removed: u64 = conn
+		.zremrangebyrank(key, start as isize, stop as isize)
+		.await?;
 	Ok(removed)
 }
 
@@ -363,7 +360,12 @@ mod tests {
 		let key = format!("{}:scores", prefix);
 
 		// -- Exec
-		zadd(&mut *conn, &key, &[(100.0, "alice"), (200.0, "bob"), (150.0, "charlie")]).await?;
+		zadd(
+			&mut *conn,
+			&key,
+			&[(100.0, "alice"), (200.0, "bob"), (150.0, "charlie")],
+		)
+		.await?;
 
 		let members: Vec<String> = zrange(&mut *conn, &key, 0, -1).await?;
 
@@ -433,7 +435,12 @@ mod tests {
 		let key = format!("{}:data", prefix);
 
 		// -- Exec
-		zadd(&mut *conn, &key, &[(1.0, "a"), (2.0, "b"), (3.0, "c"), (4.0, "d")]).await?;
+		zadd(
+			&mut *conn,
+			&key,
+			&[(1.0, "a"), (2.0, "b"), (3.0, "c"), (4.0, "d")],
+		)
+		.await?;
 
 		let card = zcard(&mut *conn, &key).await?;
 		let count = zcount(&mut *conn, &key, 2.0, 3.0).await?;

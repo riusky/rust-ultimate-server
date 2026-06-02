@@ -3,8 +3,7 @@ use crate::config::auth_config;
 use crate::pwd::scheme::Scheme;
 use argon2::password_hash::SaltString;
 use argon2::{
-	Algorithm, Argon2, Params, PasswordHash, PasswordHasher as _,
-	PasswordVerifier as _, Version,
+	Algorithm, Argon2, Params, PasswordHash, PasswordHasher as _, PasswordVerifier as _, Version,
 };
 use std::sync::OnceLock;
 
@@ -14,8 +13,7 @@ impl Scheme for Scheme02 {
 	fn hash(&self, to_hash: &crate::pwd::ContentToHash) -> Result<String> {
 		let argon2 = get_argon2();
 
-		let salt_b64 = SaltString::encode_b64(to_hash.salt.as_bytes())
-			.map_err(|_| Error::Salt)?;
+		let salt_b64 = SaltString::encode_b64(to_hash.salt.as_bytes()).map_err(|_| Error::Salt)?;
 
 		let pwd = argon2
 			.hash_password(to_hash.content.as_bytes(), &salt_b64)
@@ -25,11 +23,7 @@ impl Scheme for Scheme02 {
 		Ok(pwd)
 	}
 
-	fn validate(
-		&self,
-		to_hash: &crate::pwd::ContentToHash,
-		pwd_ref: &str,
-	) -> Result<()> {
+	fn validate(&self, to_hash: &crate::pwd::ContentToHash, pwd_ref: &str) -> Result<()> {
 		let argon2 = get_argon2();
 
 		let parsed_hash_ref = PasswordHash::new(pwd_ref).map_err(|_| Error::Hash)?;

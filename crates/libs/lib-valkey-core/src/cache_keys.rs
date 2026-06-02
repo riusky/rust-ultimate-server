@@ -120,14 +120,8 @@ mod tests {
 
 	#[test]
 	fn test_cache_key_format() {
-		assert_eq!(
-			CacheKey::UserPermissions(123).as_str(),
-			"perm:user:123"
-		);
-		assert_eq!(
-			CacheKey::UserRoles(456).as_str(),
-			"role:user:456"
-		);
+		assert_eq!(CacheKey::UserPermissions(123).as_str(), "perm:user:123");
+		assert_eq!(CacheKey::UserRoles(456).as_str(), "role:user:456");
 		assert_eq!(
 			CacheKey::TokenBlacklist("abc123".to_string()).as_str(),
 			"token:blacklist:abc123"

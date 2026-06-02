@@ -191,8 +191,14 @@ mod tests {
 		let prefix = test_key_prefix("test_hjson");
 		let key = format!("{}:users", prefix);
 
-		let user1 = User { name: "Bob".to_string(), age: 25 };
-		let user2 = User { name: "Carol".to_string(), age: 35 };
+		let user1 = User {
+			name: "Bob".to_string(),
+			age: 25,
+		};
+		let user2 = User {
+			name: "Carol".to_string(),
+			age: 35,
+		};
 
 		// -- Exec
 		hset_json(&mut *conn, &key, "user:1", &user1).await?;

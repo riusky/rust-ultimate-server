@@ -139,9 +139,7 @@ fn is_numeric_or_uuid(s: &str) -> bool {
 	}
 	// Check if it looks like a UUID (contains dashes and hex chars)
 	if s.len() == 36 && s.chars().filter(|&c| c == '-').count() == 4 {
-		return s
-			.chars()
-			.all(|c| c.is_ascii_hexdigit() || c == '-');
+		return s.chars().all(|c| c.is_ascii_hexdigit() || c == '-');
 	}
 	false
 }
@@ -172,34 +170,48 @@ mod tests {
 		// List
 		let uri: Uri = "/api/rest/agents".parse().unwrap();
 		let info = parse_rest_api_info(&Method::GET, &uri).unwrap();
-		assert!(matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "list"));
+		assert!(
+			matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "list")
+		);
 
 		// Create
 		let info = parse_rest_api_info(&Method::POST, &uri).unwrap();
-		assert!(matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "create"));
+		assert!(
+			matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "create")
+		);
 
 		// Get by ID
 		let uri: Uri = "/api/rest/agents/123".parse().unwrap();
 		let info = parse_rest_api_info(&Method::GET, &uri).unwrap();
-		assert!(matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "get"));
+		assert!(
+			matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "get")
+		);
 
 		// Update
 		let info = parse_rest_api_info(&Method::PUT, &uri).unwrap();
-		assert!(matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "update"));
+		assert!(
+			matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "update")
+		);
 
 		// Delete
 		let info = parse_rest_api_info(&Method::DELETE, &uri).unwrap();
-		assert!(matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "delete"));
+		assert!(
+			matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "delete")
+		);
 
 		// Paged list
 		let uri: Uri = "/api/rest/agents/paged".parse().unwrap();
 		let info = parse_rest_api_info(&Method::GET, &uri).unwrap();
-		assert!(matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "list_paged"));
+		assert!(
+			matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "list_paged")
+		);
 
 		// Custom action
 		let uri: Uri = "/api/rest/agents/123/export".parse().unwrap();
 		let info = parse_rest_api_info(&Method::GET, &uri).unwrap();
-		assert!(matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "export"));
+		assert!(
+			matches!(info, ApiInfo::Rest { resource, action } if resource == "agent" && action == "export")
+		);
 
 		// Non-REST path
 		let uri: Uri = "/api/rpc".parse().unwrap();

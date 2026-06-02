@@ -61,10 +61,7 @@ pub async fn pubsub_numpat<C>(conn: &mut C) -> Result<u64>
 where
 	C: redis::aio::ConnectionLike + Send,
 {
-	let count: u64 = redis::cmd("PUBSUB")
-		.arg("NUMPAT")
-		.query_async(conn)
-		.await?;
+	let count: u64 = redis::cmd("PUBSUB").arg("NUMPAT").query_async(conn).await?;
 	Ok(count)
 }
 
@@ -105,14 +102,15 @@ impl Subscriber {
 			while let Some(msg) = stream.next().await {
 				let channel: String = msg.get_channel_name().to_string();
 				if let Ok(payload) = msg.get_payload::<String>() {
-					let _ = tx
-						.send(PubSubMessage { channel, payload })
-						.await;
+					let _ = tx.send(PubSubMessage { channel, payload }).await;
 				}
 			}
 		});
 
-		Ok(Self { rx, _handle: handle })
+		Ok(Self {
+			rx,
+			_handle: handle,
+		})
 	}
 
 	/// Create a subscriber with pattern matching
@@ -131,14 +129,15 @@ impl Subscriber {
 			while let Some(msg) = stream.next().await {
 				let channel: String = msg.get_channel_name().to_string();
 				if let Ok(payload) = msg.get_payload::<String>() {
-					let _ = tx
-						.send(PubSubMessage { channel, payload })
-						.await;
+					let _ = tx.send(PubSubMessage { channel, payload }).await;
 				}
 			}
 		});
 
-		Ok(Self { rx, _handle: handle })
+		Ok(Self {
+			rx,
+			_handle: handle,
+		})
 	}
 
 	/// Receive the next message

@@ -5,9 +5,8 @@ pub fn valkey_config() -> &'static ValkeyConfig {
 	static INSTANCE: OnceLock<ValkeyConfig> = OnceLock::new();
 
 	INSTANCE.get_or_init(|| {
-		ValkeyConfig::load_from_env().unwrap_or_else(|ex| {
-			panic!("FATAL - WHILE LOADING VALKEY CONF - Cause: {ex:?}")
-		})
+		ValkeyConfig::load_from_env()
+			.unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING VALKEY CONF - Cause: {ex:?}"))
 	})
 }
 

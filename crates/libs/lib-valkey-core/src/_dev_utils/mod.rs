@@ -18,8 +18,8 @@ pub async fn init_test() -> ValkeyPool {
 	let pool = INIT
 		.get_or_init(|| async {
 			// Use default local Redis/Valkey for testing
-			let url =
-				std::env::var("TEST_VALKEY_URL").unwrap_or_else(|_| "redis://localhost:6379".to_string());
+			let url = std::env::var("TEST_VALKEY_URL")
+				.unwrap_or_else(|_| "redis://localhost:6379".to_string());
 			new_valkey_pool_with_config(&url, 5, 1)
 				.await
 				.expect("Failed to create test pool")

@@ -131,18 +131,19 @@ inventory::collect!(RegisteredRouteHandler);
 
 /// Get all registered route handlers
 pub fn get_registered_route_handlers() -> Vec<&'static RegisteredRouteHandler> {
-	inventory::iter::<RegisteredRouteHandler>.into_iter().collect()
+	inventory::iter::<RegisteredRouteHandler>
+		.into_iter()
+		.collect()
 }
 
 /// Validate that all handlers in the list are registered with permissions
 /// Returns a list of unregistered handler names
 pub fn validate_route_handlers(handler_names: &[&str]) -> Vec<String> {
-	let registered: std::collections::HashSet<&str> = 
-		inventory::iter::<RegisteredRouteHandler>
-			.into_iter()
-			.map(|h| h.name)
-			.collect();
-	
+	let registered: std::collections::HashSet<&str> = inventory::iter::<RegisteredRouteHandler>
+		.into_iter()
+		.map(|h| h.name)
+		.collect();
+
 	handler_names
 		.iter()
 		.filter(|name| !registered.contains(*name))
@@ -191,8 +192,7 @@ pub fn ensure_handlers_registered_in_module(handler_names: &[&str], module_prefi
 		panic!(
 			"Route handlers in module '{}' without permission annotations: {:?}\n\
 			All route handlers must use #[permission], #[rest_permission], or #[public] macro.",
-			module_prefix,
-			unregistered
+			module_prefix, unregistered
 		);
 	}
 
@@ -209,8 +209,7 @@ pub fn ensure_handlers_registered_in_module(handler_names: &[&str], module_prefi
 		panic!(
 			"Route handlers in module '{}' registered but without permission check: {:?}\n\
 			Use #[permission] or #[rest_permission] instead of #[register_permission] to inject check code.",
-			module_prefix,
-			no_check
+			module_prefix, no_check
 		);
 	}
 }

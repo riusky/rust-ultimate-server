@@ -19,8 +19,7 @@ impl Gateway {
 				.unwrap_or_else(|_| "8080".into())
 				.parse()
 				.unwrap_or(8080),
-			frontend_addr: env::var("UPSTREAM_FRONTEND_ADDR")
-				.unwrap_or_else(|_| "frontend".into()),
+			frontend_addr: env::var("UPSTREAM_FRONTEND_ADDR").unwrap_or_else(|_| "frontend".into()),
 			frontend_port: env::var("UPSTREAM_FRONTEND_PORT")
 				.unwrap_or_else(|_| "80".into())
 				.parse()
@@ -50,11 +49,7 @@ impl ProxyHttp for Gateway {
 
 		info!("routing {} -> {}:{}", path, addr, port);
 
-		let peer = Box::new(HttpPeer::new(
-			(addr.as_str(), port),
-			false,
-			String::new(),
-		));
+		let peer = Box::new(HttpPeer::new((addr.as_str(), port), false, String::new()));
 		Ok(peer)
 	}
 }

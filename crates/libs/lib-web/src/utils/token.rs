@@ -1,4 +1,3 @@
-
 pub use crate::error::ClientError;
 pub use crate::error::{Error, Result};
 use lib_auth::token::generate_web_token;

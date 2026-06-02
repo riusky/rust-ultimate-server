@@ -35,11 +35,9 @@ impl FromStr for Token {
 		let (ident_b64u, exp_b64u, sign_b64u) = (splits[0], splits[1], splits[2]);
 
 		Ok(Self {
-			ident: b64u_decode_to_string(ident_b64u)
-				.map_err(|_| Error::CannotDecodeIdent)?,
+			ident: b64u_decode_to_string(ident_b64u).map_err(|_| Error::CannotDecodeIdent)?,
 
-			exp: b64u_decode_to_string(exp_b64u)
-				.map_err(|_| Error::CannotDecodeExp)?,
+			exp: b64u_decode_to_string(exp_b64u).map_err(|_| Error::CannotDecodeExp)?,
 
 			sign_b64u: sign_b64u.to_string(),
 		})
@@ -78,12 +76,7 @@ pub fn validate_web_token(origin_token: &Token, salt: Uuid) -> Result<()> {
 
 // region:    --- (private) Token Gen and Validation
 
-fn generate_token(
-	ident: &str,
-	duration_sec: f64,
-	salt: Uuid,
-	key: &[u8],
-) -> Result<Token> {
+fn generate_token(ident: &str, duration_sec: f64, salt: Uuid, key: &[u8]) -> Result<Token> {
 	// -- Compute the two first components.
 	let ident = ident.to_string();
 	let exp = now_utc_plus_sec_str(duration_sec);
@@ -98,14 +91,9 @@ fn generate_token(
 	})
 }
 
-fn validate_token_sign_and_exp(
-	origin_token: &Token,
-	salt: Uuid,
-	key: &[u8],
-) -> Result<()> {
+fn validate_token_sign_and_exp(origin_token: &Token, salt: Uuid, key: &[u8]) -> Result<()> {
 	// -- Validate signature.
-	let new_sign_b64u =
-		token_sign_into_b64u(&origin_token.ident, &origin_token.exp, salt, key)?;
+	let new_sign_b64u = token_sign_into_b64u(&origin_token.ident, &origin_token.exp, salt, key)?;
 
 	if new_sign_b64u != origin_token.sign_b64u {
 		return Err(Error::SignatureNotMatching);
@@ -124,12 +112,7 @@ fn validate_token_sign_and_exp(
 
 /// Create token signature from token parts
 /// and salt.
-fn token_sign_into_b64u(
-	ident: &str,
-	exp: &str,
-	salt: Uuid,
-	key: &[u8],
-) -> Result<String> {
+fn token_sign_into_b64u(ident: &str, exp: &str, salt: Uuid, key: &[u8]) -> Result<String> {
 	let content = format!("{}.{}", b64u_encode(ident), b64u_encode(exp));
 
 	// -- Create a Black3 Hasher (not from key because blake3 key is fixed length).
@@ -164,8 +147,7 @@ mod tests {
 	#[test]
 	fn test_token_display_ok() -> Result<()> {
 		// -- Fixtures
-		let fx_token_str =
-			"ZngtaWRlbnQtMDE.MjAyMy0wNS0xN1QxNTozMDowMFo.some-sign-b64u-encoded";
+		let fx_token_str = "ZngtaWRlbnQtMDE.MjAyMy0wNS0xN1QxNTozMDowMFo.some-sign-b64u-encoded";
 		let fx_token = Token {
 			ident: "fx-ident-01".to_string(),
 			exp: "2023-05-17T15:30:00Z".to_string(),
@@ -181,8 +163,7 @@ mod tests {
 	#[test]
 	fn test_token_from_str_ok() -> Result<()> {
 		// -- Fixtures
-		let fx_token_str =
-			"ZngtaWRlbnQtMDE.MjAyMy0wNS0xN1QxNTozMDowMFo.some-sign-b64u-encoded";
+		let fx_token_str = "ZngtaWRlbnQtMDE.MjAyMy0wNS0xN1QxNTozMDowMFo.some-sign-b64u-encoded";
 		let fx_token = Token {
 			ident: "fx-ident-01".to_string(),
 			exp: "2023-05-17T15:30:00Z".to_string(),
@@ -202,8 +183,7 @@ mod tests {
 	fn test_token_validate_web_token_ok() -> Result<()> {
 		// -- Setup & Fixtures
 		let fx_user = "user_one";
-		let fx_salt =
-			Uuid::parse_str("f05e8961-d6ad-4086-9e78-a6de065e5453").unwrap();
+		let fx_salt = Uuid::parse_str("f05e8961-d6ad-4086-9e78-a6de065e5453").unwrap();
 		let fx_duration_sec = 0.02; // 20ms
 		let token_key = &auth_config().TOKEN_KEY;
 		let fx_token = generate_token(fx_user, fx_duration_sec, fx_salt, token_key)?;
@@ -222,8 +202,7 @@ mod tests {
 	fn test_token_validate_web_token_err_expired() -> Result<()> {
 		// -- Setup & Fixtures
 		let fx_user = "user_one";
-		let fx_salt =
-			Uuid::parse_str("f05e8961-d6ad-4086-9e78-a6de065e5453").unwrap();
+		let fx_salt = Uuid::parse_str("f05e8961-d6ad-4086-9e78-a6de065e5453").unwrap();
 		let fx_duration_sec = 0.01; // 10ms
 		let token_key = &auth_config().TOKEN_KEY;
 		let fx_token = generate_token(fx_user, fx_duration_sec, fx_salt, token_key)?;

@@ -174,9 +174,7 @@ impl PermissionBmc {
 	/// Get all permission keys
 	pub async fn list_all_keys(_ctx: &Ctx, mm: &ModelManager) -> Result<Vec<String>> {
 		let mut query = Query::select();
-		query
-			.from(Self::table_ref())
-			.column(PermissionIden::Key);
+		query.from(Self::table_ref()).column(PermissionIden::Key);
 
 		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
 		let sqlx_query = sqlx::query_as_with::<_, (String,), _>(&sql, values);
@@ -235,10 +233,7 @@ impl PermissionBmc {
 	///   (also deletes related role_permission records)
 	///
 	/// Returns (created_count, updated_count, deleted_count)
-	pub async fn sync_from_registry(
-		ctx: &Ctx,
-		mm: &ModelManager,
-	) -> Result<(usize, usize, usize)> {
+	pub async fn sync_from_registry(ctx: &Ctx, mm: &ModelManager) -> Result<(usize, usize, usize)> {
 		use super::{RegisteredPermission, RolePermissionBmc};
 		use std::collections::HashMap;
 
@@ -262,7 +257,11 @@ impl PermissionBmc {
 		for (key, reg_perm) in &registered_map {
 			if let Some(existing) = db_permissions.iter().find(|p| &p.key.as_str() == key) {
 				// Check if update needed
-				let desc_opt = if reg_perm.description.is_empty() { None } else { Some(reg_perm.description) };
+				let desc_opt = if reg_perm.description.is_empty() {
+					None
+				} else {
+					Some(reg_perm.description)
+				};
 				if existing.group_name.as_deref() != Some(reg_perm.group)
 					|| existing.display_name.as_deref() != Some(reg_perm.display)
 					|| existing.description.as_deref() != desc_opt
@@ -274,12 +273,19 @@ impl PermissionBmc {
 						PermissionForUpdate {
 							group_name: Some(reg_perm.group.to_string()),
 							display_name: Some(reg_perm.display.to_string()),
-							description: if reg_perm.description.is_empty() { None } else { Some(reg_perm.description.to_string()) },
+							description: if reg_perm.description.is_empty() {
+								None
+							} else {
+								Some(reg_perm.description.to_string())
+							},
 						},
 					)
 					.await?;
 					updated += 1;
-					info!("Permission updated: {} (group={}, display={})", reg_perm.key, reg_perm.group, reg_perm.display);
+					info!(
+						"Permission updated: {} (group={}, display={})",
+						reg_perm.key, reg_perm.group, reg_perm.display
+					);
 				}
 			} else {
 				// Create new permission
@@ -290,12 +296,19 @@ impl PermissionBmc {
 						key: reg_perm.key.to_string(),
 						group_name: Some(reg_perm.group.to_string()),
 						display_name: Some(reg_perm.display.to_string()),
-						description: if reg_perm.description.is_empty() { None } else { Some(reg_perm.description.to_string()) },
+						description: if reg_perm.description.is_empty() {
+							None
+						} else {
+							Some(reg_perm.description.to_string())
+						},
 					},
 				)
 				.await?;
 				created += 1;
-				info!("Permission created: {} (group={}, display={})", reg_perm.key, reg_perm.group, reg_perm.display);
+				info!(
+					"Permission created: {} (group={}, display={})",
+					reg_perm.key, reg_perm.group, reg_perm.display
+				);
 			}
 		}
 
@@ -303,9 +316,13 @@ impl PermissionBmc {
 		for db_perm in &db_permissions {
 			if !registered_keys.contains(db_perm.key.as_str()) {
 				// First delete related role_permission records
-				let rp_deleted = RolePermissionBmc::delete_by_permission(ctx, mm, db_perm.id).await?;
+				let rp_deleted =
+					RolePermissionBmc::delete_by_permission(ctx, mm, db_perm.id).await?;
 				if rp_deleted > 0 {
-					info!("Deleted {} role_permission records for permission: {}", rp_deleted, db_perm.key);
+					info!(
+						"Deleted {} role_permission records for permission: {}",
+						rp_deleted, db_perm.key
+					);
 				}
 
 				// Then delete the permission

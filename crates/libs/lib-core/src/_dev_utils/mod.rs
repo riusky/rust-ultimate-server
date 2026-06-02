@@ -57,11 +57,7 @@ pub async fn seed_users(
 	Ok(ids)
 }
 
-pub async fn seed_user(
-	ctx: &Ctx,
-	mm: &ModelManager,
-	username: &str,
-) -> model::Result<i64> {
+pub async fn seed_user(ctx: &Ctx, mm: &ModelManager, username: &str) -> model::Result<i64> {
 	let pwd_clear = "seed-user-pwd";
 
 	let id = model::user::UserBmc::create(
@@ -86,9 +82,7 @@ pub async fn clean_users(
 		ctx,
 		mm,
 		Some(vec![model::user::UserFilter {
-			username: Some(
-				OpValString::Contains(contains_username.to_string()).into(),
-			),
+			username: Some(OpValString::Contains(contains_username.to_string()).into()),
 			..Default::default()
 		}]),
 		None,
@@ -170,11 +164,7 @@ pub async fn clean_convs(
 
 // region:    --- Agent seed/clean
 
-pub async fn seed_agents(
-	ctx: &Ctx,
-	mm: &ModelManager,
-	names: &[&str],
-) -> model::Result<Vec<i64>> {
+pub async fn seed_agents(ctx: &Ctx, mm: &ModelManager, names: &[&str]) -> model::Result<Vec<i64>> {
 	let mut ids = Vec::new();
 
 	for name in names {
@@ -185,11 +175,7 @@ pub async fn seed_agents(
 	Ok(ids)
 }
 
-pub async fn seed_agent(
-	ctx: &Ctx,
-	mm: &ModelManager,
-	name: &str,
-) -> model::Result<i64> {
+pub async fn seed_agent(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
 	AgentBmc::create(
 		ctx,
 		mm,

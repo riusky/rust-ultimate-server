@@ -17,10 +17,7 @@ where
 {
 	type Rejection = (StatusCode, String);
 
-	async fn from_request_parts(
-		_parts: &mut Parts,
-		state: &S,
-	) -> Result<Self, Self::Rejection> {
+	async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
 		let pool = ValkeyPool::from_ref(state);
 
 		let conn = pool.get_owned().await.map_err(|e| {

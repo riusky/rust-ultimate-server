@@ -16,10 +16,7 @@ pub struct ReqStamp {
 	pub time_in: OffsetDateTime,
 }
 
-pub async fn mw_req_stamp_resolver(
-	mut req: Request<Body>,
-	next: Next,
-) -> Result<Response> {
+pub async fn mw_req_stamp_resolver(mut req: Request<Body>, next: Next) -> Result<Response> {
 	debug!("{:<12} - mw_req_stamp_resolver", "MIDDLEWARE");
 
 	let time_in = now_utc();
