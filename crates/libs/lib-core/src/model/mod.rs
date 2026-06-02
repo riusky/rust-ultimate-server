@@ -30,6 +30,8 @@ pub mod conv;
 pub mod conv_msg;
 pub mod conv_user;
 pub mod modql_utils;
+#[cfg(feature = "with-ts")]
+pub mod ts_export;
 pub mod user;
 pub mod user_info;
 

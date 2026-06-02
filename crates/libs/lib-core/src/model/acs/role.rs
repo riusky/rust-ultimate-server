@@ -15,15 +15,11 @@ use serde_with::serde_as;
 use sqlx::types::time::OffsetDateTime;
 use sqlx::FromRow;
 
-#[cfg(feature = "with-ts")]
-use ts_rs::TS;
-
 // region:    --- Role Types
 
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/acs/"))]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "acs"))]
 pub struct Role {
 	pub id: i64,
 
@@ -45,8 +41,7 @@ pub struct Role {
 
 /// Lightweight role for listing
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/acs/"))]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "acs"))]
 pub struct RoleLite {
 	pub id: i64,
 	pub name: String,

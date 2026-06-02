@@ -103,8 +103,7 @@ cargo run -p gen-key
 cargo test -- --nocapture
 
 # 生成 TypeScript 类型
-cargo test -p lib-core --features with-ts export_ts_types
-cd cmx-vue-ultimate-starter && bun run gen:types
+bash shell/gen-ts-types.sh
 ```
 
 ## 文档索引

@@ -1,9 +1,9 @@
 // Auto-generated index file
 // Acs types
-export type { Permission, PermissionLite, Role, RoleLite } from './acs/index'
+export type { Permission, PermissionLite, Role, RoleLite } from "./acs/index";
 
 // Agent types
-export type { Agent } from './agent/index'
+export type { Agent } from "./agent/index";
 
 // Filter types
 export type {
@@ -13,7 +13,7 @@ export type {
   OpValString,
   OpValsValue,
   OpValValue,
-} from './filter/index'
+} from "./filter/index";
 
 // User types
 export type {
@@ -24,4 +24,4 @@ export type {
   UserStatus,
   UserTyp,
   UserWithInfo,
-} from './user/index'
+} from "./user/index";

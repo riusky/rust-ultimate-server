@@ -3,4 +3,8 @@
 /**
  * Lightweight role for listing
  */
-export type RoleLite = { id: bigint; name: string; display_name: string | null }
+export type RoleLite = {
+  id: bigint;
+  name: string;
+  display_name: string | null;
+};

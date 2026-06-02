@@ -18,19 +18,9 @@ use sqlx::{FromRow, Row};
 use time::Date;
 use uuid::Uuid;
 
-#[cfg(feature = "with-ts")]
-use ts_rs::TS;
-
 // region:    --- User Types
 #[derive(Clone, Debug, PartialEq, sqlx::Type, derive_more::Display, Deserialize, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(
-	feature = "with-ts",
-	ts(
-		export,
-		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"
-	)
-)]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
 #[sqlx(type_name = "user_typ")]
 pub enum UserTyp {
 	Sys,
@@ -43,14 +33,7 @@ impl From<UserTyp> for sea_query::Value {
 }
 
 #[derive(Clone, Fields, FromRow, Debug, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(
-	feature = "with-ts",
-	ts(
-		export,
-		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"
-	)
-)]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
 pub struct User {
 	pub id: i64,
 	pub username: String,
@@ -125,14 +108,7 @@ pub struct UserFilter {
 /// User with info - combined view of user and user_info
 #[serde_as]
 #[derive(Debug, Clone, FromRow, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(
-	feature = "with-ts",
-	ts(
-		export,
-		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"
-	)
-)]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
 pub struct UserWithInfo {
 	// -- User fields
 	pub id: i64,

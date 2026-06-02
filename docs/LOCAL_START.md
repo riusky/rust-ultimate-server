@@ -211,9 +211,7 @@ cargo test -p web-server -p lib-core -p lib-auth -p lib-web -p lib-rpc-core -p l
 修改 Rust model 后运行：
 
 ```bash
-cargo test -p lib-core --features with-ts export_ts_types
-cd cmx-vue-ultimate-starter
-bun run gen:types
+bash shell/gen-ts-types.sh
 ```
 
 ### 前端构建检查

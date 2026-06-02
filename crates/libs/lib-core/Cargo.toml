@@ -11,13 +11,14 @@ workspace = true
 
 [features]
 with-rpc = ["rpc-router"]
-with-ts = ["ts-rs", "modql/with-ts"]
+with-ts = ["ts-rs", "modql/with-ts", "lib-macros"]
 
 [dependencies]
 # -- App Libs
 lib-utils = { path = "../../libs/lib-utils"}
 lib-auth = { path = "../../libs/lib-auth"}
 lib-valkey-core = { path = "../../libs/lib-valkey-core"}
+lib-macros = { path = "../../libs/lib-macros", optional = true }
 # -- Async
 tokio = { version = "1", features = ["full"] }
 # -- Json

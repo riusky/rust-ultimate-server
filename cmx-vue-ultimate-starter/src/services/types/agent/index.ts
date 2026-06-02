@@ -1,2 +1,2 @@
 // Auto-generated index file
-export type { Agent } from './Agent'
+export type { Agent } from "./Agent";

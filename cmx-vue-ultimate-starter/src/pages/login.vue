@@ -60,7 +60,7 @@ const particleOptions = {
 
 // 登录场景的欢迎文案
 const loginWelcomeMessages = [
-  '欢迎回到Riusky软件!',
+  '欢迎回到稀客旅行!',
   '很高兴再次见到您',
   '继续您的精彩旅程',
   '海内存知己，天涯若比邻',
@@ -70,7 +70,7 @@ const loginWelcomeMessages = [
 
 // 注册场景的欢迎文案
 const signupWelcomeMessages = [
-  '欢迎加入Riusky软件!',
+  '欢迎加入稀客旅行!',
   '海内存知己，天涯若比邻',
   '鸢飞戾天者，望峰息心',
   '海纳百川，象征包容与汇聚',
@@ -252,7 +252,7 @@ onMounted(() => {
           />
         </div>
         <p class="text-muted-foreground">
-          {{ currentView === 'login' ? 'Riusky软件 - 连接创造价值' : 'Riusky软件 - 开启创新之旅' }}
+          {{ currentView === 'login' ? '稀客旅行 - 连接创造价值' : '稀客旅行 - 开启创新之旅' }}
         </p>
       </div>
     </div>

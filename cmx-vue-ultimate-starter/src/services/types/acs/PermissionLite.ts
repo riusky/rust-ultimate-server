@@ -4,8 +4,8 @@
  * Lightweight permission for listing
  */
 export type PermissionLite = {
-  id: bigint
-  key: string
-  group_name: string | null
-  display_name: string | null
-}
+  id: bigint;
+  key: string;
+  group_name: string | null;
+  display_name: string | null;
+};
