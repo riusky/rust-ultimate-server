@@ -53,10 +53,89 @@ macro_rules! generate_common_rest_fns {
         Suffix: $suffix:ident,
         ResourceDisplay: $display:literal,
         ResourceGroup: $group:literal,
-        ResourceDescription: $desc:literal
+        ResourceDescription: $desc:literal,
+        Cache: true $(,)?
+    ) => {
+		$crate::generate_common_rest_fns!(
+			@impl
+			Bmc: $bmc,
+			Entity: $entity,
+			ForCreate: $for_create,
+			ForUpdate: $for_update,
+			Filter: $filter,
+			Suffix: $suffix,
+			ResourceDisplay: $display,
+			ResourceGroup: $group,
+			ResourceDescription: $desc,
+			Cache: true
+		);
+	};
+	(
+        Bmc: $bmc:ident,
+        Entity: $entity:ty,
+        ForCreate: $for_create:ty,
+        ForUpdate: $for_update:ty,
+        Filter: $filter:ty,
+        Suffix: $suffix:ident,
+        ResourceDisplay: $display:literal,
+        ResourceGroup: $group:literal,
+        ResourceDescription: $desc:literal,
+        Cache: false $(,)?
+    ) => {
+		$crate::generate_common_rest_fns!(
+			@impl
+			Bmc: $bmc,
+			Entity: $entity,
+			ForCreate: $for_create,
+			ForUpdate: $for_update,
+			Filter: $filter,
+			Suffix: $suffix,
+			ResourceDisplay: $display,
+			ResourceGroup: $group,
+			ResourceDescription: $desc,
+			Cache: false
+		);
+	};
+	(
+        Bmc: $bmc:ident,
+        Entity: $entity:ty,
+        ForCreate: $for_create:ty,
+        ForUpdate: $for_update:ty,
+        Filter: $filter:ty,
+        Suffix: $suffix:ident,
+        ResourceDisplay: $display:literal,
+        ResourceGroup: $group:literal,
+        ResourceDescription: $desc:literal $(,)?
+    ) => {
+		$crate::generate_common_rest_fns!(
+			Bmc: $bmc,
+			Entity: $entity,
+			ForCreate: $for_create,
+			ForUpdate: $for_update,
+			Filter: $filter,
+			Suffix: $suffix,
+			ResourceDisplay: $display,
+			ResourceGroup: $group,
+			ResourceDescription: $desc,
+			Cache: false
+		);
+	};
+	(
+		@impl
+        Bmc: $bmc:ident,
+        Entity: $entity:ty,
+        ForCreate: $for_create:ty,
+        ForUpdate: $for_update:ty,
+        Filter: $filter:ty,
+        Suffix: $suffix:ident,
+        ResourceDisplay: $display:literal,
+        ResourceGroup: $group:literal,
+        ResourceDescription: $desc:literal,
+		Cache: $cache:tt
     ) => {
 		::lib_core::register_crud_permissions!(stringify!($suffix), $display, $group, $desc);
 		::lib_core::register_crud_handlers!(stringify!($suffix));
+		$crate::generate_common_rest_fns!(@register_cache $cache, $bmc, $suffix);
 
 		// Register paged list handler
 		::inventory::submit! {
@@ -78,8 +157,8 @@ macro_rules! generate_common_rest_fns {
 			) -> Result<RestCreated<$entity>> {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":create"))?;
-				let id = $bmc::create(&ctx, &mm, data).await?;
-				let entity = $bmc::get(&ctx, &mm, id).await?;
+				let id = $crate::generate_common_rest_fns!(@create $cache, $bmc, &ctx, &mm, data).await?;
+				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
 				Ok(entity.into())
 			}
 
@@ -92,7 +171,7 @@ macro_rules! generate_common_rest_fns {
 			) -> Result<RestResponse<$entity>> {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":read"))?;
-				let entity = $bmc::get(&ctx, &mm, id).await?;
+				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
 				Ok(entity.into())
 			}
 
@@ -107,7 +186,7 @@ macro_rules! generate_common_rest_fns {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":list"))?;
 				let list_options = params.into_list_options();
-				let entities = $bmc::list(&ctx, &mm, params.filters, list_options).await?;
+				let entities = $crate::generate_common_rest_fns!(@list $cache, $bmc, &ctx, &mm, params.filters, list_options).await?;
 				Ok(entities.into())
 			}
 
@@ -127,10 +206,10 @@ macro_rules! generate_common_rest_fns {
 				let list_options = params.into_list_options();
 
 				// Get total count
-				let total = $bmc::count(&ctx, &mm, params.filters.clone()).await?;
+				let total = $crate::generate_common_rest_fns!(@count $cache, $bmc, &ctx, &mm, params.filters.clone()).await?;
 
 				// Get paginated data
-				let entities = $bmc::list(&ctx, &mm, params.filters, list_options).await?;
+				let entities = $crate::generate_common_rest_fns!(@list $cache, $bmc, &ctx, &mm, params.filters, list_options).await?;
 
 				Ok(RestPagedResponse::new(entities, total, page_size, page_number))
 			}
@@ -145,8 +224,8 @@ macro_rules! generate_common_rest_fns {
 			) -> Result<RestResponse<$entity>> {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":update"))?;
-				$bmc::update(&ctx, &mm, id, data).await?;
-				let entity = $bmc::get(&ctx, &mm, id).await?;
+				$crate::generate_common_rest_fns!(@update $cache, $bmc, &ctx, &mm, id, data).await?;
+				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
 				Ok(entity.into())
 			}
 
@@ -159,8 +238,8 @@ macro_rules! generate_common_rest_fns {
 			) -> Result<RestDeleted<$entity>> {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":delete"))?;
-				let entity = $bmc::get(&ctx, &mm, id).await?;
-				$bmc::delete(&ctx, &mm, id).await?;
+				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+				$crate::generate_common_rest_fns!(@delete $cache, $bmc, &ctx, &mm, id).await?;
 				Ok(entity.into())
 			}
 
@@ -181,5 +260,51 @@ macro_rules! generate_common_rest_fns {
 					.route("/{id}", get([<get_ $suffix>]).put([<update_ $suffix>]).delete([<delete_ $suffix>]))
 			}
 		}
+	};
+	(@register_cache true, $bmc:ident, $suffix:ident) => {
+		::inventory::submit! {
+			::lib_core::model::cache::RegisteredModelCache {
+				resource: stringify!($suffix),
+				table: <$bmc as ::lib_core::model::DbBmc>::TABLE,
+				source: module_path!(),
+			}
+		}
+	};
+	(@register_cache false, $bmc:ident, $suffix:ident) => {};
+	(@create true, $bmc:ident, $ctx:expr, $mm:expr, $data:expr) => {
+		$bmc::create_cached($ctx, $mm, $data)
+	};
+	(@create false, $bmc:ident, $ctx:expr, $mm:expr, $data:expr) => {
+		$bmc::create($ctx, $mm, $data)
+	};
+	(@get true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
+		$bmc::get_cached($ctx, $mm, $id)
+	};
+	(@get false, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
+		$bmc::get($ctx, $mm, $id)
+	};
+	(@list true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr) => {
+		$bmc::list_cached($ctx, $mm, $filter, $list_options)
+	};
+	(@list false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr) => {
+		$bmc::list($ctx, $mm, $filter, $list_options)
+	};
+	(@count true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr) => {
+		$bmc::count_cached($ctx, $mm, $filter)
+	};
+	(@count false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr) => {
+		$bmc::count($ctx, $mm, $filter)
+	};
+	(@update true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $data:expr) => {
+		$bmc::update_cached($ctx, $mm, $id, $data)
+	};
+	(@update false, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $data:expr) => {
+		$bmc::update($ctx, $mm, $id, $data)
+	};
+	(@delete true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
+		$bmc::delete_cached($ctx, $mm, $id)
+	};
+	(@delete false, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
+		$bmc::delete($ctx, $mm, $id)
 	};
 }

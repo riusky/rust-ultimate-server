@@ -3,8 +3,7 @@
 use crate::ctx::Ctx;
 use crate::model::base::{self, DbBmc};
 use crate::model::modql_utils::time_to_sea_value;
-use crate::model::ModelManager;
-use crate::model::Result;
+use crate::model::{Error, ModelManager, Result};
 use lib_utils::time::Rfc3339;
 use modql::field::Fields;
 use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsValue};
@@ -85,7 +84,14 @@ impl UserRoleBmc {
 		mm: &ModelManager,
 		user_role_c: UserRoleForCreate,
 	) -> Result<i64> {
-		base::create::<Self, _>(ctx, mm, user_role_c).await
+		let user_id = user_role_c.user_id;
+		let id = base::create::<Self, _>(ctx, mm, user_role_c).await?;
+		crate::model::cache::invalidate_user_permissions_cache_best_effort(
+			mm.valkey_pool(),
+			user_id,
+		)
+		.await;
+		Ok(id)
 	}
 
 	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<UserRole> {
@@ -102,7 +108,15 @@ impl UserRoleBmc {
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
-		base::delete::<Self>(ctx, mm, id).await
+		let user_role = Self::get(ctx, mm, id).await?;
+		Self::ensure_self_admin_assignment_not_deleted(ctx, mm, &user_role).await?;
+		base::delete::<Self>(ctx, mm, id).await?;
+		crate::model::cache::invalidate_user_permissions_cache_best_effort(
+			mm.valkey_pool(),
+			user_role.user_id,
+		)
+		.await;
+		Ok(())
 	}
 
 	pub async fn count(
@@ -176,11 +190,12 @@ impl UserRoleBmc {
 	}
 
 	/// Delete all roles for a user
-	pub async fn delete_by_user(
-		_ctx: &Ctx,
-		mm: &ModelManager,
-		user_id: i64,
-	) -> Result<u64> {
+	pub async fn delete_by_user(ctx: &Ctx, mm: &ModelManager, user_id: i64) -> Result<u64> {
+		Self::ensure_self_admin_role_retained(ctx, mm, user_id, &[]).await?;
+		Self::delete_by_user_unchecked(mm, user_id).await
+	}
+
+	async fn delete_by_user_unchecked(mm: &ModelManager, user_id: i64) -> Result<u64> {
 		let mut query = Query::delete();
 		query
 			.from_table(Self::table_ref())
@@ -189,6 +204,11 @@ impl UserRoleBmc {
 		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
 		let sqlx_query = sqlx::query_with(&sql, values);
 		let count = mm.dbx().execute(sqlx_query).await?;
+		crate::model::cache::invalidate_user_permissions_cache_best_effort(
+			mm.valkey_pool(),
+			user_id,
+		)
+		.await;
 
 		Ok(count)
 	}
@@ -200,12 +220,14 @@ impl UserRoleBmc {
 		user_id: i64,
 		role_ids: Vec<i64>,
 	) -> Result<()> {
+		Self::ensure_self_admin_role_retained(ctx, mm, user_id, &role_ids).await?;
+
 		// Start transaction
 		let mm = mm.new_with_txn()?;
 		mm.dbx().begin_txn().await?;
 
 		// Delete existing roles
-		Self::delete_by_user(ctx, &mm, user_id).await?;
+		Self::delete_by_user_unchecked(&mm, user_id).await?;
 
 		// Create new roles
 		for role_id in role_ids {
@@ -214,8 +236,70 @@ impl UserRoleBmc {
 
 		// Commit transaction
 		mm.dbx().commit_txn().await?;
+		crate::model::cache::invalidate_user_permissions_cache_best_effort(
+			mm.valkey_pool(),
+			user_id,
+		)
+		.await;
 
 		Ok(())
+	}
+
+	async fn ensure_self_admin_assignment_not_deleted(
+		ctx: &Ctx,
+		mm: &ModelManager,
+		user_role: &UserRole,
+	) -> Result<()> {
+		if ctx.user_id() != user_role.user_id {
+			return Ok(());
+		}
+
+		let role = super::RoleBmc::get(ctx, mm, user_role.role_id).await?;
+		if role.name == Ctx::ADMIN_ROLE {
+			Err(Error::CannotRemoveOwnAdminRole {
+				user_id: user_role.user_id,
+			})
+		} else {
+			Ok(())
+		}
+	}
+
+	async fn ensure_self_admin_role_retained(
+		ctx: &Ctx,
+		mm: &ModelManager,
+		user_id: i64,
+		retained_role_ids: &[i64],
+	) -> Result<()> {
+		if ctx.user_id() != user_id {
+			return Ok(());
+		}
+
+		let role_names = Self::list_role_names_for_user(ctx, mm, user_id).await?;
+		let has_admin_role = role_names.iter().any(|role| role == Ctx::ADMIN_ROLE);
+		if !has_admin_role {
+			return Ok(());
+		}
+
+		if Self::role_ids_include_admin_role(ctx, mm, retained_role_ids).await? {
+			return Ok(());
+		}
+
+		Err(Error::CannotRemoveOwnAdminRole { user_id })
+	}
+
+	async fn role_ids_include_admin_role(
+		ctx: &Ctx,
+		mm: &ModelManager,
+		role_ids: &[i64],
+	) -> Result<bool> {
+		for role_id in role_ids {
+			let role = super::RoleBmc::get(ctx, mm, *role_id).await?;
+			if role.name == Ctx::ADMIN_ROLE {
+				return Ok(true);
+			}
+		}
+
+		Ok(false)
 	}
 
 	/// Get all permission keys for a user (through roles)
@@ -275,8 +359,8 @@ mod tests {
 	use super::*;
 	use crate::_dev_utils;
 	use crate::model::acs::{
-		PermissionBmc, PermissionForCreate, RoleBmc, RoleForCreate,
-		RolePermissionBmc, RolePermissionForCreate,
+		PermissionBmc, PermissionForCreate, RoleBmc, RoleForCreate, RolePermissionBmc,
+		RolePermissionForCreate,
 	};
 	use crate::model::user::{UserBmc, UserForCreate};
 	use serial_test::serial;
@@ -311,12 +395,7 @@ mod tests {
 		.await?;
 
 		// -- Exec
-		let ur_id = UserRoleBmc::create(
-			&ctx,
-			&mm,
-			UserRoleForCreate { user_id, role_id },
-		)
-		.await?;
+		let ur_id = UserRoleBmc::create(&ctx, &mm, UserRoleForCreate { user_id, role_id }).await?;
 
 		// -- Check
 		let ur = UserRoleBmc::get(&ctx, &mm, ur_id).await?;
@@ -412,12 +491,10 @@ mod tests {
 		.await?;
 
 		// Assign role to user
-		UserRoleBmc::create(&ctx, &mm, UserRoleForCreate { user_id, role_id })
-			.await?;
+		UserRoleBmc::create(&ctx, &mm, UserRoleForCreate { user_id, role_id }).await?;
 
 		// -- Exec
-		let perm_keys =
-			UserRoleBmc::list_permission_keys_for_user(&ctx, &mm, user_id).await?;
+		let perm_keys = UserRoleBmc::list_permission_keys_for_user(&ctx, &mm, user_id).await?;
 
 		// -- Check
 		assert_eq!(perm_keys.len(), 2);
@@ -431,6 +508,42 @@ mod tests {
 		PermissionBmc::delete(&ctx, &mm, perm1_id).await?;
 		PermissionBmc::delete(&ctx, &mm, perm2_id).await?;
 		UserBmc::delete(&ctx, &mm, user_id).await?;
+
+		Ok(())
+	}
+
+	#[serial]
+	#[tokio::test]
+	async fn test_set_roles_for_user_blocks_self_admin_removal() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let root_ctx = Ctx::root_ctx();
+		let demo1_user: crate::model::user::User =
+			UserBmc::first_by_username(&root_ctx, &mm, "demo1")
+				.await?
+				.ok_or("Should have user 'demo1'")?;
+		let demo1_ctx = Ctx::new(demo1_user.id)?;
+		let user_role = RoleBmc::first_by_name(&root_ctx, &mm, "user")
+			.await?
+			.ok_or("Should have role 'user'")?;
+
+		// -- Exec
+		let err =
+			UserRoleBmc::set_roles_for_user(&demo1_ctx, &mm, demo1_user.id, vec![user_role.id])
+				.await
+				.expect_err("Self admin removal should be blocked");
+
+		// -- Check
+		match err {
+			crate::model::Error::CannotRemoveOwnAdminRole { user_id } => {
+				assert_eq!(user_id, demo1_user.id);
+			}
+			other => panic!("Unexpected error: {other:?}"),
+		}
+
+		let role_names =
+			UserRoleBmc::list_role_names_for_user(&root_ctx, &mm, demo1_user.id).await?;
+		assert!(role_names.contains(&"admin".to_string()));
 
 		Ok(())
 	}

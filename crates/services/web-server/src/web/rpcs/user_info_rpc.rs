@@ -29,7 +29,8 @@ generate_common_rpc_fns!(
 	Suffix: user_info,
 	ResourceDisplay: "User Info",
 	ResourceGroup: "User Management",
-	ResourceDescription: "user profile information"
+	ResourceDescription: "user profile information",
+	Cache: false,
 );
 
 // region:    --- Custom RPC Endpoints
@@ -74,10 +75,7 @@ pub async fn get_user_info_by_user_id(
 	display = "Get Current User Info",
 	description = "View current logged-in user's profile information"
 )]
-pub async fn get_current_user_info(
-	ctx: Ctx,
-	mm: ModelManager,
-) -> Result<DataRpcResult<UserInfo>> {
+pub async fn get_current_user_info(ctx: Ctx, mm: ModelManager) -> Result<DataRpcResult<UserInfo>> {
 	let user_id = ctx.user_id();
 
 	let filter = UserInfoFilter {

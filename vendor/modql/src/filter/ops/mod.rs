@@ -1,5 +1,6 @@
 use crate::filter::OpValsValue;
 use crate::filter::*;
+use serde::Serialize;
 
 pub mod op_val_bool;
 pub mod op_val_nums;
@@ -7,7 +8,7 @@ pub mod op_val_string;
 pub mod op_val_value;
 
 // region:    --- OpVal
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum OpVal {
 	String(OpValString),
 

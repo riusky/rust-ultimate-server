@@ -1,4 +1,5 @@
 use crate::ctx::Ctx;
+use crate::generate_cached_bmc_fns;
 use crate::generate_common_bmc_fns;
 use crate::model::base::{self, DbBmc};
 use crate::model::modql_utils::time_to_sea_value;
@@ -19,9 +20,15 @@ use ts_rs::TS;
 // region:    --- Agent Types
 
 #[serde_as]
-#[derive(Debug, Clone, Fields, FromRow, Serialize)]
+#[derive(Debug, Clone, Fields, FromRow, Serialize, Deserialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/agent/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/agent/"
+	)
+)]
 pub struct Agent {
 	pub id: i64,
 
@@ -55,7 +62,7 @@ pub struct AgentForUpdate {
 	pub name: Option<String>,
 }
 
-#[derive(Clone, FilterNodes, Default, Deserialize)]
+#[derive(Clone, FilterNodes, Default, Deserialize, Serialize)]
 pub struct AgentFilter {
 	pub id: Option<OpValsInt64>,
 	pub name: Option<OpValsString>,
@@ -91,6 +98,14 @@ generate_common_bmc_fns!(
 	Filter: AgentFilter,
 );
 
+generate_cached_bmc_fns!(
+	Bmc: AgentBmc,
+	Entity: Agent,
+	ForCreate: AgentForCreate,
+	ForUpdate: AgentForUpdate,
+	Filter: AgentFilter,
+);
+
 // endregion: --- AgentBmc
 
 // region:    --- Tests
@@ -105,6 +120,68 @@ mod tests {
 	use crate::model;
 	use serde_json::json;
 	use serial_test::serial;
+
+	#[serial]
+	#[tokio::test]
+	async fn test_cached_crud_without_pool_ok() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+		let fx_name = "test_cached_crud_without_pool_ok agent 01";
+
+		// -- Exec & Check create/get
+		let agent_id = AgentBmc::create_cached(
+			&ctx,
+			&mm,
+			AgentForCreate {
+				name: fx_name.to_string(),
+			},
+		)
+		.await?;
+		let agent = AgentBmc::get_cached(&ctx, &mm, agent_id).await?;
+		assert_eq!(agent.name, fx_name);
+
+		// -- Exec & Check list/count
+		let agent_filter: AgentFilter = serde_json::from_value(json!(
+			{
+				"id": {"$eq": agent_id}
+			}
+		))?;
+		let agents = AgentBmc::list_cached(&ctx, &mm, Some(vec![agent_filter]), None).await?;
+		assert_eq!(agents.len(), 1);
+
+		let agent_filter: AgentFilter = serde_json::from_value(json!(
+			{
+				"id": {"$eq": agent_id}
+			}
+		))?;
+		let count = AgentBmc::count_cached(&ctx, &mm, Some(vec![agent_filter])).await?;
+		assert_eq!(count, 1);
+
+		// -- Exec & Check update
+		let fx_name_updated = "test_cached_crud_without_pool_ok agent 02 - updated";
+		AgentBmc::update_cached(
+			&ctx,
+			&mm,
+			agent_id,
+			AgentForUpdate {
+				name: Some(fx_name_updated.to_string()),
+			},
+		)
+		.await?;
+		let agent = AgentBmc::get_cached(&ctx, &mm, agent_id).await?;
+		assert_eq!(agent.name, fx_name_updated);
+
+		// -- Exec & Check delete
+		AgentBmc::delete_cached(&ctx, &mm, agent_id).await?;
+		let res = AgentBmc::get_cached(&ctx, &mm, agent_id).await;
+		assert!(
+			matches!(&res, Err(model::Error::EntityNotFound { .. })),
+			"should return a EntityNotFound"
+		);
+
+		Ok(())
+	}
 
 	#[serial]
 	#[tokio::test]
@@ -147,8 +224,7 @@ mod tests {
 			name: fx_name.to_string(),
 		};
 
-		let agent_ids =
-			AgentBmc::create_many(&ctx, &mm, vec![fx_agent_c, fx_agent_c2]).await?;
+		let agent_ids = AgentBmc::create_many(&ctx, &mm, vec![fx_agent_c, fx_agent_c2]).await?;
 
 		let agent_filter: AgentFilter = serde_json::from_value(json!(
 			{
@@ -156,8 +232,7 @@ mod tests {
 			}
 		))?;
 
-		let agents =
-			AgentBmc::list(&ctx, &mm, Some(vec![agent_filter]), None).await?;
+		let agents = AgentBmc::list(&ctx, &mm, Some(vec![agent_filter]), None).await?;
 
 		assert_eq!(agents.len(), 2, "should have only retrieved 2 agents");
 
@@ -233,8 +308,7 @@ mod tests {
 			name: fx_name.to_string(),
 		};
 
-		let agent_ids =
-			AgentBmc::create_many(&ctx, &mm, vec![fx_agent_c, fx_agent_c2]).await?;
+		let agent_ids = AgentBmc::create_many(&ctx, &mm, vec![fx_agent_c, fx_agent_c2]).await?;
 
 		let agent_filter: AgentFilter = serde_json::from_value(json!(
 			{
@@ -242,8 +316,7 @@ mod tests {
 			}
 		))?;
 
-		let agents =
-			AgentBmc::list(&ctx, &mm, Some(vec![agent_filter]), None).await?;
+		let agents = AgentBmc::list(&ctx, &mm, Some(vec![agent_filter]), None).await?;
 
 		assert_eq!(agents.len(), 2, "should have only retrieved 2 agents");
 
@@ -270,8 +343,7 @@ mod tests {
 				"name": {"$startsWith": "test_first_ok agent"}
 			}
 		))?;
-		let agent =
-			AgentBmc::first(&ctx, &mm, Some(vec![agent_filter]), None).await?;
+		let agent = AgentBmc::first(&ctx, &mm, Some(vec![agent_filter]), None).await?;
 
 		// -- Check
 		let agent = agent.ok_or("No Agent Returned (should have returned one")?;
@@ -306,8 +378,7 @@ mod tests {
 				"name": {"$contains": "list_ok agent"}
 			}
 		))?;
-		let agents =
-			AgentBmc::list(&ctx, &mm, Some(vec![agent_filter]), None).await?;
+		let agents = AgentBmc::list(&ctx, &mm, Some(vec![agent_filter]), None).await?;
 
 		// -- Check
 		assert_eq!(agents.len(), 2);

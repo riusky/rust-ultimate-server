@@ -1,17 +1,14 @@
 use crate::ctx::Ctx;
+use crate::generate_cached_bmc_fns;
 use crate::generate_common_bmc_fns;
 use crate::model::base::{self, DbBmc};
-use crate::model::conv_msg::{
-	ConvMsg, ConvMsgBmc, ConvMsgForCreate, ConvMsgForInsert,
-};
+use crate::model::conv_msg::{ConvMsg, ConvMsgBmc, ConvMsgForCreate, ConvMsgForInsert};
 use crate::model::modql_utils::time_to_sea_value;
 use crate::model::ModelManager;
 use crate::model::Result;
 use lib_utils::time::Rfc3339;
 use modql::field::{Fields, SeaFieldValue};
-use modql::filter::{
-	FilterNodes, ListOptions, OpValsInt64, OpValsString, OpValsValue,
-};
+use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsString, OpValsValue};
 use sea_query::Nullable;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -59,15 +56,7 @@ impl Nullable for ConvKind {
 ///       `sea_query::value::Nullable for ConvState`
 ///       See the `ConvKind` for the manual implementation.
 ///       
-#[derive(
-	Debug,
-	Clone,
-	sqlx::Type,
-	SeaFieldValue,
-	derive_more::Display,
-	Deserialize,
-	Serialize,
-)]
+#[derive(Debug, Clone, sqlx::Type, SeaFieldValue, derive_more::Display, Deserialize, Serialize)]
 #[sqlx(type_name = "conv_state")]
 pub enum ConvState {
 	Active,
@@ -75,7 +64,7 @@ pub enum ConvState {
 }
 
 #[serde_as]
-#[derive(Debug, Clone, Fields, FromRow, Serialize)]
+#[derive(Debug, Clone, Fields, FromRow, Serialize, Deserialize)]
 pub struct Conv {
 	pub id: i64,
 
@@ -118,7 +107,7 @@ pub struct ConvForUpdate {
 	pub state: Option<ConvState>,
 }
 
-#[derive(Clone, FilterNodes, Deserialize, Default, Debug)]
+#[derive(Clone, FilterNodes, Deserialize, Serialize, Default, Debug)]
 pub struct ConvFilter {
 	pub id: Option<OpValsInt64>,
 
@@ -161,6 +150,14 @@ generate_common_bmc_fns!(
 	Filter: ConvFilter,
 );
 
+generate_cached_bmc_fns!(
+	Bmc: ConvBmc,
+	Entity: Conv,
+	ForCreate: ConvForCreate,
+	ForUpdate: ConvForUpdate,
+	Filter: ConvFilter,
+);
+
 // Additional ConvBmc methods to manage the `ConvMsg` constructs.
 impl ConvBmc {
 	/// Add a `ConvMsg` to a `Conv`
@@ -168,24 +165,52 @@ impl ConvBmc {
 	// For access constrol, we will add:
 	// #[ctx_add(conv, space)]
 	// #[requires_privilege_any_of("og:FullAccess", "sp:FullAccess", "conv@owner_id" "conv:AddMsg")]
-	pub async fn add_msg(
-		ctx: &Ctx,
-		mm: &ModelManager,
-		msg_c: ConvMsgForCreate,
-	) -> Result<i64> {
+	pub async fn add_msg(ctx: &Ctx, mm: &ModelManager, msg_c: ConvMsgForCreate) -> Result<i64> {
 		let msg_i = ConvMsgForInsert::from_msg_for_create(ctx.user_id(), msg_c);
 		let conv_msg_id = base::create::<ConvMsgBmc, _>(ctx, mm, msg_i).await?;
 
 		Ok(conv_msg_id)
 	}
 
-	/// NOTE: The current strategy is to not require conv_id, but we will check
-	///       that user have `conv:ReadMsg` privilege on correponding conv (post base::get).
-	pub async fn get_msg(
+	pub async fn add_msg_cached(
 		ctx: &Ctx,
 		mm: &ModelManager,
-		msg_id: i64,
-	) -> Result<ConvMsg> {
+		msg_c: ConvMsgForCreate,
+	) -> Result<i64> {
+		let conv_msg_id = Self::add_msg(ctx, mm, msg_c).await?;
+
+		match Self::get_msg(ctx, mm, conv_msg_id).await {
+			Ok(conv_msg) => {
+				crate::model::cache::write_model_entity_best_effort(
+					mm.valkey_pool(),
+					<ConvMsgBmc as DbBmc>::TABLE,
+					conv_msg_id,
+					&conv_msg,
+				)
+				.await;
+			}
+			Err(err) => {
+				tracing::warn!(
+					table = <ConvMsgBmc as DbBmc>::TABLE,
+					id = conv_msg_id,
+					error = ?err,
+					"model cache refresh after add_msg failed"
+				);
+			}
+		}
+
+		crate::model::cache::bump_model_query_version_best_effort(
+			mm.valkey_pool(),
+			<ConvMsgBmc as DbBmc>::TABLE,
+		)
+		.await;
+
+		Ok(conv_msg_id)
+	}
+
+	/// NOTE: The current strategy is to not require conv_id, but we will check
+	///       that user have `conv:ReadMsg` privilege on correponding conv (post base::get).
+	pub async fn get_msg(ctx: &Ctx, mm: &ModelManager, msg_id: i64) -> Result<ConvMsg> {
 		let conv_msg: ConvMsg = base::get::<ConvMsgBmc, _>(ctx, mm, msg_id).await?;
 
 		// TODO: Validate conv_msg is with ctx.conv_id
@@ -193,6 +218,18 @@ impl ConvBmc {
 		//       assert_privileges(&ctx, &mm, &["conv@owner_id", "conv:ReadMsg"]);
 
 		Ok(conv_msg)
+	}
+
+	pub async fn get_msg_cached(ctx: &Ctx, mm: &ModelManager, msg_id: i64) -> Result<ConvMsg> {
+		let key = crate::model::cache::model_entity_key(<ConvMsgBmc as DbBmc>::TABLE, msg_id);
+
+		crate::model::cache::get_or_load_json(
+			mm.valkey_pool(),
+			Some(&key),
+			Some(crate::model::cache::MODEL_ENTITY_TTL_SECS),
+			|| async { Self::get_msg(ctx, mm, msg_id).await },
+		)
+		.await
 	}
 }
 

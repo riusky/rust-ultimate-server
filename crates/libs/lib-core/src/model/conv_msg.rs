@@ -12,7 +12,7 @@ use time::OffsetDateTime;
 // region:    --- Types
 
 #[serde_as]
-#[derive(Debug, Clone, Fields, FromRow, Serialize)]
+#[derive(Debug, Clone, Fields, FromRow, Serialize, Deserialize)]
 pub struct ConvMsg {
 	pub id: i64,
 

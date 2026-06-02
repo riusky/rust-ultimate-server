@@ -1,15 +1,13 @@
 use crate::ctx::Ctx;
-use crate::model::base::{self, prep_fields_for_update, DbBmc};
+use crate::model::base::{self, DbBmc};
 use crate::model::modql_utils::time_to_sea_value;
 use crate::model::user_info::{UserGender, UserStatus};
 use crate::model::ModelManager;
 use crate::model::{Error, Result};
 use lib_auth::pwd::{self, ContentToHash};
 use lib_utils::time::Rfc3339;
-use modql::field::{Fields, HasSeaFields, SeaField, SeaFields};
-use modql::filter::{
-	FilterNodes, ListOptions, OpValsInt64, OpValsString, OpValsValue,
-};
+use modql::field::{Fields, HasSeaFields};
+use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsString, OpValsValue};
 use sea_query::{Alias, Expr, Iden, PostgresQueryBuilder, Query};
 use sea_query_binder::SqlxBinder;
 use serde::{Deserialize, Serialize};
@@ -26,7 +24,13 @@ use ts_rs::TS;
 // region:    --- User Types
 #[derive(Clone, Debug, PartialEq, sqlx::Type, derive_more::Display, Deserialize, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"
+	)
+)]
 #[sqlx(type_name = "user_typ")]
 pub enum UserTyp {
 	Sys,
@@ -40,7 +44,13 @@ impl From<UserTyp> for sea_query::Value {
 
 #[derive(Clone, Fields, FromRow, Debug, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"
+	)
+)]
 pub struct User {
 	pub id: i64,
 	pub username: String,
@@ -56,6 +66,11 @@ pub struct UserForCreate {
 #[derive(Fields)]
 pub struct UserForInsert {
 	pub username: String,
+}
+
+#[derive(Fields)]
+struct UserPwdForUpdate {
+	pub pwd: String,
 }
 
 #[derive(Clone, FromRow, Fields, Debug)]
@@ -90,9 +105,7 @@ impl UserBy for UserForAuth {}
 //       we use in our specific code.
 #[derive(Iden)]
 enum UserIden {
-	Id,
 	Username,
-	Pwd,
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug, Clone)]
@@ -113,7 +126,13 @@ pub struct UserFilter {
 #[serde_as]
 #[derive(Debug, Clone, FromRow, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"
+	)
+)]
 pub struct UserWithInfo {
 	// -- User fields
 	pub id: i64,
@@ -193,11 +212,7 @@ impl UserBmc {
 		Ok(count)
 	}
 
-	pub async fn create(
-		ctx: &Ctx,
-		mm: &ModelManager,
-		user_c: UserForCreate,
-	) -> Result<i64> {
+	pub async fn create(ctx: &Ctx, mm: &ModelManager, user_c: UserForCreate) -> Result<i64> {
 		let UserForCreate {
 			username,
 			pwd_clear,
@@ -213,8 +228,9 @@ impl UserBmc {
 
 		mm.dbx().begin_txn().await?;
 
-		let user_id = base::create::<Self, _>(ctx, &mm, user_fi).await.map_err(
-			|model_error| {
+		let user_id = base::create::<Self, _>(ctx, &mm, user_fi)
+			.await
+			.map_err(|model_error| {
 				Error::resolve_unique_violation(
 					model_error,
 					Some(|table: &str, constraint: &str| {
@@ -225,8 +241,7 @@ impl UserBmc {
 						}
 					}),
 				)
-			},
-		)?;
+			})?;
 
 		// -- Update the database
 		Self::update_pwd(ctx, &mm, user_id, &pwd_clear).await?;
@@ -277,12 +292,7 @@ impl UserBmc {
 		base::list::<Self, _, _>(ctx, mm, filter, list_options).await
 	}
 
-	pub async fn update_pwd(
-		ctx: &Ctx,
-		mm: &ModelManager,
-		id: i64,
-		pwd_clear: &str,
-	) -> Result<()> {
+	pub async fn update_pwd(ctx: &Ctx, mm: &ModelManager, id: i64, pwd_clear: &str) -> Result<()> {
 		// -- Prep password
 		let user: UserForLogin = Self::get(ctx, mm, id).await?;
 		let pwd = pwd::hash_pwd(ContentToHash {
@@ -291,24 +301,7 @@ impl UserBmc {
 		})
 		.await?;
 
-		// -- Prep the data
-		let mut fields = SeaFields::new(vec![SeaField::new(UserIden::Pwd, pwd)]);
-		prep_fields_for_update::<Self>(&mut fields, ctx.user_id());
-
-		// -- Build query
-		let fields = fields.for_sea_update();
-		let mut query = Query::update();
-		query
-			.table(Self::table_ref())
-			.values(fields)
-			.and_where(Expr::col(UserIden::Id).eq(id));
-
-		// -- Exec query
-		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
-		let sqlx_query = sqlx::query_with(&sql, values);
-		let _count = mm.dbx().execute(sqlx_query).await?;
-
-		Ok(())
+		base::update::<Self, _>(ctx, mm, id, UserPwdForUpdate { pwd }).await
 	}
 
 	/// TODO: For User, deletion will require a soft-delete approach:
@@ -350,39 +343,47 @@ impl UserBmc {
 		query.from(user_table.clone());
 
 		// User fields
-		add_columns(&mut query, &user_table, &[
-			("id", "id"),
-			("username", "username"),
-			("typ", "typ"),
-			("ctime", "ctime"),
-			("mtime", "mtime"),
-		]);
+		add_columns(
+			&mut query,
+			&user_table,
+			&[
+				("id", "id"),
+				("username", "username"),
+				("typ", "typ"),
+				("ctime", "ctime"),
+				("mtime", "mtime"),
+			],
+		);
 
 		// UserInfo fields (with alias for id -> user_info_id)
-		add_columns(&mut query, &user_info_table, &[
-			("id", "user_info_id"),
-			("nickname", "nickname"),
-			("avatar", "avatar"),
-			("bio", "bio"),
-			("email", "email"),
-			("email_verified", "email_verified"),
-			("phone", "phone"),
-			("phone_verified", "phone_verified"),
-			("gender", "gender"),
-			("birthday", "birthday"),
-			("country", "country"),
-			("province", "province"),
-			("city", "city"),
-			("address", "address"),
-			("postal_code", "postal_code"),
-			("timezone", "timezone"),
-			("locale", "locale"),
-			("theme", "theme"),
-			("status", "status"),
-			("last_login_at", "last_login_at"),
-			("last_login_ip", "last_login_ip"),
-			("login_count", "login_count"),
-		]);
+		add_columns(
+			&mut query,
+			&user_info_table,
+			&[
+				("id", "user_info_id"),
+				("nickname", "nickname"),
+				("avatar", "avatar"),
+				("bio", "bio"),
+				("email", "email"),
+				("email_verified", "email_verified"),
+				("phone", "phone"),
+				("phone_verified", "phone_verified"),
+				("gender", "gender"),
+				("birthday", "birthday"),
+				("country", "country"),
+				("province", "province"),
+				("city", "city"),
+				("address", "address"),
+				("postal_code", "postal_code"),
+				("timezone", "timezone"),
+				("locale", "locale"),
+				("theme", "theme"),
+				("status", "status"),
+				("last_login_at", "last_login_at"),
+				("last_login_ip", "last_login_ip"),
+				("login_count", "login_count"),
+			],
+		);
 
 		// LEFT JOIN user_info ON user.id = user_info.user_id
 		query.left_join(

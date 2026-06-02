@@ -22,5 +22,6 @@ generate_common_rpc_fns!(
 	Suffix: role,
 	ResourceDisplay: "Role",
 	ResourceGroup: "Role Management",
-	ResourceDescription: "role entity for access control"
+	ResourceDescription: "role entity for access control",
+	Cache: false,
 );

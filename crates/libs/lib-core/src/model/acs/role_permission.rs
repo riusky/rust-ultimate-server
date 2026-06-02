@@ -85,14 +85,13 @@ impl RolePermissionBmc {
 		mm: &ModelManager,
 		role_permission_c: RolePermissionForCreate,
 	) -> Result<i64> {
-		base::create::<Self, _>(ctx, mm, role_permission_c).await
+		let role_id = role_permission_c.role_id;
+		let id = base::create::<Self, _>(ctx, mm, role_permission_c).await?;
+		Self::invalidate_role_users_permissions_best_effort(ctx, mm, role_id).await;
+		Ok(id)
 	}
 
-	pub async fn get(
-		ctx: &Ctx,
-		mm: &ModelManager,
-		id: i64,
-	) -> Result<RolePermission> {
+	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<RolePermission> {
 		base::get::<Self, _>(ctx, mm, id).await
 	}
 
@@ -106,7 +105,10 @@ impl RolePermissionBmc {
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
-		base::delete::<Self>(ctx, mm, id).await
+		let role_permission = Self::get(ctx, mm, id).await?;
+		base::delete::<Self>(ctx, mm, id).await?;
+		Self::invalidate_role_users_permissions_best_effort(ctx, mm, role_permission.role_id).await;
+		Ok(())
 	}
 
 	pub async fn count(
@@ -161,11 +163,7 @@ impl RolePermissionBmc {
 	}
 
 	/// Delete all permissions for a role
-	pub async fn delete_by_role(
-		_ctx: &Ctx,
-		mm: &ModelManager,
-		role_id: i64,
-	) -> Result<u64> {
+	pub async fn delete_by_role(ctx: &Ctx, mm: &ModelManager, role_id: i64) -> Result<u64> {
 		let mut query = Query::delete();
 		query
 			.from_table(Self::table_ref())
@@ -174,6 +172,7 @@ impl RolePermissionBmc {
 		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
 		let sqlx_query = sqlx::query_with(&sql, values);
 		let count = mm.dbx().execute(sqlx_query).await?;
+		Self::invalidate_role_users_permissions_best_effort(ctx, mm, role_id).await;
 
 		Ok(count)
 	}
@@ -181,10 +180,11 @@ impl RolePermissionBmc {
 	/// Delete all role associations for a permission
 	/// Used when syncing permissions (removing stale permissions from database)
 	pub async fn delete_by_permission(
-		_ctx: &Ctx,
+		ctx: &Ctx,
 		mm: &ModelManager,
 		permission_id: i64,
 	) -> Result<u64> {
+		let role_ids = Self::list_role_ids_for_permission(ctx, mm, permission_id).await?;
 		let mut query = Query::delete();
 		query
 			.from_table(Self::table_ref())
@@ -193,6 +193,9 @@ impl RolePermissionBmc {
 		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
 		let sqlx_query = sqlx::query_with(&sql, values);
 		let count = mm.dbx().execute(sqlx_query).await?;
+		for role_id in role_ids {
+			Self::invalidate_role_users_permissions_best_effort(ctx, mm, role_id).await;
+		}
 
 		Ok(count)
 	}
@@ -226,8 +229,50 @@ impl RolePermissionBmc {
 
 		// Commit transaction
 		mm.dbx().commit_txn().await?;
+		Self::invalidate_role_users_permissions_best_effort(ctx, &mm, role_id).await;
 
 		Ok(())
+	}
+
+	async fn list_role_ids_for_permission(
+		_ctx: &Ctx,
+		mm: &ModelManager,
+		permission_id: i64,
+	) -> Result<Vec<i64>> {
+		let mut query = Query::select();
+		query
+			.from(Self::table_ref())
+			.column(RolePermissionIden::RoleId)
+			.and_where(Expr::col(RolePermissionIden::PermissionId).eq(permission_id));
+
+		let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+		let sqlx_query = sqlx::query_as_with::<_, (i64,), _>(&sql, values);
+		let rows = mm.dbx().fetch_all(sqlx_query).await?;
+
+		Ok(rows.into_iter().map(|(id,)| id).collect())
+	}
+
+	async fn invalidate_role_users_permissions_best_effort(
+		ctx: &Ctx,
+		mm: &ModelManager,
+		role_id: i64,
+	) {
+		match super::UserRoleBmc::list_user_ids_for_role(ctx, mm, role_id).await {
+			Ok(user_ids) => {
+				crate::model::cache::invalidate_users_permissions_cache_best_effort(
+					mm.valkey_pool(),
+					&user_ids,
+				)
+				.await;
+			}
+			Err(err) => {
+				tracing::warn!(
+					role_id,
+					error = ?err,
+					"permission cache invalidation skipped because role users could not be listed"
+				);
+			}
+		}
 	}
 }
 
@@ -242,9 +287,7 @@ mod tests {
 
 	use super::*;
 	use crate::_dev_utils;
-	use crate::model::acs::{
-		PermissionBmc, PermissionForCreate, RoleBmc, RoleForCreate,
-	};
+	use crate::model::acs::{PermissionBmc, PermissionForCreate, RoleBmc, RoleForCreate};
 	use serial_test::serial;
 
 	#[serial]
@@ -295,8 +338,7 @@ mod tests {
 		assert_eq!(rp.permission_id, permission_id);
 
 		// Check has_permission
-		let has = RolePermissionBmc::has_permission(&ctx, &mm, role_id, permission_id)
-			.await?;
+		let has = RolePermissionBmc::has_permission(&ctx, &mm, role_id, permission_id).await?;
 		assert!(has);
 
 		// -- Clean
@@ -373,9 +415,7 @@ mod tests {
 		.await?;
 
 		// -- Exec
-		let perm_ids =
-			RolePermissionBmc::list_permission_ids_for_role(&ctx, &mm, role_id)
-				.await?;
+		let perm_ids = RolePermissionBmc::list_permission_ids_for_role(&ctx, &mm, role_id).await?;
 
 		// -- Check
 		assert_eq!(perm_ids.len(), 2);

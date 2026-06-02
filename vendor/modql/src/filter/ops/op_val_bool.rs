@@ -1,16 +1,29 @@
 use crate::filter::OpVal;
+use serde::Serialize;
 
 #[cfg(feature = "with-ts")]
 use ts_rs::TS;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"
+	)
+)]
 pub struct OpValsBool(pub Vec<OpValBool>);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"
+	)
+)]
 pub enum OpValBool {
 	Eq(bool),
 	Not(bool),

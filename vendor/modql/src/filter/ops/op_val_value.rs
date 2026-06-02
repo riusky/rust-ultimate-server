@@ -1,17 +1,30 @@
 use crate::filter::OpVal;
+use serde::Serialize;
 use serde_json::Value;
 
 #[cfg(feature = "with-ts")]
 use ts_rs::TS;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"
+	)
+)]
 pub struct OpValsValue(pub Vec<OpValValue>);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"
+	)
+)]
 pub enum OpValValue {
 	#[cfg_attr(feature = "with-ts", ts(type = "unknown"))]
 	Eq(Value),
@@ -120,7 +133,11 @@ mod with_sea_query {
 
 				let vxpr = into_node_value_expr(sea_value, node_options);
 				let column = into_node_column_expr(col.clone(), node_options);
-				Ok(ConditionExpression::SimpleExpr(SimpleExpr::binary(column.into(), op,vxpr)))
+				Ok(ConditionExpression::SimpleExpr(SimpleExpr::binary(
+					column.into(),
+					op,
+					vxpr,
+				)))
 			};
 
 			// -- CondExpr builder for single value
@@ -138,7 +155,11 @@ mod with_sea_query {
 
 				// -- Return the condition expression
 				let column = into_node_column_expr(col.clone(), node_options);
-				Ok(ConditionExpression::SimpleExpr(SimpleExpr::binary(column.into(), op, vxpr)))
+				Ok(ConditionExpression::SimpleExpr(SimpleExpr::binary(
+					column.into(),
+					op,
+					vxpr,
+				)))
 			};
 
 			let cond = match self {

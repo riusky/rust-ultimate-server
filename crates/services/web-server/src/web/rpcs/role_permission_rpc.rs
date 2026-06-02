@@ -1,10 +1,8 @@
 //! Role-Permission RPC handlers for managing role permissions
 
-use crate::web::routes_rpc::PermissionCachePool;
 use lib_core::generate_rpc_routes;
-use lib_core::model::acs::{Permission, PermissionBmc, RolePermissionBmc, UserRoleBmc};
+use lib_core::model::acs::{Permission, PermissionBmc, RolePermissionBmc};
 use lib_rpc_core::prelude::*;
-use lib_web::utils::permission_cache::invalidate_users_permissions_cache;
 use rpc_router::IntoParams;
 use serde::Deserialize;
 
@@ -73,22 +71,10 @@ pub async fn list_permissions_for_role(
 pub async fn set_permissions_for_role(
 	ctx: Ctx,
 	mm: ModelManager,
-	cache_pool: PermissionCachePool,
 	params: ParamsSetPermissionsForRole,
 ) -> Result<DataRpcResult<()>> {
-	RolePermissionBmc::set_permissions_for_role(
-		&ctx,
-		&mm,
-		params.role_id,
-		params.permission_ids,
-	)
-	.await?;
-
-	// Invalidate permissions cache for all users who have this role
-	if let Some(pool) = &cache_pool.0 {
-		let user_ids = UserRoleBmc::list_user_ids_for_role(&ctx, &mm, params.role_id).await?;
-		let _ = invalidate_users_permissions_cache(pool, &user_ids).await;
-	}
+	RolePermissionBmc::set_permissions_for_role(&ctx, &mm, params.role_id, params.permission_ids)
+		.await?;
 
 	Ok(().into())
 }

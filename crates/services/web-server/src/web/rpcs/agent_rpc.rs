@@ -1,9 +1,7 @@
-use lib_rpc_core::prelude::*;
-use lib_core::model::agent::{
-	Agent, AgentBmc, AgentFilter, AgentForCreate, AgentForUpdate,
-};
 use lib_core::generate_rpc_routes;
-use rpc_router::{IntoParams, IntoDefaultRpcParams};
+use lib_core::model::agent::{Agent, AgentBmc, AgentFilter, AgentForCreate, AgentForUpdate};
+use lib_rpc_core::prelude::*;
+use rpc_router::{IntoDefaultRpcParams, IntoParams};
 use serde::{Deserialize, Serialize};
 
 pub fn rpc_router_builder() -> RouterBuilder {
@@ -35,7 +33,8 @@ generate_common_rpc_fns!(
 	Suffix: agent,
 	ResourceDisplay: "Agent",
 	ResourceGroup: "Agent Management",
-	ResourceDescription: "agent entity for AI assistants"
+	ResourceDescription: "agent entity for AI assistants",
+	Cache: true,
 );
 
 // region:    --- Custom RPC Endpoints
@@ -79,7 +78,12 @@ pub struct BatchDeleteResult {
 
 // -- Permission registration for custom RPC
 
-lib_core::register_crud_permissions!("agent_custom", "Agent Custom", "Agent Management", "custom agent operations");
+lib_core::register_crud_permissions!(
+	"agent_custom",
+	"Agent Custom",
+	"Agent Management",
+	"custom agent operations"
+);
 
 // -- Custom RPC handlers
 
@@ -99,20 +103,21 @@ pub async fn clone_agent(
 	// Permission check is automatically injected!
 
 	// Get original agent
-	let original = AgentBmc::get(&ctx, &mm, params.id).await?;
+	let original = AgentBmc::get_cached(&ctx, &mm, params.id).await?;
 
 	// Create cloned agent with new name
 	let agent_c = AgentForCreate {
 		name: params.new_name,
 	};
-	let cloned_id = AgentBmc::create(&ctx, &mm, agent_c).await?;
-	let cloned_agent = AgentBmc::get(&ctx, &mm, cloned_id).await?;
+	let cloned_id = AgentBmc::create_cached(&ctx, &mm, agent_c).await?;
+	let cloned_agent = AgentBmc::get_cached(&ctx, &mm, cloned_id).await?;
 
 	Ok(CloneAgentResult {
 		original_id: original.id,
 		cloned_id,
 		cloned_agent,
-	}.into())
+	}
+	.into())
 }
 
 /// Get agent statistics
@@ -131,7 +136,7 @@ pub async fn get_agent_stats(
 	// Permission check is automatically injected!
 
 	// Get total count
-	let total_count = AgentBmc::count(&ctx, &mm, None).await?;
+	let total_count = AgentBmc::count_cached(&ctx, &mm, None).await?;
 
 	// For demo, active_count = total_count (no status field yet)
 	let active_count = total_count;
@@ -139,7 +144,8 @@ pub async fn get_agent_stats(
 	Ok(AgentStatsResult {
 		total_count,
 		active_count,
-	}.into())
+	}
+	.into())
 }
 
 /// Batch delete multiple agents
@@ -157,7 +163,7 @@ pub async fn batch_delete_agents(
 ) -> Result<DataRpcResult<BatchDeleteResult>> {
 	// Permission check is automatically injected!
 
-	let deleted_count = AgentBmc::delete_many(&ctx, &mm, params.ids).await?;
+	let deleted_count = AgentBmc::delete_many_cached(&ctx, &mm, params.ids).await?;
 
 	Ok(BatchDeleteResult { deleted_count }.into())
 }
@@ -216,13 +222,14 @@ pub async fn export_agent(
 	mm: ModelManager,
 	params: ExportAgentParams,
 ) -> Result<DataRpcResult<ExportAgentResult>> {
-	let agent = AgentBmc::get(&ctx, &mm, params.id).await?;
+	let agent = AgentBmc::get_cached(&ctx, &mm, params.id).await?;
 
 	Ok(ExportAgentResult {
 		id: agent.id,
 		name: agent.name,
 		format: params.format.unwrap_or_else(|| "json".to_string()),
-	}.into())
+	}
+	.into())
 }
 
 /// Demo 2: #[permission] - Both registers AND checks (recommended for RPC)
@@ -239,12 +246,13 @@ pub async fn archive_agent(
 	params: ArchiveAgentParams,
 ) -> Result<DataRpcResult<ArchiveAgentResult>> {
 	// Permission check is automatically injected by #[permission] macro!
-	let _agent = AgentBmc::get(&ctx, &mm, params.id).await?;
+	let _agent = AgentBmc::get_cached(&ctx, &mm, params.id).await?;
 
 	Ok(ArchiveAgentResult {
 		id: params.id,
 		archived: true,
-	}.into())
+	}
+	.into())
 }
 
 /// Demo 3: #[require_permissions] - Check multiple permissions (ALL must pass)
@@ -256,12 +264,13 @@ pub async fn agent_report(
 	_params: AgentReportParams,
 ) -> Result<DataRpcResult<AgentReportResult>> {
 	// Both permission checks are automatically injected!
-	let total = AgentBmc::count(&ctx, &mm, None).await?;
+	let total = AgentBmc::count_cached(&ctx, &mm, None).await?;
 
 	Ok(AgentReportResult {
 		total,
 		report_type: "summary".to_string(),
-	}.into())
+	}
+	.into())
 }
 
 // endregion: --- Macro-based Permission RPC Endpoints (Demo)

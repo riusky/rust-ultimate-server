@@ -49,7 +49,8 @@ async fn ensure_initial_admin_password(mm: &ModelManager) -> Result<()> {
 		Ok(None) => {
 			tracing::warn!(
 				"{:<12} - Initial admin user '{}' not found, skip",
-				"INIT-ADMIN", username
+				"INIT-ADMIN",
+				username
 			);
 			return Ok(());
 		}
@@ -90,36 +91,56 @@ async fn main() -> Result<()> {
 	#[cfg(debug_assertions)]
 	_dev_utils::init_dev().await;
 
-	let mm = ModelManager::new().await?;
 	let config = web_config();
+	let registered_model_caches = lib_core::model::cache::registered_model_caches();
+	let model_cache_required = !registered_model_caches.is_empty();
 
-	ensure_initial_admin_password(&mm).await?;
+	if model_cache_required {
+		let resources = registered_model_caches
+			.iter()
+			.map(|cache| format!("{}:{}", cache.resource, cache.table))
+			.collect::<Vec<_>>()
+			.join(", ");
+		info!("{:<12} - Model cache REQUIRED by: {}", "CONFIG", resources);
+	} else {
+		info!("{:<12} - Model cache DISABLED", "CONFIG");
+	}
 
-	// -- Initialize Valkey pool if caching is enabled
-	let valkey_pool: Option<ValkeyPool> = if config.PERMISSION_CACHE_ENABLED {
-		info!("{:<12} - Permission cache ENABLED (Valkey)", "CONFIG");
+	// -- Initialize Valkey pool when any startup-declared cache requires it.
+	let valkey_pool: Option<ValkeyPool> = if config.PERMISSION_CACHE_ENABLED || model_cache_required
+	{
 		new_valkey_pool()
 			.await
 			.inspect_err(|e| tracing::error!("Failed to create Valkey pool: {:?}", e))
 			.map_err(|e| Error::ValkeyPool(e.to_string()))
 			.map(Some)?
 	} else {
+		None
+	};
+	let permission_cache_pool = if config.PERMISSION_CACHE_ENABLED {
+		info!("{:<12} - Permission cache ENABLED (Valkey)", "CONFIG");
+		valkey_pool.clone()
+	} else {
 		info!("{:<12} - Permission cache DISABLED", "CONFIG");
 		None
 	};
 
+	let mm = ModelManager::new_with_valkey_pool(valkey_pool.clone()).await?;
+
+	ensure_initial_admin_password(&mm).await?;
+
 	// -- Define Routes (this validates handler annotations via generate_rpc_routes!)
 	// Note: generate_rpc_routes! in each RPC module validates handlers at runtime
-	let routes_rpc = web::routes_rpc::routes(mm.clone(), valkey_pool.clone())
-		.route_layer(middleware::from_fn(mw_ctx_require));
+	let routes_rpc =
+		web::routes_rpc::routes(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
 
 	let routes_rest = routes_rest::routes(mm.clone())
 		.layer(middleware::from_fn(mw_rest_info))
 		.route_layer(middleware::from_fn(mw_ctx_require));
 
 	// User management routes that require auth
-	let routes_user_auth = routes_user::routes_auth(mm.clone())
-		.route_layer(middleware::from_fn(mw_ctx_require));
+	let routes_user_auth =
+		routes_user::routes_auth(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
 
 	// -- Sync permissions from code to database
 	let ctx = Ctx::root_ctx();
@@ -147,7 +168,7 @@ async fn main() -> Result<()> {
 		.layer(middleware::map_response(mw_reponse_map));
 
 	// Add permission resolver middleware based on cache configuration
-	let routes_all = if let Some(pool) = valkey_pool {
+	let routes_all = if let Some(pool) = permission_cache_pool {
 		routes_all.layer(middleware::from_fn_with_state(
 			(mm.clone(), pool),
 			mw_permission_resolver_with_cache,

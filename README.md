@@ -21,12 +21,14 @@
 
 ### 本地开发
 
+完整步骤见 [本地启动指南](./docs/LOCAL_START.md)。
+
 ```bash
 # 安装 cargo-watch
 cargo install cargo-watch
 
-# 终端1 - 后端服务（热重载）
-cargo watch -q -c -w crates/ -x "run -p web-server"
+# 终端1 - 后端服务（热重载，本地默认不启用 Valkey）
+SERVICE_PERMISSION_CACHE_ENABLED=false cargo watch -q -c -w crates/ -x "run -p web-server"
 
 # 终端2 - 前端服务
 cd cmx-vue-ultimate-starter
@@ -109,6 +111,7 @@ cd cmx-vue-ultimate-starter && bun run gen:types
 
 | 文档 | 说明 |
 |------|------|
+| [本地启动指南](./docs/LOCAL_START.md) | 不使用 Docker 的本机后端、前端、数据库启动流程 |
 | [开发手册](./docs/DEVELOPMENT.md) | 完整开发流程、架构设计、代码规范 |
 | [权限系统指南](./docs/PERMISSION.md) | RBAC 权限模型、定义与使用 |
 | [认证系统设计](./docs/AUTH_DESIGN.md) | Token 机制、密码哈希多模式切换 |

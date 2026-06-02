@@ -1,8 +1,6 @@
-use lib_core::model::conv::{
-	Conv, ConvBmc, ConvFilter, ConvForCreate, ConvForUpdate,
-};
-use lib_core::model::conv_msg::{ConvMsg, ConvMsgForCreate};
 use lib_core::generate_rpc_routes;
+use lib_core::model::conv::{Conv, ConvBmc, ConvFilter, ConvForCreate, ConvForUpdate};
+use lib_core::model::conv_msg::{ConvMsg, ConvMsgForCreate};
 use lib_rpc_core::prelude::*;
 
 pub fn rpc_router_builder() -> RouterBuilder {
@@ -27,7 +25,8 @@ generate_common_rpc_fns!(
 	Suffix: conv,
 	ResourceDisplay: "Conversation",
 	ResourceGroup: "Conversation Management",
-	ResourceDescription: "conversation entity for chat sessions"
+	ResourceDescription: "conversation entity for chat sessions",
+	Cache: true,
 );
 
 /// Returns conv_msg
@@ -44,8 +43,8 @@ pub async fn add_conv_msg(
 ) -> Result<DataRpcResult<ConvMsg>> {
 	let ParamsForCreate { data: msg_c } = params;
 
-	let msg_id = ConvBmc::add_msg(&ctx, &mm, msg_c).await?;
-	let msg = ConvBmc::get_msg(&ctx, &mm, msg_id).await?;
+	let msg_id = ConvBmc::add_msg_cached(&ctx, &mm, msg_c).await?;
+	let msg = ConvBmc::get_msg_cached(&ctx, &mm, msg_id).await?;
 
 	Ok(msg.into())
 }
@@ -65,7 +64,7 @@ pub async fn get_conv_msg(
 ) -> Result<DataRpcResult<ConvMsg>> {
 	let ParamsIded { id: msg_id } = params;
 
-	let msg = ConvBmc::get_msg(&ctx, &mm, msg_id).await?;
+	let msg = ConvBmc::get_msg_cached(&ctx, &mm, msg_id).await?;
 
 	Ok(msg.into())
 }

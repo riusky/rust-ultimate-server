@@ -77,7 +77,7 @@ impl Ctx {
 // Permission checking methods.
 impl Ctx {
 	/// The admin role name that bypasses all permission checks
-	const ADMIN_ROLE: &'static str = "admin";
+	pub const ADMIN_ROLE: &'static str = "admin";
 
 	/// Check if user has a specific permission
 	pub fn has_permission(&self, key: &str) -> bool {

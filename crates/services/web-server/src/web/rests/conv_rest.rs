@@ -1,6 +1,4 @@
-use lib_core::model::conv::{
-	Conv, ConvBmc, ConvFilter, ConvForCreate, ConvForUpdate,
-};
+use lib_core::model::conv::{Conv, ConvBmc, ConvFilter, ConvForCreate, ConvForUpdate};
 use lib_rest_core::prelude::*;
 use lib_web::middleware::mw_auth::CtxW;
 
@@ -13,5 +11,6 @@ generate_common_rest_fns!(
 	Suffix: conv,
 	ResourceDisplay: "Conversation",
 	ResourceGroup: "Conversation Management",
-	ResourceDescription: "conversation entity for chat sessions"
+	ResourceDescription: "conversation entity for chat sessions",
+	Cache: true,
 );

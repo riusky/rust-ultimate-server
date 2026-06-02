@@ -1896,10 +1896,12 @@ dependencies = [
 name = "lib-core"
 version = "0.1.0"
 dependencies = [
+ "blake3",
  "derive_more 1.0.0",
  "inventory",
  "lib-auth",
  "lib-utils",
+ "lib-valkey-core",
  "modql",
  "refinery",
  "rpc-router",

@@ -1,10 +1,8 @@
 //! User-Role RPC handlers for assigning roles to users
 
-use crate::web::routes_rpc::PermissionCachePool;
 use lib_core::generate_rpc_routes;
 use lib_core::model::acs::{Role, RoleBmc, UserRoleBmc};
 use lib_rpc_core::prelude::*;
-use lib_web::utils::permission_cache::invalidate_user_permissions_cache;
 use rpc_router::IntoParams;
 use serde::Deserialize;
 
@@ -71,15 +69,9 @@ pub async fn list_roles_for_user(
 pub async fn set_roles_for_user(
 	ctx: Ctx,
 	mm: ModelManager,
-	cache_pool: PermissionCachePool,
 	params: ParamsSetRolesForUser,
 ) -> Result<DataRpcResult<()>> {
 	UserRoleBmc::set_roles_for_user(&ctx, &mm, params.user_id, params.role_ids).await?;
-
-	// Invalidate user permissions cache
-	if let Some(pool) = &cache_pool.0 {
-		let _ = invalidate_user_permissions_cache(pool, params.user_id).await;
-	}
 
 	Ok(().into())
 }

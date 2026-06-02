@@ -1,11 +1,19 @@
 // region:    --- OrderBy
 
+use serde::Serialize;
+
 #[cfg(feature = "with-ts")]
 use ts_rs::TS;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"
+	)
+)]
 pub enum OrderBy {
 	Asc(String),
 	Desc(String),
@@ -45,9 +53,15 @@ impl<T: AsRef<str>> From<T> for OrderBy {
 // endregion: --- OrderBy
 
 // region:    --- OrderBys
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"))]
+#[cfg_attr(
+	feature = "with-ts",
+	ts(
+		export,
+		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/filter/"
+	)
+)]
 pub struct OrderBys(Vec<OrderBy>);
 
 impl OrderBys {

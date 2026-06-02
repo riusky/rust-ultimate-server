@@ -192,6 +192,10 @@ impl Error {
 				StatusCode::BAD_REQUEST,
 				ClientError::ENTITY_NOT_FOUND { entity, id: *id },
 			),
+			Model(model::Error::CannotRemoveOwnAdminRole { .. }) => (
+				StatusCode::FORBIDDEN,
+				ClientError::CANNOT_REMOVE_OWN_ADMIN_ROLE,
+			),
 
 			// -- Rpc
 			RpcRequestParsing(req_parsing_err) => (
@@ -249,6 +253,12 @@ impl Error {
 				StatusCode::NOT_FOUND,
 				ClientError::ENTITY_NOT_FOUND { entity, id: *id },
 			),
+			RpcLibRpc(lib_rpc_core::Error::Model(model::Error::CannotRemoveOwnAdminRole {
+				..
+			})) => (
+				StatusCode::FORBIDDEN,
+				ClientError::CANNOT_REMOVE_OWN_ADMIN_ROLE,
+			),
 
 			// -- REST errors (from lib-rest-core)
 			Rest(lib_rest_core::Error::Ctx(lib_core::ctx::Error::PermissionDenied {
@@ -273,6 +283,12 @@ impl Error {
 				StatusCode::NOT_FOUND,
 				ClientError::ENTITY_NOT_FOUND { entity, id: *id },
 			),
+			Rest(lib_rest_core::Error::Model(model::Error::CannotRemoveOwnAdminRole {
+				..
+			})) => (
+				StatusCode::FORBIDDEN,
+				ClientError::CANNOT_REMOVE_OWN_ADMIN_ROLE,
+			),
 
 			// -- Fallback.
 			_ => (
@@ -294,6 +310,7 @@ pub enum ClientError {
 	// -- Permission
 	PERMISSION_DENIED { permission: String },
 	PERMISSION_ANY_DENIED { permissions: Vec<String> },
+	CANNOT_REMOVE_OWN_ADMIN_ROLE,
 
 	// -- User Management
 	REGISTER_FAIL_USERNAME_EMPTY,
@@ -333,6 +350,7 @@ impl ClientError {
 			// -- Permission errors (PERM#001-099)
 			PERMISSION_DENIED { .. } => "PERM#001",
 			PERMISSION_ANY_DENIED { .. } => "PERM#002",
+			CANNOT_REMOVE_OWN_ADMIN_ROLE => "PERM#003",
 
 			// -- Data errors (DATA#001-099)
 			ENTITY_NOT_FOUND { .. } => "DATA#001",
