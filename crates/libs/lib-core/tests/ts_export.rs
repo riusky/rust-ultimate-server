@@ -4,34 +4,16 @@
 
 #[cfg(feature = "with-ts")]
 mod ts_export {
-    use lib_core::model::acs::{Permission, PermissionLite, Role, RoleLite};
-    use lib_core::model::agent::Agent;
-    use lib_core::model::user::{User, UserTyp, UserWithInfo};
-    use lib_core::model::user_info::{UserGender, UserInfo, UserInfoFilter, UserStatus};
-    use ts_rs::TS;
+	use lib_core::model::ts_export::export_registered_ts_types;
 
-    #[test]
-    fn export_ts_types() {
-        // Export User types
-        UserTyp::export_all().expect("Failed to export UserTyp");
-        User::export_all().expect("Failed to export User");
-        UserWithInfo::export_all().expect("Failed to export UserWithInfo");
+	#[test]
+	fn export_ts_types() {
+		let exported = export_registered_ts_types().expect("Failed to export TypeScript types");
 
-        // Export UserInfo types
-        UserGender::export_all().expect("Failed to export UserGender");
-        UserStatus::export_all().expect("Failed to export UserStatus");
-        UserInfo::export_all().expect("Failed to export UserInfo");
-        UserInfoFilter::export_all().expect("Failed to export UserInfoFilter");
-
-        // Export ACS types
-        Permission::export_all().expect("Failed to export Permission");
-        PermissionLite::export_all().expect("Failed to export PermissionLite");
-        Role::export_all().expect("Failed to export Role");
-        RoleLite::export_all().expect("Failed to export RoleLite");
-
-        // Export Agent types
-        Agent::export_all().expect("Failed to export Agent");
-
-        println!("TypeScript types exported successfully!");
-    }
+		assert!(
+			exported > 0,
+			"Expected at least one registered TypeScript export"
+		);
+		println!("TypeScript types exported successfully! ({exported} types)");
+	}
 }

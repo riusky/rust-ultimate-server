@@ -10,6 +10,7 @@
 
 use proc_macro::TokenStream;
 
+mod frontend_type;
 mod into_response;
 mod permission;
 mod public;
@@ -185,6 +186,19 @@ pub fn rest_require_permissions(attr: TokenStream, item: TokenStream) -> TokenSt
 #[proc_macro_attribute]
 pub fn rest_require_any_permission(attr: TokenStream, item: TokenStream) -> TokenStream {
 	require::rest_require_any_permission_impl(attr, item)
+}
+
+/// Mark a Rust struct or enum for frontend TypeScript export.
+///
+/// # Usage
+///
+/// ```rust,ignore
+/// #[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
+/// pub struct User { ... }
+/// ```
+#[proc_macro_attribute]
+pub fn frontend_type(attr: TokenStream, item: TokenStream) -> TokenStream {
+	frontend_type::frontend_type_impl(attr, item)
 }
 
 // ============================================================================

@@ -3,4 +3,4 @@
 /**
  * User gender
  */
-export type UserGender = 'Unknown' | 'Male' | 'Female'
+export type UserGender = "Unknown" | "Male" | "Female";

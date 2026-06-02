@@ -14,15 +14,11 @@ use sqlx::types::time::OffsetDateTime;
 use sqlx::FromRow;
 use time::Date;
 
-#[cfg(feature = "with-ts")]
-use ts_rs::TS;
-
 // region:    --- UserInfo Types
 
 /// User gender
 #[derive(Clone, Debug, PartialEq, sqlx::Type, derive_more::Display, Deserialize, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
 #[sqlx(type_name = "user_gender")]
 pub enum UserGender {
 	Unknown,
@@ -70,8 +66,7 @@ impl Nullable for UserGender {
 
 /// User status
 #[derive(Clone, Debug, PartialEq, sqlx::Type, derive_more::Display, Deserialize, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
 #[sqlx(type_name = "user_status")]
 pub enum UserStatus {
 	Active,
@@ -125,8 +120,7 @@ impl Nullable for UserStatus {
 /// User info entity
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
 pub struct UserInfo {
 	pub id: i64,
 	pub user_id: i64,
@@ -226,8 +220,7 @@ pub struct UserInfoForUpdate {
 
 /// Filter for querying user info
 #[derive(Clone, Debug, FilterNodes, Default, Deserialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/user/"))]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "user"))]
 pub struct UserInfoFilter {
 	pub id: Option<OpValsInt64>,
 	pub user_id: Option<OpValsInt64>,

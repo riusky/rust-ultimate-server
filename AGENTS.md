@@ -106,8 +106,7 @@ cargo run -p gen-key
 SERVICE_PERMISSION_CACHE_ENABLED=false cargo test -p web-server -p lib-core -p lib-auth -p lib-web -p lib-rpc-core -p lib-rest-core -p lib-macros -p lib-valkey-core -p lib-utils -p gen-key
 
 # Rust model 变更后导出 TypeScript 类型
-cargo test -p lib-core --features with-ts export_ts_types
-cd cmx-vue-ultimate-starter && bun run gen:types
+bash shell/gen-ts-types.sh
 
 # Docker 启动完整栈
 docker compose up -d --build

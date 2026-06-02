@@ -14,21 +14,11 @@ use serde_with::serde_as;
 use sqlx::types::time::OffsetDateTime;
 use sqlx::FromRow;
 
-#[cfg(feature = "with-ts")]
-use ts_rs::TS;
-
 // region:    --- Agent Types
 
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize, Deserialize)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(
-	feature = "with-ts",
-	ts(
-		export,
-		export_to = "../../../../cmx-vue-ultimate-starter/src/services/types/agent/"
-	)
-)]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "agent"))]
 pub struct Agent {
 	pub id: i64,
 

@@ -1,8 +1,8 @@
 // Auto-generated index file
-export type { User } from './User'
-export type { UserGender } from './UserGender'
-export type { UserInfo } from './UserInfo'
-export type { UserInfoFilter } from './UserInfoFilter'
-export type { UserStatus } from './UserStatus'
-export type { UserTyp } from './UserTyp'
-export type { UserWithInfo } from './UserWithInfo'
+export type { User } from "./User";
+export type { UserGender } from "./UserGender";
+export type { UserInfo } from "./UserInfo";
+export type { UserInfoFilter } from "./UserInfoFilter";
+export type { UserStatus } from "./UserStatus";
+export type { UserTyp } from "./UserTyp";
+export type { UserWithInfo } from "./UserWithInfo";

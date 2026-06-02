@@ -3,4 +3,4 @@
 /**
  * User status
  */
-export type UserStatus = 'Active' | 'Inactive' | 'Suspended' | 'Deleted'
+export type UserStatus = "Active" | "Inactive" | "Suspended" | "Deleted";

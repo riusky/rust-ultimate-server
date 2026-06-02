@@ -1,3 +1,6 @@
+#[cfg(feature = "with-ts")]
+extern crate self as lib_core;
+
 pub mod config;
 pub mod ctx;
 pub mod model;

@@ -130,7 +130,7 @@ cargo run -p gen-key
     ↓
 6. 注册路由（web-server/src/web/rpcs/mod.rs）
     ↓
-7. 生成 TypeScript 类型（cargo test -p lib-core --features with-ts export_ts_types）
+7. 生成 TypeScript 类型（bash shell/gen-ts-types.sh）
     ↓
 8. 前端 API 封装与页面开发
 ```
@@ -140,13 +140,9 @@ cargo run -p gen-key
 ```rust
 // crates/libs/lib-core/src/model/your_module.rs
 
-#[cfg(feature = "with-ts")]
-use ts_rs::TS;
-
 /// 实体结构体
 #[derive(Debug, Clone, Serialize, Deserialize, Fields)]
-#[cfg_attr(feature = "with-ts", derive(TS))]
-#[cfg_attr(feature = "with-ts", ts(export, export_to = "../../../../cmx-vue-ultimate-starter/src/types/generated/your_module/"))]
+#[cfg_attr(feature = "with-ts", lib_macros::frontend_type(dir = "your_module"))]
 pub struct YourEntity {
     pub id: i64,
     pub name: String,
@@ -295,12 +291,7 @@ DATABASE_URL=postgres://user:password@localhost:5432/dbname
 ### 5.3 TypeScript 类型未生成
 
 ```bash
-# 确保启用 with-ts feature
-cargo test -p lib-core --features with-ts export_ts_types
-
-# 格式化并生成 index.ts
-cd cmx-vue-ultimate-starter
-bun run gen:types
+bash shell/gen-ts-types.sh
 ```
 
 ### 5.4 前端显示不正确
