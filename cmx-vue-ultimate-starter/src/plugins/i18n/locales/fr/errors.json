@@ -9,6 +9,8 @@
     "USER#005": "Non autorisé à effectuer cette action",
     "PERM#001": "Permission refusée",
     "PERM#002": "Permissions requises manquantes",
+    "PERM#003": "Impossible de retirer votre propre role administrateur",
+    "PERM#004": "Le role administrateur ne peut pas etre supprime",
     "DATA#001": "Données introuvables",
     "RPC#001": "Format de requête invalide",
     "RPC#002": "Méthode introuvable",

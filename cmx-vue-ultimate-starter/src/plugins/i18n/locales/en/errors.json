@@ -9,6 +9,8 @@
     "USER#005": "Not authorized to perform this action",
     "PERM#001": "Permission denied",
     "PERM#002": "Missing required permissions",
+    "PERM#003": "Cannot remove your own admin role",
+    "PERM#004": "The admin role cannot be deleted",
     "DATA#001": "Data not found",
     "RPC#001": "Invalid request format",
     "RPC#002": "Method not found",

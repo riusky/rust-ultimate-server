@@ -293,6 +293,8 @@ HTTP Response
 | **USER#005** | `NOT_AUTHORIZED` | 无权执行此操作 |
 | **PERM#001** | `PERMISSION_DENIED` | 权限不足（单个权限） |
 | **PERM#002** | `PERMISSION_ANY_DENIED` | 权限不足（多个权限均无） |
+| **PERM#003** | `CANNOT_REMOVE_OWN_ADMIN_ROLE` | 不能移除自己的管理员角色 |
+| **PERM#004** | `CANNOT_DELETE_ADMIN_ROLE` | 不能删除管理员角色 |
 | **DATA#001** | `ENTITY_NOT_FOUND` | 数据不存在 |
 | **RPC#001** | `RPC_REQUEST_INVALID` | RPC 请求格式错误 |
 | **RPC#002** | `RPC_REQUEST_METHOD_UNKNOWN` | RPC 方法不存在 |
@@ -467,6 +469,8 @@ bizErrors:
     # Permission errors (PERM#001-099)
     PERM#001: "权限不足"
     PERM#002: "缺少必要权限"
+    PERM#003: "不能移除自己的管理员角色"
+    PERM#004: "不能删除管理员角色"
     # Data errors (DATA#001-099)
     DATA#001: "数据不存在"
     # RPC errors (RPC#001-099)

@@ -3,8 +3,7 @@
 use crate::ctx::Ctx;
 use crate::model::base::{self, DbBmc};
 use crate::model::modql_utils::time_to_sea_value;
-use crate::model::ModelManager;
-use crate::model::Result;
+use crate::model::{Error, ModelManager, Result};
 use lib_utils::time::Rfc3339;
 use modql::field::{Fields, HasSeaFields};
 use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsString, OpValsValue};
@@ -92,11 +91,7 @@ impl DbBmc for RoleBmc {
 }
 
 impl RoleBmc {
-	pub async fn create(
-		ctx: &Ctx,
-		mm: &ModelManager,
-		role_c: RoleForCreate,
-	) -> Result<i64> {
+	pub async fn create(ctx: &Ctx, mm: &ModelManager, role_c: RoleForCreate) -> Result<i64> {
 		base::create::<Self, _>(ctx, mm, role_c).await
 	}
 
@@ -104,11 +99,7 @@ impl RoleBmc {
 		base::get::<Self, _>(ctx, mm, id).await
 	}
 
-	pub async fn first_by_name(
-		_ctx: &Ctx,
-		mm: &ModelManager,
-		name: &str,
-	) -> Result<Option<Role>> {
+	pub async fn first_by_name(_ctx: &Ctx, mm: &ModelManager, name: &str) -> Result<Option<Role>> {
 		// -- Build query
 		let mut query = Query::select();
 		query
@@ -152,7 +143,20 @@ impl RoleBmc {
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
-		base::delete::<Self>(ctx, mm, id).await
+		let role = Self::get(ctx, mm, id).await?;
+		if role.name == Ctx::ADMIN_ROLE {
+			return Err(Error::CannotDeleteAdminRole { role_id: role.id });
+		}
+
+		let affected_user_ids = super::UserRoleBmc::list_user_ids_for_role(ctx, mm, id).await?;
+		base::delete::<Self>(ctx, mm, id).await?;
+		crate::model::cache::invalidate_users_permissions_cache_best_effort(
+			mm.valkey_pool(),
+			&affected_user_ids,
+		)
+		.await;
+
+		Ok(())
 	}
 
 	pub async fn count(
@@ -175,6 +179,11 @@ mod tests {
 
 	use super::*;
 	use crate::_dev_utils;
+	use crate::model::acs::{
+		PermissionBmc, PermissionForCreate, RolePermissionBmc, RolePermissionForCreate,
+		UserRoleBmc, UserRoleForCreate,
+	};
+	use crate::model::user::{UserBmc, UserForCreate};
 	use serial_test::serial;
 
 	#[serial]
@@ -236,6 +245,103 @@ mod tests {
 
 		// -- Clean
 		RoleBmc::delete(&ctx, &mm, role_id).await?;
+
+		Ok(())
+	}
+
+	#[serial]
+	#[tokio::test]
+	async fn test_role_delete_blocks_admin_role() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+		let admin_role = RoleBmc::first_by_name(&ctx, &mm, Ctx::ADMIN_ROLE)
+			.await?
+			.ok_or("Should have role 'admin'")?;
+
+		// -- Exec
+		let err = RoleBmc::delete(&ctx, &mm, admin_role.id)
+			.await
+			.expect_err("admin role deletion should be blocked");
+
+		// -- Check
+		match err {
+			crate::model::Error::CannotDeleteAdminRole { role_id } => {
+				assert_eq!(role_id, admin_role.id);
+			}
+			other => panic!("Unexpected error: {other:?}"),
+		}
+
+		let admin_role_after = RoleBmc::first_by_name(&ctx, &mm, Ctx::ADMIN_ROLE).await?;
+		assert!(admin_role_after.is_some());
+
+		Ok(())
+	}
+
+	#[serial]
+	#[tokio::test]
+	async fn test_role_delete_cascades_user_and_permission_links() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+
+		let user_id = UserBmc::create(
+			&ctx,
+			&mm,
+			UserForCreate {
+				username: "test_role_delete_cascade_user".to_string(),
+				pwd_clear: "test_password".to_string(),
+			},
+		)
+		.await?;
+
+		let role_id = RoleBmc::create(
+			&ctx,
+			&mm,
+			RoleForCreate {
+				name: "test_role_delete_cascade_role".to_string(),
+				display_name: None,
+				description: None,
+			},
+		)
+		.await?;
+
+		let permission_id = PermissionBmc::create(
+			&ctx,
+			&mm,
+			PermissionForCreate {
+				key: "test:role:delete:cascade".to_string(),
+				group_name: None,
+				display_name: None,
+				description: None,
+			},
+		)
+		.await?;
+
+		RolePermissionBmc::create(
+			&ctx,
+			&mm,
+			RolePermissionForCreate {
+				role_id,
+				permission_id,
+			},
+		)
+		.await?;
+		UserRoleBmc::create(&ctx, &mm, UserRoleForCreate { user_id, role_id }).await?;
+
+		// -- Exec
+		RoleBmc::delete(&ctx, &mm, role_id).await?;
+
+		// -- Check
+		let has_role = UserRoleBmc::has_role(&ctx, &mm, user_id, role_id).await?;
+		assert!(!has_role);
+		let permission_ids =
+			RolePermissionBmc::list_permission_ids_for_role(&ctx, &mm, role_id).await?;
+		assert!(permission_ids.is_empty());
+
+		// -- Clean
+		PermissionBmc::delete(&ctx, &mm, permission_id).await?;
+		UserBmc::delete(&ctx, &mm, user_id).await?;
 
 		Ok(())
 	}

@@ -9,6 +9,8 @@
     "USER#005": "Keine Berechtigung für diese Aktion",
     "PERM#001": "Zugriff verweigert",
     "PERM#002": "Erforderliche Berechtigungen fehlen",
+    "PERM#003": "Die eigene Administratorrolle kann nicht entfernt werden",
+    "PERM#004": "Die Administratorrolle kann nicht geloescht werden",
     "DATA#001": "Daten nicht gefunden",
     "RPC#001": "Ungültiges Anforderungsformat",
     "RPC#002": "Methode nicht gefunden",

@@ -9,6 +9,8 @@
     "USER#005": "No autorizado para realizar esta acción",
     "PERM#001": "Permiso denegado",
     "PERM#002": "Faltan permisos requeridos",
+    "PERM#003": "No puedes eliminar tu propio rol de administrador",
+    "PERM#004": "No se puede eliminar el rol de administrador",
     "DATA#001": "Datos no encontrados",
     "RPC#001": "Formato de solicitud inválido",
     "RPC#002": "Método no encontrado",

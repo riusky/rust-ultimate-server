@@ -96,9 +96,7 @@ impl From<rpc_router::CallError> for Error {
 		let rpc_router::CallError { id, method, error } = call_error;
 		match error {
 			rpc_router::Error::Handler(mut rpc_handler_error) => {
-				if let Some(lib_rpc_error) =
-					rpc_handler_error.remove::<lib_rpc_core::Error>()
-				{
+				if let Some(lib_rpc_error) = rpc_handler_error.remove::<lib_rpc_core::Error>() {
 					Error::RpcLibRpc(lib_rpc_error)
 				}
 				// report the unhandled error for debugging and completing code.
@@ -137,10 +135,7 @@ impl IntoResponse for Error {
 
 // region:    --- Error Boilerplate
 impl core::fmt::Display for Error {
-	fn fmt(
-		&self,
-		fmt: &mut core::fmt::Formatter,
-	) -> core::result::Result<(), core::fmt::Error> {
+	fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
 		write!(fmt, "{self:?}")
 	}
 }
@@ -159,9 +154,7 @@ impl Error {
 			// -- Login
 			LoginFailUsernameNotFound
 			| LoginFailUserHasNoPwd { .. }
-			| LoginFailPwdNotMatching { .. } => {
-				(StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL)
-			}
+			| LoginFailPwdNotMatching { .. } => (StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL),
 
 			// -- User Management
 			RegisterFailUsernameEmpty => (
@@ -175,14 +168,8 @@ impl Error {
 			UserHasNoPwd | PwdNotMatching => {
 				(StatusCode::FORBIDDEN, ClientError::PWD_VALIDATION_FAIL)
 			}
-			ResetPwdFailUserNotFound => (
-				StatusCode::BAD_REQUEST,
-				ClientError::USER_NOT_FOUND,
-			),
-			NotAuthorized => (
-				StatusCode::FORBIDDEN,
-				ClientError::NOT_AUTHORIZED,
-			),
+			ResetPwdFailUserNotFound => (StatusCode::BAD_REQUEST, ClientError::USER_NOT_FOUND),
+			NotAuthorized => (StatusCode::FORBIDDEN, ClientError::NOT_AUTHORIZED),
 
 			// -- Auth (401 = unauthenticated / invalid token; 403 = authenticated but forbidden)
 			CtxExt(_) => (StatusCode::UNAUTHORIZED, ClientError::NO_AUTH),
@@ -196,6 +183,9 @@ impl Error {
 				StatusCode::FORBIDDEN,
 				ClientError::CANNOT_REMOVE_OWN_ADMIN_ROLE,
 			),
+			Model(model::Error::CannotDeleteAdminRole { .. }) => {
+				(StatusCode::FORBIDDEN, ClientError::CANNOT_DELETE_ADMIN_ROLE)
+			}
 
 			// -- Rpc
 			RpcRequestParsing(req_parsing_err) => (
@@ -208,9 +198,7 @@ impl Error {
 				..
 			} => (
 				StatusCode::BAD_REQUEST,
-				ClientError::RPC_REQUEST_METHOD_UNKNOWN(format!(
-					"rpc method '{method}' unknown"
-				)),
+				ClientError::RPC_REQUEST_METHOD_UNKNOWN(format!("rpc method '{method}' unknown")),
 			),
 			RpcRouter {
 				error: rpc_router::Error::ParamsParsing(params_parsing_err),
@@ -259,6 +247,9 @@ impl Error {
 				StatusCode::FORBIDDEN,
 				ClientError::CANNOT_REMOVE_OWN_ADMIN_ROLE,
 			),
+			RpcLibRpc(lib_rpc_core::Error::Model(model::Error::CannotDeleteAdminRole {
+				..
+			})) => (StatusCode::FORBIDDEN, ClientError::CANNOT_DELETE_ADMIN_ROLE),
 
 			// -- REST errors (from lib-rest-core)
 			Rest(lib_rest_core::Error::Ctx(lib_core::ctx::Error::PermissionDenied {
@@ -289,6 +280,9 @@ impl Error {
 				StatusCode::FORBIDDEN,
 				ClientError::CANNOT_REMOVE_OWN_ADMIN_ROLE,
 			),
+			Rest(lib_rest_core::Error::Model(model::Error::CannotDeleteAdminRole { .. })) => {
+				(StatusCode::FORBIDDEN, ClientError::CANNOT_DELETE_ADMIN_ROLE)
+			}
 
 			// -- Fallback.
 			_ => (
@@ -311,6 +305,7 @@ pub enum ClientError {
 	PERMISSION_DENIED { permission: String },
 	PERMISSION_ANY_DENIED { permissions: Vec<String> },
 	CANNOT_REMOVE_OWN_ADMIN_ROLE,
+	CANNOT_DELETE_ADMIN_ROLE,
 
 	// -- User Management
 	REGISTER_FAIL_USERNAME_EMPTY,
@@ -351,6 +346,7 @@ impl ClientError {
 			PERMISSION_DENIED { .. } => "PERM#001",
 			PERMISSION_ANY_DENIED { .. } => "PERM#002",
 			CANNOT_REMOVE_OWN_ADMIN_ROLE => "PERM#003",
+			CANNOT_DELETE_ADMIN_ROLE => "PERM#004",
 
 			// -- Data errors (DATA#001-099)
 			ENTITY_NOT_FOUND { .. } => "DATA#001",
