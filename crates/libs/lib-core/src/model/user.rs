@@ -472,16 +472,16 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_first_ok_demo1() -> Result<()> {
+	async fn test_first_ok_admin() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
-		let fx_username = "demo1";
+		let fx_username = "admin";
 
 		// -- Exec
 		let user: User = UserBmc::first_by_username(&ctx, &mm, fx_username)
 			.await?
-			.ok_or("Should have user 'demo1'")?;
+			.ok_or("Should have user 'admin'")?;
 
 		// -- Check
 		assert_eq!(user.username, fx_username);

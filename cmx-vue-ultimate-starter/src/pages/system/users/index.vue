@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/vue-query'
 
 import type { ServerPagination } from '@/components/data-table/types'
 import Page from '@/components/global-layout/basic-page.vue'
-import { listUsers, type ListUsersParams } from '@/services/api/rpc/user/user'
+import { listUsers } from '@/services/api/rpc/user/user'
 
 import { columns } from './components/columns'
 import DataTable from './components/data-table.vue'

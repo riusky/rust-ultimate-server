@@ -1,18 +1,18 @@
-<route lang="yaml">
-meta:
-  layout: default-base
-</route>
-
 <script setup lang="ts">
-import AuthTitle from './components/auth-title.vue'
-// import LoginForm from './components/login-form.vue'
+const route = useRoute()
+const router = useRouter()
+
+router.replace({
+  path: '/login',
+  query: route.query,
+})
 </script>
 
 <template>
-  <div class="flex items-center justify-center min-h-screen p-4 min-w-screen">
-    <main class="flex flex-col gap-4">
-      <AuthTitle />
-      <!-- <LoginForm /> -->
-    </main>
-  </div>
+  <div class="min-h-screen bg-background" />
 </template>
+
+<route lang="yaml">
+meta:
+  layout: false
+</route>

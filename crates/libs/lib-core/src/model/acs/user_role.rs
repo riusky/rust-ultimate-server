@@ -518,31 +518,31 @@ mod tests {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let root_ctx = Ctx::root_ctx();
-		let demo1_user: crate::model::user::User =
-			UserBmc::first_by_username(&root_ctx, &mm, "demo1")
+		let admin_user: crate::model::user::User =
+			UserBmc::first_by_username(&root_ctx, &mm, "admin")
 				.await?
-				.ok_or("Should have user 'demo1'")?;
-		let demo1_ctx = Ctx::new(demo1_user.id)?;
+				.ok_or("Should have user 'admin'")?;
+		let admin_ctx = Ctx::new(admin_user.id)?;
 		let user_role = RoleBmc::first_by_name(&root_ctx, &mm, "user")
 			.await?
 			.ok_or("Should have role 'user'")?;
 
 		// -- Exec
 		let err =
-			UserRoleBmc::set_roles_for_user(&demo1_ctx, &mm, demo1_user.id, vec![user_role.id])
+			UserRoleBmc::set_roles_for_user(&admin_ctx, &mm, admin_user.id, vec![user_role.id])
 				.await
 				.expect_err("Self admin removal should be blocked");
 
 		// -- Check
 		match err {
 			crate::model::Error::CannotRemoveOwnAdminRole { user_id } => {
-				assert_eq!(user_id, demo1_user.id);
+				assert_eq!(user_id, admin_user.id);
 			}
 			other => panic!("Unexpected error: {other:?}"),
 		}
 
 		let role_names =
-			UserRoleBmc::list_role_names_for_user(&root_ctx, &mm, demo1_user.id).await?;
+			UserRoleBmc::list_role_names_for_user(&root_ctx, &mm, admin_user.id).await?;
 		assert!(role_names.contains(&"admin".to_string()));
 
 		Ok(())

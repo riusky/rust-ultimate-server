@@ -1,5 +1,5 @@
 <template>
-  <UiButton as="a" href="/demo/auth/sign-in">
+  <UiButton as="a" href="/login">
     {{ $t('login') }}
   </UiButton>
 </template>

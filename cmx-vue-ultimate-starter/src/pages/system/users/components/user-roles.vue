@@ -4,7 +4,6 @@ import { toast } from 'vue-sonner'
 import { useQueryClient, useQuery } from '@tanstack/vue-query'
 
 import type { UserWithInfo } from '@/services/types/user/index'
-import type { Role } from '@/services/types/acs/Role'
 
 import { listRolesForUser, setRolesForUser } from '@/services/api/rpc/user/user-role'
 import { listRoles } from '@/services/api/rpc/role'

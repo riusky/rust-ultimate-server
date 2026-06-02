@@ -38,7 +38,7 @@ node --version
 1. 连接 `DEV_POSTGRES_URL` 指向的 `postgres` 数据库。
 2. 执行 `sql/dev_initial/00-recreate-db.sql`，重建 `app_db` 和 `app_user`。
 3. 通过 Refinery 执行 `crates/libs/lib-core/migrations/` 下的迁移。
-4. 创建 demo 数据，并把 `demo1`、`demo2` 的密码设置为 `demo`。
+4. 创建默认管理员用户，并把 `admin` 的密码设置为 `admin`。
 
 默认连接配置来自 `.cargo/config.toml`：
 
@@ -152,14 +152,13 @@ Vite 配置会把 `/api` 代理到后端：
 
 | 用户 | 密码 | 说明 |
 | --- | --- | --- |
-| `demo1` | `demo` | 管理员用户 |
-| `demo2` | `demo` | 普通用户 |
+| `admin` | `admin` | 管理员用户 |
 
 推荐验证步骤：
 
 1. 打开 `http://localhost:3000`。
 2. 进入登录页。
-3. 使用 `demo1` / `demo` 登录。
+3. 使用 `admin` / `admin` 登录。
 4. 访问系统用户、角色、权限相关页面，确认接口能通过 Vite 代理访问后端。
 
 ## 6. 热重载方式
@@ -292,5 +291,5 @@ http://localhost:8080
 3. 启动后端，并设置 SERVICE_PERMISSION_CACHE_ENABLED=false
 4. 启动前端 bun run dev
 5. 浏览器访问 http://localhost:3000
-6. 使用 demo1 / demo 登录
+6. 使用 admin / admin 登录
 ```

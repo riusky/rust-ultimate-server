@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
-  Sparkles,
-  UserRoundCog,
 } from 'lucide-vue-next'
 
 import { useSidebar } from '@/components/ui/sidebar'
@@ -93,38 +88,6 @@ onMounted(() => {
               </div>
             </div>
           </UiDropdownMenuLabel>
-
-          <UiDropdownMenuSeparator />
-          <UiDropdownMenuGroup>
-            <UiDropdownMenuItem @click="$router.push('/demo/billing/')">
-              <Sparkles />
-              Upgrade to Pro
-            </UiDropdownMenuItem>
-          </UiDropdownMenuGroup>
-
-          <UiDropdownMenuSeparator />
-          <UiDropdownMenuGroup>
-            <UiDropdownMenuItem @click="$router.push('/demo/billing?type=billing')">
-              <CreditCard />
-              Billing
-            </UiDropdownMenuItem>
-          </UiDropdownMenuGroup>
-
-          <UiDropdownMenuSeparator />
-          <UiDropdownMenuGroup>
-            <UiDropdownMenuItem @click="$router.push('/demo/settings/')">
-              <UserRoundCog />
-              Profile
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem @click="$router.push('/demo/settings/account')">
-              <BadgeCheck />
-              Account
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem @click="$router.push('/demo/settings/notifications')">
-              <Bell />
-              Notifications
-            </UiDropdownMenuItem>
-          </UiDropdownMenuGroup>
 
           <UiDropdownMenuSeparator />
           <UiDropdownMenuItem @click="logout">

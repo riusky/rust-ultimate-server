@@ -25,7 +25,7 @@ fn get_postgres_url() -> String {
 const SQL_RECREATE_DB_FILE_NAME: &str = "00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
 
-const DEMO_PWD: &str = "demo";
+const DEV_ADMIN_PWD: &str = "admin";
 
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
@@ -55,20 +55,12 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	let mm = ModelManager::new().await?;
 	let ctx = Ctx::root_ctx();
 
-	// -- 3) Set demo user passwords
-	// -- Set demo1 pwd
-	let demo1_user: User = UserBmc::first_by_username(&ctx, &mm, "demo1")
+	// -- 3) Set admin user password
+	let admin_user: User = UserBmc::first_by_username(&ctx, &mm, "admin")
 		.await?
 		.unwrap();
-	UserBmc::update_pwd(&ctx, &mm, demo1_user.id, DEMO_PWD).await?;
-	info!("{:<12} - init_dev_db - set demo1 pwd", "FOR-DEV-ONLY");
-
-	// -- Set demo2 pwd
-	let demo2_user: User = UserBmc::first_by_username(&ctx, &mm, "demo2")
-		.await?
-		.unwrap();
-	UserBmc::update_pwd(&ctx, &mm, demo2_user.id, DEMO_PWD).await?;
-	info!("{:<12} - init_dev_db - set demo2 pwd", "FOR-DEV-ONLY");
+	UserBmc::update_pwd(&ctx, &mm, admin_user.id, DEV_ADMIN_PWD).await?;
+	info!("{:<12} - init_dev_db - set admin pwd", "FOR-DEV-ONLY");
 
 	Ok(())
 }

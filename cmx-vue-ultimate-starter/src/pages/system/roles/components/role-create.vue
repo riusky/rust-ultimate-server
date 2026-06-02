@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Plus } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useQueryClient } from '@tanstack/vue-query'
 

@@ -13,7 +13,6 @@ const sidebarStore = useSidebarStore()
 const { activeTeam, navMain, otherPages } = storeToRefs(sidebarStore)
 
 // 团队切换器引用
-const teamSwitcherRef = ref()
 
 // 处理团队切换
 function handleTeamChange(team: Team) {
