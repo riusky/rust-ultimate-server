@@ -33,7 +33,7 @@ function bootstrap() {
   setOn401Auth002Callback(() => {
     useAuthStore(pinia).clearLogin()
     router.push({
-      path: '/auth/sign-in-2',
+      path: '/login',
       query: { redirect: router.currentRoute.value.fullPath },
     })
   })

@@ -15,50 +15,27 @@ INSERT INTO "public"."permission" VALUES (1024, 'user_info:list', 'User Manageme
 SELECT setval('"public"."permission_id_seq"', 1024, true);
 
 -- ----------------------------
--- Seed data for user_info (for demo users)
+-- Seed data for admin user_info
 -- ----------------------------
 INSERT INTO "public"."user_info" (user_id, nickname, avatar, bio, email, email_verified, phone, phone_verified, gender, birthday, country, province, city, timezone, locale, theme, status, login_count, cid, ctime, mid, mtime)
 VALUES (
-  1000,                              -- user_id (demo1 user)
-  'Demo User',                       -- nickname
-  NULL,                              -- avatar
-  'This is a demo user account',     -- bio
-  'demo@example.com',                -- email
-  false,                             -- email_verified
-  NULL,                              -- phone
-  false,                             -- phone_verified
-  'Unknown',                         -- gender
-  NULL,                              -- birthday
-  'China',                           -- country
-  NULL,                              -- province
-  NULL,                              -- city
-  'Asia/Shanghai',                   -- timezone
-  'zh-CN',                           -- locale
-  'system',                          -- theme
-  'Active',                          -- status
-  0,                                 -- login_count
-  0, now(), 0, now()                 -- audit fields
-);
-
-INSERT INTO "public"."user_info" (user_id, nickname, avatar, bio, email, email_verified, phone, phone_verified, gender, birthday, country, province, city, timezone, locale, theme, status, login_count, cid, ctime, mid, mtime)
-VALUES (
-  1001,                              -- user_id (demo2 user)
-  'Demo User 2',                     -- nickname
-  NULL,                              -- avatar
-  'This is demo user 2 account',     -- bio
-  'demo2@example.com',               -- email
-  false,                             -- email_verified
-  NULL,                              -- phone
-  false,                             -- phone_verified
-  'Unknown',                         -- gender
-  NULL,                              -- birthday
-  'China',                           -- country
-  NULL,                              -- province
-  NULL,                              -- city
-  'Asia/Shanghai',                   -- timezone
-  'zh-CN',                           -- locale
-  'system',                          -- theme
-  'Active',                          -- status
-  0,                                 -- login_count
-  0, now(), 0, now()                 -- audit fields
+  1000,
+  'Admin',
+  NULL,
+  'Default administrator account',
+  'admin@example.com',
+  false,
+  NULL,
+  false,
+  'Unknown',
+  NULL,
+  'China',
+  NULL,
+  NULL,
+  'Asia/Shanghai',
+  'zh-CN',
+  'system',
+  'Active',
+  0,
+  0, now(), 0, now()
 );

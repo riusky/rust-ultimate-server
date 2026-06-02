@@ -15,7 +15,6 @@ interface BulkActionsProps<T> {
 
 const { table, entityName } = defineProps<BulkActionsProps<T>>()
 
-const toolbarRef = useTemplateRef<HTMLDivElement>('toolbarRef')
 const selectedRows = computed(() => table.getSelectedRowModel().rows)
 const selectedCount = computed(() => selectedRows.value.length || 0)
 

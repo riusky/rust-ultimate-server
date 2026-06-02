@@ -5,14 +5,14 @@
 // Common RPC types
 export type {
   OpValsInt64,
-  OpValsInt32,
-  OpValsFloat64,
   OpValsString,
-  OpValsBool,
-  OrderDir,
+  OpValsValue,
+} from '@/services/types/filter'
+
+export type {
   OrderBy,
   ListOptions,
-} from './types'
+} from './userinfo/user-info'
 
 // RPC modules
 export * from './userinfo/index'

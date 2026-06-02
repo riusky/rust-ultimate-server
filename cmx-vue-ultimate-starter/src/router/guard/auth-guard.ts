@@ -15,14 +15,14 @@ export function authGuard(router: Router) {
     const { isLogin } = storeToRefs(authStore)
 
     // Public routes or already on login page: allow
-    if (!to.meta.auth || to.name === '/auth/sign-in-2') {
+    if (!to.meta.auth || to.name === '/login') {
       return true
     }
 
     // Requires auth but not logged in (per store): redirect to login
     if (!unref(isLogin)) {
       return {
-        name: '/auth/sign-in-2',
+        name: '/login',
         query: { redirect: to.fullPath },
       }
     }
@@ -39,7 +39,7 @@ export function authGuard(router: Router) {
     } catch {
       authStore.clearLogin()
       return {
-        name: '/auth/sign-in-2',
+        name: '/login',
         query: { redirect: to.fullPath },
       }
     }

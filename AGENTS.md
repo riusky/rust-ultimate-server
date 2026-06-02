@@ -117,7 +117,7 @@ docker compose up -d --build
 
 - 本地默认没有 Valkey/Redis；后端和测试要覆盖 `SERVICE_PERMISSION_CACHE_ENABLED=false`。
 - `web-server` debug 启动会自动初始化开发数据库，执行 `sql/dev_initial/00-recreate-db.sql` 和 Refinery migrations。
-- Demo 用户是 `demo1`、`demo2`，密码是 `demo`。
+- 默认管理员用户是 `admin`，密码是 `admin`。
 - PostgreSQL 本地连接使用 `localhost:5432`。
 - `.cargo/config.toml` 里的密钥和密码只用于本地开发，不可照搬到生产。
 - 修改 Rust model 后如果没有重新导出 TS 类型，前端类型会过期。

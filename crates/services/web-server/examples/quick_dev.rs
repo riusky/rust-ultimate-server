@@ -15,8 +15,8 @@ async fn main() -> Result<()> {
 	let req_login = hc.do_post(
 		"/api/login",
 		json!({
-			"username": "demo1",
-			"pwd": "welcome"
+			"username": "admin",
+			"pwd": "admin"
 		}),
 	);
 	req_login.await?.print().await?;

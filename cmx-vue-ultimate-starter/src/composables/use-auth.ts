@@ -21,7 +21,7 @@ export function useAuth() {
       console.error('Logoff error:', e)
     } finally {
       authStore.clearLogin()
-      router.push({ path: '/auth/sign-in-2' })
+      router.push({ path: '/login' })
     }
   }
 

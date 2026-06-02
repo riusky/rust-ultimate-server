@@ -41,7 +41,7 @@ async fn ensure_initial_admin_password(mm: &ModelManager) -> Result<()> {
 		Ok(p) => p,
 		Err(_) => return Ok(()),
 	};
-	let username = std::env::var("INIT_ADMIN_USERNAME").unwrap_or_else(|_| "demo1".into());
+	let username = std::env::var("INIT_ADMIN_USERNAME").unwrap_or_else(|_| "admin".into());
 	let ctx = Ctx::root_ctx();
 
 	let user = match UserBmc::first_by_username::<UserForLogin>(&ctx, mm, &username).await {

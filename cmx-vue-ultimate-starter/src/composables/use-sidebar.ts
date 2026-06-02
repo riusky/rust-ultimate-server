@@ -66,8 +66,7 @@ export function useSidebar() {
           title: 'Auth',
           icon: SquareUserRound,
           items: [
-            { title: 'Sign In', url: '/auth/sign-in' },
-            { title: 'Sign In(2 Col)', url: '/auth/sign-in-2' },
+            { title: 'Sign In', url: '/login' },
             { title: 'Sign Up', url: '/auth/sign-up' },
             { title: 'Forgot Password', url: '/auth/forgot-password' },
             { title: 'OTP', url: '/auth/otp' },

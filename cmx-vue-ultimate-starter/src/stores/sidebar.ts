@@ -1,6 +1,10 @@
 import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { sidebarData, getCurrentTeamSidebar } from '@/components/app-sidebar/data/sidebar-data'
+import {
+  DEFAULT_TEAM_NAME,
+  sidebarData,
+  getCurrentTeamSidebar,
+} from '@/components/app-sidebar/data/sidebar-data'
 import type { Team, NavGroup } from '@/components/app-sidebar/types'
 
 export const useSidebarStore = defineStore('sidebar', () => {
@@ -18,7 +22,7 @@ export const useSidebarStore = defineStore('sidebar', () => {
 
   const initialTeam = getInitialTeam()
   const { navMain: initialNavMain, otherPages: initialOtherPages } = getCurrentTeamSidebar(
-    initialTeam?.name || '演示系统',
+    initialTeam?.name || DEFAULT_TEAM_NAME,
   )
 
   const activeTeam = ref<Team | null>(initialTeam)
@@ -77,7 +81,7 @@ export const useSidebarStore = defineStore('sidebar', () => {
   const teamActiveItems = ref<Record<string, string>>(initializeTeamActiveItems())
 
   // 当前团队名称
-  const activeTeamName = computed(() => activeTeam.value?.name || '演示系统')
+  const activeTeamName = computed(() => activeTeam.value?.name || DEFAULT_TEAM_NAME)
 
   // 当前激活的item路径
   const activeItemPath = computed(() => {
@@ -123,7 +127,7 @@ export const useSidebarStore = defineStore('sidebar', () => {
 
   // 重置到默认团队
   function resetToDefaultTeam() {
-    const defaultTeam = sidebarData.teams.find((team) => team.name === '演示系统')
+    const defaultTeam = sidebarData.teams.find((team) => team.name === DEFAULT_TEAM_NAME)
     if (defaultTeam) {
       activeTeam.value = defaultTeam
       const { navMain: newNavMain, otherPages: newOtherPages } = getCurrentTeamSidebar(

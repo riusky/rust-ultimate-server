@@ -1,12 +1,10 @@
-import {
-  Command,
-  GalleryVerticalEnd,
-} from 'lucide-vue-next'
+import { Command } from 'lucide-vue-next'
 
-import { useDemoSidebar } from './use-demo-sidebar'
 import { useSystemSidebar } from './use-system-sidebar'
 
 import type { SidebarData, Team, User, NavGroup } from '../types'
+
+export const DEFAULT_TEAM_NAME = '系统管理'
 
 const user: User = {
   name: 'shadcn',
@@ -15,35 +13,26 @@ const user: User = {
 }
 
 const teams: Team[] = [
-    {
-    name: '系统管理',
+  {
+    name: DEFAULT_TEAM_NAME,
     nameEn: 'System Management',
     logo: Command,
     plan: 'Enterprise',
   },
-  {
-    name: '演示系统',
-    nameEn: 'Demo System',
-    logo: GalleryVerticalEnd,
-    plan: 'Demo',
-  }
 ]
 
-// 团队对应的侧边栏数据映射
 const teamSidebarMap: Record<
   string,
   () => { navData: Ref<NavGroup[] | undefined>; otherPages: Ref<NavGroup[]> }
 > = {
-  演示系统: useDemoSidebar,
-  系统管理: useSystemSidebar,
+  [DEFAULT_TEAM_NAME]: useSystemSidebar,
 }
 
-// 获取当前团队的侧边栏数据
 export function getCurrentTeamSidebar(teamName: string): {
   navMain: NavGroup[]
   otherPages: NavGroup[]
 } {
-  const sidebarFunction = teamSidebarMap[teamName] || useDemoSidebar
+  const sidebarFunction = teamSidebarMap[teamName] || useSystemSidebar
   const { navData, otherPages } = sidebarFunction()
   return {
     navMain: navData.value || [],
@@ -51,8 +40,7 @@ export function getCurrentTeamSidebar(teamName: string): {
   }
 }
 
-// 默认使用Demo系统的侧边栏
-const { navMain, otherPages } = getCurrentTeamSidebar('演示系统')
+const { navMain, otherPages } = getCurrentTeamSidebar(DEFAULT_TEAM_NAME)
 
 export const sidebarData: SidebarData = {
   user,

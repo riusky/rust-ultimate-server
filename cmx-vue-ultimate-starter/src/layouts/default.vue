@@ -9,11 +9,11 @@ import ThemePopover from '@/components/custom-theme/theme-popover.vue'
 import ToggleTheme from '@/components/toggle-theme.vue'
 import LangToggle from '@/components/language-change.vue'
 import LocalTime from '@/components/local-time.vue'
-import WindowControls from '@/components/window-controls.vue'
 import { cn } from '@/lib/utils'
 import { useThemeStore } from '@/stores/theme'
 import { useSidebarStore } from '@/stores/sidebar'
 import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar/utils'
+import { DEFAULT_TEAM_NAME } from '@/components/app-sidebar/data/sidebar-data'
 
 const defaultOpen = useCookies([SIDEBAR_COOKIE_NAME])
 const themeStore = useThemeStore()
@@ -28,8 +28,7 @@ const currentRoutePath = ref('')
 
 // 路由路径到团队名称的映射
 const routeTeamMap: Record<string, string> = {
-  '/system': '系统管理',
-  '/demo': '演示系统',
+  '/system': DEFAULT_TEAM_NAME,
 }
 
 // 获取当前路由对应的团队名称
@@ -39,7 +38,7 @@ function getTeamFromPath(path: string): string {
       return teamName
     }
   }
-  return '系统管理' // 默认团队
+  return DEFAULT_TEAM_NAME // 默认团队
 }
 
 // 监听路由变化，只在首次加载或跨团队路由变化时切换团队

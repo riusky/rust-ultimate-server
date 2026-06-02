@@ -26,6 +26,9 @@ coverage
 .components-info.json
 # src/types/
 
+# Build analysis output
+stats.html
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
