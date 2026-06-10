@@ -26,6 +26,7 @@ use lib_core::model::acs::PermissionBmc;
 use lib_core::model::user::{UserBmc, UserForLogin};
 use lib_core::model::ModelManager;
 use lib_valkey_core::{new_valkey_pool, ValkeyPool};
+use std::collections::BTreeSet;
 use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
 use tracing::info;
@@ -36,14 +37,16 @@ use lib_core::_dev_utils;
 
 // endregion: --- Modules
 
-/// Sets initial admin password from env when `INIT_ADMIN_PASSWORD` is set.
+/// Sets initial admin password from config when one is provided.
 /// Idempotent: skips if the user already has a password (avoids overwriting).
-async fn ensure_initial_admin_password(mm: &ModelManager) -> Result<()> {
-	let pwd = match std::env::var("INIT_ADMIN_PASSWORD") {
-		Ok(p) => p,
-		Err(_) => return Ok(()),
+async fn ensure_initial_admin_password(
+	mm: &ModelManager,
+	username: &str,
+	pwd: Option<&str>,
+) -> Result<()> {
+	let Some(pwd) = pwd else {
+		return Ok(());
 	};
-	let username = std::env::var("INIT_ADMIN_USERNAME").unwrap_or_else(|_| "admin".into());
 	let ctx = Ctx::root_ctx();
 
 	let user = match UserBmc::first_by_username::<UserForLogin>(&ctx, mm, &username).await {
@@ -71,7 +74,7 @@ async fn ensure_initial_admin_password(mm: &ModelManager) -> Result<()> {
 		return Ok(());
 	}
 
-	UserBmc::update_pwd(&ctx, mm, user.id, &pwd)
+	UserBmc::update_pwd(&ctx, mm, user.id, pwd)
 		.await
 		.inspect_err(|e| tracing::error!("Failed to set initial admin password: {:?}", e))?;
 	info!(
@@ -95,21 +98,34 @@ async fn main() -> Result<()> {
 
 	let config = web_config();
 	let registered_model_caches = lib_core::model::cache::registered_model_caches();
-	let model_cache_required = !registered_model_caches.is_empty();
+	let model_cache_capable = !registered_model_caches.is_empty();
+	let model_cache_enabled = config.MODEL_CACHE_ENABLED && model_cache_capable;
 
-	if model_cache_required {
+	if model_cache_capable {
 		let resources = registered_model_caches
 			.iter()
 			.map(|cache| format!("{}:{}", cache.resource, cache.table))
+			.collect::<BTreeSet<_>>()
+			.into_iter()
 			.collect::<Vec<_>>()
 			.join(", ");
-		info!("{:<12} - Model cache REQUIRED by: {}", "CONFIG", resources);
+		if model_cache_enabled {
+			info!("{:<12} - Model cache ENABLED for: {}", "CONFIG", resources);
+		} else {
+			info!(
+				"{:<12} - Model cache DISABLED; cache-capable models: {}",
+				"CONFIG", resources
+			);
+		}
 	} else {
-		info!("{:<12} - Model cache DISABLED", "CONFIG");
+		info!(
+			"{:<12} - Model cache DISABLED; no cache-capable models",
+			"CONFIG"
+		);
 	}
 
 	// -- Initialize Valkey pool when any startup-declared cache requires it.
-	let valkey_pool: Option<ValkeyPool> = if config.PERMISSION_CACHE_ENABLED || model_cache_required
+	let valkey_pool: Option<ValkeyPool> = if config.PERMISSION_CACHE_ENABLED || model_cache_enabled
 	{
 		new_valkey_pool()
 			.await
@@ -127,9 +143,18 @@ async fn main() -> Result<()> {
 		None
 	};
 
-	let mm = ModelManager::new_with_valkey_pool(valkey_pool.clone()).await?;
+	let mm = ModelManager::new_with_valkey_pool_and_model_cache(
+		valkey_pool.clone(),
+		model_cache_enabled,
+	)
+	.await?;
 
-	ensure_initial_admin_password(&mm).await?;
+	ensure_initial_admin_password(
+		&mm,
+		&config.INIT_ADMIN_USERNAME,
+		config.INIT_ADMIN_PASSWORD.as_deref(),
+	)
+	.await?;
 
 	// -- Define Routes (this validates handler annotations via generate_rpc_routes!)
 	// Note: generate_rpc_routes! in each RPC module validates handlers at runtime

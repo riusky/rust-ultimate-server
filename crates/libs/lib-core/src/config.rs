@@ -1,12 +1,11 @@
-use lib_utils::envs::get_env;
+use lib_config::app_config;
 use std::sync::OnceLock;
 
 pub fn core_config() -> &'static CoreConfig {
 	static INSTANCE: OnceLock<CoreConfig> = OnceLock::new();
 
 	INSTANCE.get_or_init(|| {
-		CoreConfig::load_from_env()
-			.unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}"))
+		CoreConfig::load().unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}"))
 	})
 }
 
@@ -20,13 +19,15 @@ pub struct CoreConfig {
 }
 
 impl CoreConfig {
-	fn load_from_env() -> lib_utils::envs::Result<CoreConfig> {
+	fn load() -> lib_config::Result<CoreConfig> {
+		let config = app_config();
+
 		Ok(CoreConfig {
 			// -- Db
-			DB_URL: get_env("SERVICE_DB_URL")?,
+			DB_URL: config.db.require_url()?.to_string(),
 
 			// -- Web
-			WEB_FOLDER: get_env("SERVICE_WEB_FOLDER")?,
+			WEB_FOLDER: config.app.web_folder.clone(),
 		})
 	}
 }

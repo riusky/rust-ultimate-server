@@ -17,7 +17,7 @@
 ### 依赖服务
 
 - PostgreSQL 15+
-- Valkey/Redis（可选，用于权限缓存）
+- Valkey/Redis（可选，用于权限缓存和模型缓存）
 
 ### 本地开发
 
@@ -28,7 +28,7 @@
 cargo install cargo-watch
 
 # 终端1 - 后端服务（热重载，本地默认不启用 Valkey）
-SERVICE_PERMISSION_CACHE_ENABLED=false cargo watch -q -c -w crates/ -x "run -p web-server"
+cargo watch -q -c -w crates/ -x "run -p web-server"
 
 # 终端2 - 前端服务
 cd cmx-vue-ultimate-starter

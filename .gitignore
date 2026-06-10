@@ -35,6 +35,7 @@ target/
 
 dist/
 out/
+config/local.toml
 
 # Doc Files
 *.pdf

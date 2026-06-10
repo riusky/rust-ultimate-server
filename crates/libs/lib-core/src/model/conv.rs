@@ -178,32 +178,35 @@ impl ConvBmc {
 		msg_c: ConvMsgForCreate,
 	) -> Result<i64> {
 		let conv_msg_id = Self::add_msg(ctx, mm, msg_c).await?;
+		let cache_pool = mm.model_cache_pool();
 
-		match Self::get_msg(ctx, mm, conv_msg_id).await {
-			Ok(conv_msg) => {
-				crate::model::cache::write_model_entity_best_effort(
-					mm.valkey_pool(),
-					<ConvMsgBmc as DbBmc>::TABLE,
-					conv_msg_id,
-					&conv_msg,
-				)
-				.await;
+		if cache_pool.is_some() {
+			match Self::get_msg(ctx, mm, conv_msg_id).await {
+				Ok(conv_msg) => {
+					crate::model::cache::write_model_entity_best_effort(
+						cache_pool,
+						<ConvMsgBmc as DbBmc>::TABLE,
+						conv_msg_id,
+						&conv_msg,
+					)
+					.await;
+				}
+				Err(err) => {
+					tracing::warn!(
+						table = <ConvMsgBmc as DbBmc>::TABLE,
+						id = conv_msg_id,
+						error = ?err,
+						"model cache refresh after add_msg failed"
+					);
+				}
 			}
-			Err(err) => {
-				tracing::warn!(
-					table = <ConvMsgBmc as DbBmc>::TABLE,
-					id = conv_msg_id,
-					error = ?err,
-					"model cache refresh after add_msg failed"
-				);
-			}
+
+			crate::model::cache::bump_model_query_version_best_effort(
+				cache_pool,
+				<ConvMsgBmc as DbBmc>::TABLE,
+			)
+			.await;
 		}
-
-		crate::model::cache::bump_model_query_version_best_effort(
-			mm.valkey_pool(),
-			<ConvMsgBmc as DbBmc>::TABLE,
-		)
-		.await;
 
 		Ok(conv_msg_id)
 	}
@@ -231,11 +234,20 @@ impl ConvBmc {
 		msg_id: i64,
 		cache_policy: crate::model::cache::CachePolicy,
 	) -> Result<ConvMsg> {
-		let key = crate::model::cache::model_entity_key(<ConvMsgBmc as DbBmc>::TABLE, msg_id);
+		let cache_pool = mm.model_cache_pool();
+		let key =
+			if cache_pool.is_none() || cache_policy == crate::model::cache::CachePolicy::Bypass {
+				None
+			} else {
+				Some(crate::model::cache::model_entity_key(
+					<ConvMsgBmc as DbBmc>::TABLE,
+					msg_id,
+				))
+			};
 
 		crate::model::cache::get_or_load_json(
-			mm.valkey_pool(),
-			Some(&key),
+			cache_pool,
+			key.as_deref(),
 			Some(crate::model::cache::MODEL_ENTITY_TTL_SECS),
 			cache_policy,
 			|| async { Self::get_msg(ctx, mm, msg_id).await },

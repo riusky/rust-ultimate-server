@@ -134,7 +134,7 @@ macro_rules! generate_common_rpc_fns {
                     &ctx,
                     &mm,
                     id,
-                    ::lib_core::model::cache::CachePolicy::Use
+                    ::lib_core::model::cache::CachePolicy::Refresh
                 ).await?;
                 Ok(entity.into())
             }
@@ -190,7 +190,7 @@ macro_rules! generate_common_rpc_fns {
                     &ctx,
                     &mm,
                     id,
-                    ::lib_core::model::cache::CachePolicy::Use
+                    ::lib_core::model::cache::CachePolicy::Refresh
                 ).await?;
                 Ok(entity.into())
             }
@@ -201,7 +201,6 @@ macro_rules! generate_common_rpc_fns {
                 params: ParamsIded,
             ) -> Result<DataRpcResult<$entity>> {
                 ctx.require_permission(concat!(stringify!($suffix), ":delete"))?;
-                let cache_policy = params.cache_policy();
                 let ParamsIded { id, .. } = params;
                 let entity = $crate::generate_common_rpc_fns!(
                     @get $cache,
@@ -209,7 +208,7 @@ macro_rules! generate_common_rpc_fns {
                     &ctx,
                     &mm,
                     id,
-                    cache_policy
+                    ::lib_core::model::cache::CachePolicy::Bypass
                 ).await?;
                 $crate::generate_common_rpc_fns!(@delete $cache, $bmc, &ctx, &mm, id).await?;
                 Ok(entity.into())

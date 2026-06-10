@@ -1,0 +1,17 @@
+# Copy this file to config/local.toml for machine-local overrides.
+# config/local.toml is ignored by Git.
+
+[db]
+# url = "postgres://app_user:dev_only_pwd@localhost:5432/app_db"
+
+[auth]
+# Prefer environment variables or a secret manager for real secrets.
+# pwd_key = "base64url-dev-key"
+# token_key = "base64url-dev-key"
+
+[cache]
+# permission_enabled = false
+# model_enabled = false
+
+[initial_admin]
+# password = "admin"

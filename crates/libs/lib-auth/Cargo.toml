@@ -11,6 +11,7 @@ workspace = true
 
 [dependencies]
 # -- App Libs
+lib-config = { path = "../../libs/lib-config" }
 lib-utils = { path = "../../libs/lib-utils"}
 # -- Async
 tokio = { version = "1", features = ["full"] }

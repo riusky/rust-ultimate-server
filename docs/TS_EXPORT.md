@@ -10,7 +10,7 @@ bash shell/gen-ts-types.sh
 
 脚本会依次执行：
 
-1. `SERVICE_PERMISSION_CACHE_ENABLED=false cargo test -p lib-core --features with-ts export_ts_types -- --nocapture`
+1. `cargo test -p lib-core --features with-ts export_ts_types -- --nocapture`
 2. `cd cmx-vue-ultimate-starter && bun run gen:types`
 
 生成目录：

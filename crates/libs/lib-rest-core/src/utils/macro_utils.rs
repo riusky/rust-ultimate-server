@@ -164,7 +164,7 @@ macro_rules! generate_common_rest_fns {
 					&ctx,
 					&mm,
 					id,
-					::lib_core::model::cache::CachePolicy::Use
+					::lib_core::model::cache::CachePolicy::Refresh
 				).await?;
 				Ok(entity.into())
 			}
@@ -271,7 +271,7 @@ macro_rules! generate_common_rest_fns {
 					&ctx,
 					&mm,
 					id,
-					::lib_core::model::cache::CachePolicy::Use
+					::lib_core::model::cache::CachePolicy::Refresh
 				).await?;
 				Ok(entity.into())
 			}
@@ -282,7 +282,6 @@ macro_rules! generate_common_rest_fns {
 				ctx: CtxW,
 				State(mm): State<ModelManager>,
 				Path(PathId { id }): Path<PathId>,
-				Query(cache_query): Query<CacheQuery>,
 			) -> Result<RestDeleted<$entity>> {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":delete"))?;
@@ -292,7 +291,7 @@ macro_rules! generate_common_rest_fns {
 					&ctx,
 					&mm,
 					id,
-					cache_query.cache_policy()
+					::lib_core::model::cache::CachePolicy::Bypass
 				).await?;
 				$crate::generate_common_rest_fns!(@delete $cache, $bmc, &ctx, &mm, id).await?;
 				Ok(entity.into())

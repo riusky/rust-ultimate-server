@@ -1,13 +1,10 @@
-use lib_utils::envs::get_env;
+use lib_config::app_config;
 use std::sync::OnceLock;
 
 pub fn valkey_config() -> &'static ValkeyConfig {
 	static INSTANCE: OnceLock<ValkeyConfig> = OnceLock::new();
 
-	INSTANCE.get_or_init(|| {
-		ValkeyConfig::load_from_env()
-			.unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING VALKEY CONF - Cause: {ex:?}"))
-	})
+	INSTANCE.get_or_init(|| ValkeyConfig::load())
 }
 
 #[allow(non_snake_case)]
@@ -18,18 +15,13 @@ pub struct ValkeyConfig {
 }
 
 impl ValkeyConfig {
-	fn load_from_env() -> lib_utils::envs::Result<ValkeyConfig> {
-		Ok(ValkeyConfig {
-			VALKEY_URL: get_env("SERVICE_VALKEY_URL")
-				.unwrap_or_else(|_| "redis://localhost:6379".to_string()),
-			VALKEY_POOL_MAX_SIZE: get_env("SERVICE_VALKEY_POOL_MAX_SIZE")
-				.unwrap_or_else(|_| "10".to_string())
-				.parse()
-				.unwrap_or(10),
-			VALKEY_POOL_MIN_IDLE: get_env("SERVICE_VALKEY_POOL_MIN_IDLE")
-				.unwrap_or_else(|_| "2".to_string())
-				.parse()
-				.unwrap_or(2),
-		})
+	fn load() -> ValkeyConfig {
+		let config = app_config();
+
+		ValkeyConfig {
+			VALKEY_URL: config.valkey.url.clone(),
+			VALKEY_POOL_MAX_SIZE: config.valkey.pool_max_size,
+			VALKEY_POOL_MIN_IDLE: config.valkey.pool_min_idle,
+		}
 	}
 }

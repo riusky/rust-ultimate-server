@@ -556,6 +556,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "config"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68578f196d2a33ff61b27fae256c3164f65e36382648e30666dde05b8cc9dfdf"
+dependencies = [
+ "nom",
+ "pathdiff",
+ "serde",
+ "toml",
+]
+
+[[package]]
 name = "const-oid"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1885,11 +1897,20 @@ dependencies = [
  "enum_dispatch",
  "hmac",
  "lazy-regex",
+ "lib-config",
  "lib-utils",
  "serde",
  "sha2",
  "tokio",
  "uuid",
+]
+
+[[package]]
+name = "lib-config"
+version = "0.1.0"
+dependencies = [
+ "config",
+ "serde",
 ]
 
 [[package]]
@@ -1900,6 +1921,7 @@ dependencies = [
  "derive_more 1.0.0",
  "inventory",
  "lib-auth",
+ "lib-config",
  "lib-macros",
  "lib-utils",
  "lib-valkey-core",
@@ -1982,6 +2004,7 @@ dependencies = [
  "bb8-redis",
  "derive_more 1.0.0",
  "futures-util",
+ "lib-config",
  "lib-utils",
  "redis",
  "serde",
@@ -2174,6 +2197,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "minimal-lexical"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
 name = "miniz_oxide"
 version = "0.8.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2275,6 +2304,16 @@ dependencies = [
  "cfg-if",
  "libc",
  "memoffset",
+]
+
+[[package]]
+name = "nom"
+version = "7.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
+dependencies = [
+ "memchr",
+ "minimal-lexical",
 ]
 
 [[package]]
@@ -2482,6 +2521,12 @@ name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
+
+[[package]]
+name = "pathdiff"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 
 [[package]]
 name = "pem-rfc7468"
@@ -4841,6 +4886,7 @@ dependencies = [
  "httpc-test",
  "inventory",
  "lib-auth",
+ "lib-config",
  "lib-core",
  "lib-macros",
  "lib-rest-core",

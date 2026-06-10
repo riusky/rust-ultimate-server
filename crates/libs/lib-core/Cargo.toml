@@ -15,6 +15,7 @@ with-ts = ["ts-rs", "modql/with-ts", "lib-macros"]
 
 [dependencies]
 # -- App Libs
+lib-config = { path = "../../libs/lib-config" }
 lib-utils = { path = "../../libs/lib-utils"}
 lib-auth = { path = "../../libs/lib-auth"}
 lib-valkey-core = { path = "../../libs/lib-valkey-core"}

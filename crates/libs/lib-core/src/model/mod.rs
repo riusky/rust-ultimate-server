@@ -53,6 +53,7 @@ use lib_valkey_core::ValkeyPool;
 pub struct ModelManager {
 	dbx: Dbx,
 	valkey_pool: Option<ValkeyPool>,
+	model_cache_enabled: bool,
 }
 
 impl ModelManager {
@@ -62,6 +63,14 @@ impl ModelManager {
 	}
 
 	pub async fn new_with_valkey_pool(valkey_pool: Option<ValkeyPool>) -> Result<Self> {
+		let model_cache_enabled = valkey_pool.is_some();
+		Self::new_with_valkey_pool_and_model_cache(valkey_pool, model_cache_enabled).await
+	}
+
+	pub async fn new_with_valkey_pool_and_model_cache(
+		valkey_pool: Option<ValkeyPool>,
+		model_cache_enabled: bool,
+	) -> Result<Self> {
 		// 1. Run database migrations first
 		run_db_migrations()
 			.await
@@ -72,13 +81,18 @@ impl ModelManager {
 			.await
 			.map_err(|ex| Error::CantCreateModelManagerProvider(ex.to_string()))?;
 		let dbx = Dbx::new(db_pool, false)?;
-		Ok(ModelManager { dbx, valkey_pool })
+		Ok(ModelManager {
+			dbx,
+			model_cache_enabled: model_cache_enabled && valkey_pool.is_some(),
+			valkey_pool,
+		})
 	}
 
 	pub fn new_with_txn(&self) -> Result<ModelManager> {
 		let dbx = Dbx::new(self.dbx.db().clone(), true)?;
 		Ok(ModelManager {
 			dbx,
+			model_cache_enabled: self.model_cache_enabled,
 			valkey_pool: self.valkey_pool.clone(),
 		})
 	}
@@ -89,6 +103,14 @@ impl ModelManager {
 
 	pub fn valkey_pool(&self) -> Option<&ValkeyPool> {
 		self.valkey_pool.as_ref()
+	}
+
+	pub fn model_cache_pool(&self) -> Option<&ValkeyPool> {
+		if self.model_cache_enabled {
+			self.valkey_pool.as_ref()
+		} else {
+			None
+		}
 	}
 }
 

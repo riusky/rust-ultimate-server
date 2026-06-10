@@ -1,12 +1,12 @@
-use lib_utils::envs::{get_env_b64u_as_u8s, get_env_parse};
+use lib_config::app_config;
+use lib_utils::b64::b64u_decode;
 use std::sync::OnceLock;
 
 pub fn auth_config() -> &'static AuthConfig {
 	static INSTANCE: OnceLock<AuthConfig> = OnceLock::new();
 
 	INSTANCE.get_or_init(|| {
-		AuthConfig::load_from_env()
-			.unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}"))
+		AuthConfig::load().unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}"))
 	})
 }
 
@@ -20,13 +20,42 @@ pub struct AuthConfig {
 }
 
 impl AuthConfig {
-	fn load_from_env() -> lib_utils::envs::Result<AuthConfig> {
+	fn load() -> Result<AuthConfig> {
+		let config = app_config();
+		let pwd_key = config.auth.require_pwd_key()?;
+		let token_key = config.auth.require_token_key()?;
+
 		Ok(AuthConfig {
 			// -- Crypt
-			PWD_KEY: get_env_b64u_as_u8s("SERVICE_PWD_KEY")?,
+			PWD_KEY: b64u_decode(pwd_key).map_err(|_| Error::WrongFormat("auth.pwd_key"))?,
 
-			TOKEN_KEY: get_env_b64u_as_u8s("SERVICE_TOKEN_KEY")?,
-			TOKEN_DURATION_SEC: get_env_parse("SERVICE_TOKEN_DURATION_SEC")?,
+			TOKEN_KEY: b64u_decode(token_key).map_err(|_| Error::WrongFormat("auth.token_key"))?,
+			TOKEN_DURATION_SEC: config.auth.token_duration_sec,
 		})
 	}
 }
+
+type Result<T> = core::result::Result<T, Error>;
+
+#[derive(Debug)]
+enum Error {
+	Config(lib_config::Error),
+	WrongFormat(&'static str),
+}
+
+impl From<lib_config::Error> for Error {
+	fn from(value: lib_config::Error) -> Self {
+		Self::Config(value)
+	}
+}
+
+impl core::fmt::Display for Error {
+	fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::fmt::Result {
+		match self {
+			Self::Config(err) => write!(fmt, "{err}"),
+			Self::WrongFormat(name) => write!(fmt, "wrong format for {name}"),
+		}
+	}
+}
+
+impl std::error::Error for Error {}

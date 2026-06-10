@@ -1,0 +1,20 @@
+[app]
+web_folder = "/app/web-folder"
+
+[db]
+url = "postgres://app_user:dev_only_pwd@postgres:5432/app_db"
+
+[auth]
+token_duration_sec = 86400
+
+[valkey]
+url = "redis://valkey:6379"
+pool_max_size = 10
+pool_min_idle = 2
+
+[cache]
+permission_enabled = true
+model_enabled = true
+
+[initial_admin]
+username = "admin"

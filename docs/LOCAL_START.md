@@ -8,7 +8,13 @@
 Browser -> Vite dev server (:3000) -> /api proxy -> Axum web-server (:8080) -> PostgreSQL (:5432)
 ```
 
-Valkey/Redis 是可选服务。默认本地不启动 Valkey，因此后端启动时必须关闭权限缓存。
+Valkey/Redis 是可选服务。默认本地不启动 Valkey，因此后端启动时必须关闭权限缓存和模型缓存。
+
+本地无 Valkey 时使用：
+
+```bash
+cargo run -p web-server
+```
 
 ## 1. 前置依赖
 
@@ -83,6 +89,7 @@ psql -U postgres -h localhost -d postgres -c "ALTER USER postgres PASSWORD 'dev_
 
 ```powershell
 $env:DEV_POSTGRES_URL="postgres://postgres:<your-password>@localhost:5432/postgres"
+# Optional: override app DB URL, or put it in config/local.toml under [db].url
 $env:SERVICE_DB_URL="postgres://app_user:dev_only_pwd@localhost:5432/app_db"
 ```
 
@@ -93,13 +100,12 @@ $env:SERVICE_DB_URL="postgres://app_user:dev_only_pwd@localhost:5432/app_db"
 ### Linux / macOS / WSL
 
 ```bash
-SERVICE_PERMISSION_CACHE_ENABLED=false cargo run -p web-server
+cargo run -p web-server
 ```
 
 ### Windows PowerShell
 
 ```powershell
-$env:SERVICE_PERMISSION_CACHE_ENABLED="false"
 cargo run -p web-server
 ```
 
@@ -172,7 +178,7 @@ cargo install cargo-watch
 Linux / macOS / WSL：
 
 ```bash
-SERVICE_PERMISSION_CACHE_ENABLED=false cargo watch -q -c -w crates/ -x "run -p web-server"
+cargo watch -q -c -w crates/ -x "run -p web-server"
 ```
 
 Windows PowerShell：
@@ -196,7 +202,7 @@ bun run dev
 本地没有 Valkey 时同样要关闭权限缓存：
 
 ```bash
-SERVICE_PERMISSION_CACHE_ENABLED=false cargo test -p web-server -p lib-core -p lib-auth -p lib-web -p lib-rpc-core -p lib-rest-core -p lib-macros -p lib-valkey-core -p lib-utils -p gen-key
+cargo test -p web-server -p lib-core -p lib-auth -p lib-web -p lib-rpc-core -p lib-rest-core -p lib-macros -p lib-valkey-core -p lib-utils -p gen-key
 ```
 
 PowerShell：
@@ -232,7 +238,7 @@ bun run build
 处理：
 
 ```bash
-SERVICE_PERMISSION_CACHE_ENABLED=false cargo run -p web-server
+cargo run -p web-server
 ```
 
 PowerShell：
@@ -286,7 +292,7 @@ http://localhost:8080
 ```text
 1. 启动 PostgreSQL
 2. 确认 postgres 用户密码或覆盖 DEV_POSTGRES_URL
-3. 启动后端，并设置 SERVICE_PERMISSION_CACHE_ENABLED=false
+3. 启动后端，并设置 SERVICE_PERMISSION_CACHE_ENABLED=false、SERVICE_MODEL_CACHE_ENABLED=false
 4. 启动前端 bun run dev
 5. 浏览器访问 http://localhost:3000
 6. 使用 admin / admin 登录

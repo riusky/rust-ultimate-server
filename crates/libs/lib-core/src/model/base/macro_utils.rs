@@ -118,34 +118,36 @@ macro_rules! generate_cached_bmc_fns {
 				where
 					$entity: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
+					let cache_pool = mm.model_cache_pool();
 					let id = Self::create(ctx, mm, entity_c).await?;
 
-					match Self::get(ctx, mm, id).await {
-						Ok(entity) => {
-							$crate::model::cache::write_model_entity_best_effort(
-								cache_pool,
-								<Self as $crate::model::DbBmc>::TABLE,
-								id,
-								&entity,
-							)
-							.await;
+					if cache_pool.is_some() {
+						match Self::get(ctx, mm, id).await {
+							Ok(entity) => {
+								$crate::model::cache::write_model_entity_best_effort(
+									cache_pool,
+									<Self as $crate::model::DbBmc>::TABLE,
+									id,
+									&entity,
+								)
+								.await;
+							}
+							Err(err) => {
+								tracing::warn!(
+									table = <Self as $crate::model::DbBmc>::TABLE,
+									id,
+									error = ?err,
+									"model cache refresh after create failed"
+								);
+							}
 						}
-						Err(err) => {
-							tracing::warn!(
-								table = <Self as $crate::model::DbBmc>::TABLE,
-								id,
-								error = ?err,
-								"model cache refresh after create failed"
-							);
-						}
-					}
 
-					$crate::model::cache::bump_model_query_version_best_effort(
-						cache_pool,
-						<Self as $crate::model::DbBmc>::TABLE,
-					)
-					.await;
+						$crate::model::cache::bump_model_query_version_best_effort(
+							cache_pool,
+							<Self as $crate::model::DbBmc>::TABLE,
+						)
+						.await;
+					}
 
 					Ok(id)
 				}
@@ -158,36 +160,38 @@ macro_rules! generate_cached_bmc_fns {
 				where
 					$entity: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
+					let cache_pool = mm.model_cache_pool();
 					let ids = Self::create_many(ctx, mm, entity_c).await?;
 
-					for id in &ids {
-						match Self::get(ctx, mm, *id).await {
-							Ok(entity) => {
-								$crate::model::cache::write_model_entity_best_effort(
-									cache_pool,
-									<Self as $crate::model::DbBmc>::TABLE,
-									*id,
-									&entity,
-								)
-								.await;
-							}
-							Err(err) => {
-								tracing::warn!(
-									table = <Self as $crate::model::DbBmc>::TABLE,
-									id = *id,
-									error = ?err,
-									"model cache refresh after create_many failed"
-								);
+					if cache_pool.is_some() {
+						for id in &ids {
+							match Self::get(ctx, mm, *id).await {
+								Ok(entity) => {
+									$crate::model::cache::write_model_entity_best_effort(
+										cache_pool,
+										<Self as $crate::model::DbBmc>::TABLE,
+										*id,
+										&entity,
+									)
+									.await;
+								}
+								Err(err) => {
+									tracing::warn!(
+										table = <Self as $crate::model::DbBmc>::TABLE,
+										id = *id,
+										error = ?err,
+										"model cache refresh after create_many failed"
+									);
+								}
 							}
 						}
-					}
 
-					$crate::model::cache::bump_model_query_version_best_effort(
-						cache_pool,
-						<Self as $crate::model::DbBmc>::TABLE,
-					)
-					.await;
+						$crate::model::cache::bump_model_query_version_best_effort(
+							cache_pool,
+							<Self as $crate::model::DbBmc>::TABLE,
+						)
+						.await;
+					}
 
 					Ok(ids)
 				}
@@ -219,15 +223,21 @@ macro_rules! generate_cached_bmc_fns {
 			where
 				$entity: serde::Serialize + serde::de::DeserializeOwned,
 			{
-				let cache_pool = mm.valkey_pool();
-				let key = $crate::model::cache::model_entity_key(
-					<Self as $crate::model::DbBmc>::TABLE,
-					id,
-				);
+				let cache_pool = mm.model_cache_pool();
+				let key = if cache_pool.is_none()
+					|| cache_policy == $crate::model::cache::CachePolicy::Bypass
+				{
+					None
+				} else {
+					Some($crate::model::cache::model_entity_key(
+						<Self as $crate::model::DbBmc>::TABLE,
+						id,
+					))
+				};
 
 				$crate::model::cache::get_or_load_json(
 					cache_pool,
-					Some(&key),
+					key.as_deref(),
 					Some($crate::model::cache::MODEL_ENTITY_TTL_SECS),
 					cache_policy,
 					|| async { Self::get(ctx, mm, id).await },
@@ -267,8 +277,10 @@ macro_rules! generate_cached_bmc_fns {
 					$entity: serde::Serialize + serde::de::DeserializeOwned,
 					$filter: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
-					let key = if cache_policy == $crate::model::cache::CachePolicy::Bypass {
+					let cache_pool = mm.model_cache_pool();
+					let key = if cache_pool.is_none()
+						|| cache_policy == $crate::model::cache::CachePolicy::Bypass
+					{
 						None
 					} else {
 						let version = $crate::model::cache::model_query_version(
@@ -325,8 +337,10 @@ macro_rules! generate_cached_bmc_fns {
 					$entity: serde::Serialize + serde::de::DeserializeOwned,
 					$filter: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
-					let key = if cache_policy == $crate::model::cache::CachePolicy::Bypass {
+					let cache_pool = mm.model_cache_pool();
+					let key = if cache_pool.is_none()
+						|| cache_policy == $crate::model::cache::CachePolicy::Bypass
+					{
 						None
 					} else {
 						let version = $crate::model::cache::model_query_version(
@@ -378,8 +392,10 @@ macro_rules! generate_cached_bmc_fns {
 				where
 					$filter: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
-					let key = if cache_policy == $crate::model::cache::CachePolicy::Bypass {
+					let cache_pool = mm.model_cache_pool();
+					let key = if cache_pool.is_none()
+						|| cache_policy == $crate::model::cache::CachePolicy::Bypass
+					{
 						None
 					} else {
 						let version = $crate::model::cache::model_query_version(
@@ -416,40 +432,42 @@ macro_rules! generate_cached_bmc_fns {
 				where
 					$entity: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
+					let cache_pool = mm.model_cache_pool();
 					Self::update(ctx, mm, id, entity_u).await?;
 
-					match Self::get(ctx, mm, id).await {
-						Ok(entity) => {
-							$crate::model::cache::write_model_entity_best_effort(
-								cache_pool,
-								<Self as $crate::model::DbBmc>::TABLE,
-								id,
-								&entity,
-							)
-							.await;
+					if cache_pool.is_some() {
+						match Self::get(ctx, mm, id).await {
+							Ok(entity) => {
+								$crate::model::cache::write_model_entity_best_effort(
+									cache_pool,
+									<Self as $crate::model::DbBmc>::TABLE,
+									id,
+									&entity,
+								)
+								.await;
+							}
+							Err(err) => {
+								tracing::warn!(
+									table = <Self as $crate::model::DbBmc>::TABLE,
+									id,
+									error = ?err,
+									"model cache refresh after update failed"
+								);
+								$crate::model::cache::delete_model_entity_best_effort(
+									cache_pool,
+									<Self as $crate::model::DbBmc>::TABLE,
+									id,
+								)
+								.await;
+							}
 						}
-						Err(err) => {
-							tracing::warn!(
-								table = <Self as $crate::model::DbBmc>::TABLE,
-								id,
-								error = ?err,
-								"model cache refresh after update failed"
-							);
-							$crate::model::cache::delete_model_entity_best_effort(
-								cache_pool,
-								<Self as $crate::model::DbBmc>::TABLE,
-								id,
-							)
-							.await;
-						}
-					}
 
-					$crate::model::cache::bump_model_query_version_best_effort(
-						cache_pool,
-						<Self as $crate::model::DbBmc>::TABLE,
-					)
-					.await;
+						$crate::model::cache::bump_model_query_version_best_effort(
+							cache_pool,
+							<Self as $crate::model::DbBmc>::TABLE,
+						)
+						.await;
+					}
 
 					Ok(())
 				}
@@ -460,7 +478,7 @@ macro_rules! generate_cached_bmc_fns {
 				mm: &$crate::model::ModelManager,
 				id: i64,
 			) -> $crate::model::Result<()> {
-				let cache_pool = mm.valkey_pool();
+				let cache_pool = mm.model_cache_pool();
 				Self::delete(ctx, mm, id).await?;
 
 				$crate::model::cache::delete_model_entity_best_effort(
@@ -483,7 +501,7 @@ macro_rules! generate_cached_bmc_fns {
 				mm: &$crate::model::ModelManager,
 				ids: Vec<i64>,
 			) -> $crate::model::Result<u64> {
-				let cache_pool = mm.valkey_pool();
+				let cache_pool = mm.model_cache_pool();
 				let deleted = Self::delete_many(ctx, mm, ids.clone()).await?;
 
 				$crate::model::cache::delete_model_entities_best_effort(

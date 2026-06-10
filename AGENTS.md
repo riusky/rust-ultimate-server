@@ -44,11 +44,11 @@ Cargo workspace 把 `vendor/modql` 和 `vendor/rpc-router` 也纳入成员。注
 | 服务 | 端口 | 命令 | 必需 |
 | --- | --- | --- | --- |
 | PostgreSQL 17 | 5432 | `sudo pg_ctlcluster 17 main start` | 是 |
-| Rust web-server | 8080 | `SERVICE_PERMISSION_CACHE_ENABLED=false cargo run -p web-server` | 是 |
+| Rust web-server | 8080 | `cargo run -p web-server` | 是 |
 | Vue 3 frontend | 3000 | `cd cmx-vue-ultimate-starter && bun run dev` | 是 |
-| Valkey/Redis | 6379 | 本地默认未安装 | 否 |
+| Valkey/Redis | 6379 | 本地默认未安装；用于权限缓存和模型缓存 | 否 |
 
-本地运行后端或测试时，必须显式设置 `SERVICE_PERMISSION_CACHE_ENABLED=false`。`.cargo/config.toml` 默认把该值设为 `true`，如果本地没有 Valkey/Redis，会导致权限缓存初始化失败。
+本地运行后端或测试默认读取 `config/development.toml`，该配置默认关闭权限缓存和模型缓存，因此本地没有 Valkey/Redis 也可以启动。
 
 Docker 模式会启动 PostgreSQL、Valkey、web-server、frontend 和 Pingora gateway。访问入口是 `http://localhost`，其中 `/api/*` 转发到后端，其余路径转发到前端。
 
@@ -92,7 +92,7 @@ Docker 模式会启动 PostgreSQL、Valkey、web-server、frontend 和 Pingora g
 
 ```bash
 # 后端本地启动
-SERVICE_PERMISSION_CACHE_ENABLED=false cargo run -p web-server
+cargo run -p web-server
 
 # 前端本地启动
 cd cmx-vue-ultimate-starter
@@ -103,7 +103,7 @@ bun run dev
 cargo run -p gen-key
 
 # 推荐测试范围，避免构建不相关 transitive dependencies
-SERVICE_PERMISSION_CACHE_ENABLED=false cargo test -p web-server -p lib-core -p lib-auth -p lib-web -p lib-rpc-core -p lib-rest-core -p lib-macros -p lib-valkey-core -p lib-utils -p gen-key
+cargo test -p web-server -p lib-core -p lib-auth -p lib-web -p lib-rpc-core -p lib-rest-core -p lib-macros -p lib-valkey-core -p lib-utils -p gen-key
 
 # Rust model 变更后导出 TypeScript 类型
 bash shell/gen-ts-types.sh
@@ -114,7 +114,7 @@ docker compose up -d --build
 
 ## 已知坑点
 
-- 本地默认没有 Valkey/Redis；后端和测试要覆盖 `SERVICE_PERMISSION_CACHE_ENABLED=false`。
+- 本地默认没有 Valkey/Redis；`config/development.toml` 默认关闭权限缓存和模型缓存。
 - `web-server` debug 启动会自动初始化开发数据库，执行 `sql/dev_initial/00-recreate-db.sql` 和 Refinery migrations。
 - 默认管理员用户是 `admin`，密码是 `admin`。
 - PostgreSQL 本地连接使用 `localhost:5432`。

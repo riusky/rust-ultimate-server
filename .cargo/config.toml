@@ -1,44 +1,20 @@
-# Cargo config file. 
+# Cargo config file.
 # See: https://doc.rust-lang.org/cargo/reference/config.html
 
-# Environments variables set for all `cargo ...` commands.
+# Environment variables set for all `cargo ...` commands.
 [env]
 
 # Scope down tracing, to filter out external lib tracing.
 RUST_LOG="web_server=debug,lib_core=debug,lib_web=debug,lib_auth=debug,lib_utils=debug"
 
-# -- Service Environment Variables
-# IMPORTANT: 
-#   For cargo commands only.
-#   For deployed env, should be managed by container 
-#   (e.g., Kubernetes).
+# Selects config/development.toml for local cargo commands.
+SERVICE_ENV="development"
 
-## -- Secrets
-# Keys and passwords below are for localhost dev ONLY.
-# e.g., "welcome" type of passwords.
-# i.e., Encryption not needed.
-
-SERVICE_DB_URL="postgres://app_user:dev_only_pwd@localhost:5432/app_db"
-
-# 开发初始化数据库连接 (本地开发使用 localhost)
+# Development database bootstrap URLs. These are used only by debug/dev DB setup.
 DEV_POSTGRES_URL="postgres://postgres:dev_only_pwd@localhost:5432/postgres"
 DEV_APP_URL="postgres://app_user:dev_only_pwd@localhost:5432/app_db"
 
+# Development-only auth keys. Production must provide these via environment
+# variables, a mounted config/local.toml, or a secret manager.
 SERVICE_PWD_KEY="CKUGFOD9_2Qf6Pn3ZFRYgPYb8ht4vKqEG9PGMXTB7497bT0367DjoaD6ydFnEVaIRda0kKeBZVCT5Hb62m2sCA"
-
 SERVICE_TOKEN_KEY="9FoHBmkyxbgu_xFoQK7e0jz3RMNVJWgfvbVn712FBNH9LLaAWS3CS6Zpcg6RveiObvCUb6a2z-uAiLjhLh2igw"
-SERVICE_TOKEN_DURATION_SEC="1800" # 30 minutes
-
-## -- ConfigMap
-
-# This will be relative to Cargo.toml
-# In deployed images, probably use absolute path.
-SERVICE_WEB_FOLDER="web-folder/"
-
-# -- Valkey (Redis 兼容缓存) 配置
-SERVICE_VALKEY_URL="redis://localhost:6379"
-SERVICE_VALKEY_POOL_MAX_SIZE="10"
-SERVICE_VALKEY_POOL_MIN_IDLE="2"
-
-# 权限缓存开关 (true/false)
-SERVICE_PERMISSION_CACHE_ENABLED="true"

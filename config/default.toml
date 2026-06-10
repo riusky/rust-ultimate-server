@@ -1,0 +1,17 @@
+[app]
+web_folder = "web-folder/"
+
+[auth]
+token_duration_sec = 1800
+
+[valkey]
+url = "redis://localhost:6379"
+pool_max_size = 10
+pool_min_idle = 2
+
+[cache]
+permission_enabled = false
+model_enabled = false
+
+[initial_admin]
+username = "admin"

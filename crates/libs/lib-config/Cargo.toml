@@ -1,0 +1,14 @@
+[package]
+name = "lib-config"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+config = { version = "0.14", default-features = false, features = ["toml"] }
+serde = { version = "1", features = ["derive"] }
