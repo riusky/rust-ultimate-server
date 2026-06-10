@@ -9,11 +9,25 @@ use serde::Deserialize;
 use serde_with::json::JsonString;
 use serde_with::{serde_as, OneOrMany};
 
+use lib_core::model::cache::CachePolicy;
+
 /// Path parameter for entity ID
 /// Used with `Path<PathId>` extractor for routes like `/:id`
 #[derive(Debug, Deserialize)]
 pub struct PathId {
 	pub id: i64,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub struct CacheQuery {
+	#[serde(default)]
+	pub cache_policy: Option<CachePolicy>,
+}
+
+impl CacheQuery {
+	pub fn cache_policy(&self) -> CachePolicy {
+		self.cache_policy.unwrap_or_default()
+	}
 }
 
 /// Query params for list operations with pagination support
@@ -45,6 +59,10 @@ where
 	/// Order by fields (e.g., "id", "-created_at" for descending)
 	#[serde(default)]
 	pub order_bys: Option<String>,
+
+	/// Cache policy for this read (`use`, `refresh`, or `bypass`)
+	#[serde(default)]
+	pub cache_policy: Option<CachePolicy>,
 }
 
 impl<F> QueryList<F>
@@ -72,5 +90,9 @@ where
 			offset: Some(offset),
 			order_bys: self.order_bys.as_ref().map(|s| s.as_str().into()),
 		})
+	}
+
+	pub fn cache_policy(&self) -> CachePolicy {
+		self.cache_policy.unwrap_or_default()
 	}
 }

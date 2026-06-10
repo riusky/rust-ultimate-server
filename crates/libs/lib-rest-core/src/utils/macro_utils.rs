@@ -158,7 +158,14 @@ macro_rules! generate_common_rest_fns {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":create"))?;
 				let id = $crate::generate_common_rest_fns!(@create $cache, $bmc, &ctx, &mm, data).await?;
-				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+				let entity = $crate::generate_common_rest_fns!(
+					@get $cache,
+					$bmc,
+					&ctx,
+					&mm,
+					id,
+					::lib_core::model::cache::CachePolicy::Use
+				).await?;
 				Ok(entity.into())
 			}
 
@@ -168,10 +175,18 @@ macro_rules! generate_common_rest_fns {
 				ctx: CtxW,
 				State(mm): State<ModelManager>,
 				Path(PathId { id }): Path<PathId>,
+				Query(cache_query): Query<CacheQuery>,
 			) -> Result<RestResponse<$entity>> {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":read"))?;
-				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+				let entity = $crate::generate_common_rest_fns!(
+					@get $cache,
+					$bmc,
+					&ctx,
+					&mm,
+					id,
+					cache_query.cache_policy()
+				).await?;
 				Ok(entity.into())
 			}
 
@@ -186,7 +201,16 @@ macro_rules! generate_common_rest_fns {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":list"))?;
 				let list_options = params.into_list_options();
-				let entities = $crate::generate_common_rest_fns!(@list $cache, $bmc, &ctx, &mm, params.filters, list_options).await?;
+				let cache_policy = params.cache_policy();
+				let entities = $crate::generate_common_rest_fns!(
+					@list $cache,
+					$bmc,
+					&ctx,
+					&mm,
+					params.filters,
+					list_options,
+					cache_policy
+				).await?;
 				Ok(entities.into())
 			}
 
@@ -204,12 +228,28 @@ macro_rules! generate_common_rest_fns {
 				let page_size = params.get_page_size();
 				let page_number = params.get_page_number();
 				let list_options = params.into_list_options();
+				let cache_policy = params.cache_policy();
 
 				// Get total count
-				let total = $crate::generate_common_rest_fns!(@count $cache, $bmc, &ctx, &mm, params.filters.clone()).await?;
+				let total = $crate::generate_common_rest_fns!(
+					@count $cache,
+					$bmc,
+					&ctx,
+					&mm,
+					params.filters.clone(),
+					cache_policy
+				).await?;
 
 				// Get paginated data
-				let entities = $crate::generate_common_rest_fns!(@list $cache, $bmc, &ctx, &mm, params.filters, list_options).await?;
+				let entities = $crate::generate_common_rest_fns!(
+					@list $cache,
+					$bmc,
+					&ctx,
+					&mm,
+					params.filters,
+					list_options,
+					cache_policy
+				).await?;
 
 				Ok(RestPagedResponse::new(entities, total, page_size, page_number))
 			}
@@ -225,7 +265,14 @@ macro_rules! generate_common_rest_fns {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":update"))?;
 				$crate::generate_common_rest_fns!(@update $cache, $bmc, &ctx, &mm, id, data).await?;
-				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+				let entity = $crate::generate_common_rest_fns!(
+					@get $cache,
+					$bmc,
+					&ctx,
+					&mm,
+					id,
+					::lib_core::model::cache::CachePolicy::Use
+				).await?;
 				Ok(entity.into())
 			}
 
@@ -235,10 +282,18 @@ macro_rules! generate_common_rest_fns {
 				ctx: CtxW,
 				State(mm): State<ModelManager>,
 				Path(PathId { id }): Path<PathId>,
+				Query(cache_query): Query<CacheQuery>,
 			) -> Result<RestDeleted<$entity>> {
 				let ctx = ctx.0;
 				ctx.require_permission(concat!(stringify!($suffix), ":delete"))?;
-				let entity = $crate::generate_common_rest_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+				let entity = $crate::generate_common_rest_fns!(
+					@get $cache,
+					$bmc,
+					&ctx,
+					&mm,
+					id,
+					cache_query.cache_policy()
+				).await?;
 				$crate::generate_common_rest_fns!(@delete $cache, $bmc, &ctx, &mm, id).await?;
 				Ok(entity.into())
 			}
@@ -277,24 +332,27 @@ macro_rules! generate_common_rest_fns {
 	(@create false, $bmc:ident, $ctx:expr, $mm:expr, $data:expr) => {
 		$bmc::create($ctx, $mm, $data)
 	};
-	(@get true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
-		$bmc::get_cached($ctx, $mm, $id)
+	(@get true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $cache_policy:expr) => {
+		$bmc::get_cached_with_policy($ctx, $mm, $id, $cache_policy)
 	};
-	(@get false, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
+	(@get false, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $cache_policy:expr) => {{
+		let _ = $cache_policy;
 		$bmc::get($ctx, $mm, $id)
+	}};
+	(@list true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr, $cache_policy:expr) => {
+		$bmc::list_cached_with_policy($ctx, $mm, $filter, $list_options, $cache_policy)
 	};
-	(@list true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr) => {
-		$bmc::list_cached($ctx, $mm, $filter, $list_options)
-	};
-	(@list false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr) => {
+	(@list false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr, $cache_policy:expr) => {{
+		let _ = $cache_policy;
 		$bmc::list($ctx, $mm, $filter, $list_options)
+	}};
+	(@count true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $cache_policy:expr) => {
+		$bmc::count_cached_with_policy($ctx, $mm, $filter, $cache_policy)
 	};
-	(@count true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr) => {
-		$bmc::count_cached($ctx, $mm, $filter)
-	};
-	(@count false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr) => {
+	(@count false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $cache_policy:expr) => {{
+		let _ = $cache_policy;
 		$bmc::count($ctx, $mm, $filter)
-	};
+	}};
 	(@update true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $data:expr) => {
 		$bmc::update_cached($ctx, $mm, $id, $data)
 	};

@@ -201,6 +201,24 @@ macro_rules! generate_cached_bmc_fns {
 			where
 				$entity: serde::Serialize + serde::de::DeserializeOwned,
 			{
+				Self::get_cached_with_policy(
+					ctx,
+					mm,
+					id,
+					$crate::model::cache::CachePolicy::Use,
+				)
+				.await
+			}
+
+			pub async fn get_cached_with_policy(
+				ctx: &$crate::ctx::Ctx,
+				mm: &$crate::model::ModelManager,
+				id: i64,
+				cache_policy: $crate::model::cache::CachePolicy,
+			) -> $crate::model::Result<$entity>
+			where
+				$entity: serde::Serialize + serde::de::DeserializeOwned,
+			{
 				let cache_pool = mm.valkey_pool();
 				let key = $crate::model::cache::model_entity_key(
 					<Self as $crate::model::DbBmc>::TABLE,
@@ -211,6 +229,7 @@ macro_rules! generate_cached_bmc_fns {
 					cache_pool,
 					Some(&key),
 					Some($crate::model::cache::MODEL_ENTITY_TTL_SECS),
+					cache_policy,
 					|| async { Self::get(ctx, mm, id).await },
 				)
 				.await
@@ -227,23 +246,49 @@ macro_rules! generate_cached_bmc_fns {
 					$entity: serde::Serialize + serde::de::DeserializeOwned,
 					$filter: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
-					let version = $crate::model::cache::model_query_version(
-						cache_pool,
-						<Self as $crate::model::DbBmc>::TABLE,
+					Self::first_cached_with_policy(
+						ctx,
+						mm,
+						filter,
+						list_options,
+						$crate::model::cache::CachePolicy::Use,
 					)
-					.await;
-					let key = $crate::model::cache::model_query_key(
-						<Self as $crate::model::DbBmc>::TABLE,
-						"first",
-						version,
-						&(&filter, &list_options),
-					);
+					.await
+				}
+
+				pub async fn first_cached_with_policy(
+					ctx: &$crate::ctx::Ctx,
+					mm: &$crate::model::ModelManager,
+					filter: Option<Vec<$filter>>,
+					list_options: Option<modql::filter::ListOptions>,
+					cache_policy: $crate::model::cache::CachePolicy,
+				) -> $crate::model::Result<Option<$entity>>
+				where
+					$entity: serde::Serialize + serde::de::DeserializeOwned,
+					$filter: serde::Serialize,
+				{
+					let cache_pool = mm.valkey_pool();
+					let key = if cache_policy == $crate::model::cache::CachePolicy::Bypass {
+						None
+					} else {
+						let version = $crate::model::cache::model_query_version(
+							cache_pool,
+							<Self as $crate::model::DbBmc>::TABLE,
+						)
+						.await;
+						$crate::model::cache::model_query_key(
+							<Self as $crate::model::DbBmc>::TABLE,
+							"first",
+							version,
+							&(&filter, &list_options),
+						)
+					};
 
 					$crate::model::cache::get_or_load_json(
 						cache_pool,
 						key.as_deref(),
 						Some($crate::model::cache::MODEL_QUERY_TTL_SECS),
+						cache_policy,
 						|| async { Self::first(ctx, mm, filter, list_options).await },
 					)
 					.await
@@ -259,23 +304,49 @@ macro_rules! generate_cached_bmc_fns {
 					$entity: serde::Serialize + serde::de::DeserializeOwned,
 					$filter: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
-					let version = $crate::model::cache::model_query_version(
-						cache_pool,
-						<Self as $crate::model::DbBmc>::TABLE,
+					Self::list_cached_with_policy(
+						ctx,
+						mm,
+						filter,
+						list_options,
+						$crate::model::cache::CachePolicy::Use,
 					)
-					.await;
-					let key = $crate::model::cache::model_query_key(
-						<Self as $crate::model::DbBmc>::TABLE,
-						"list",
-						version,
-						&(&filter, &list_options),
-					);
+					.await
+				}
+
+				pub async fn list_cached_with_policy(
+					ctx: &$crate::ctx::Ctx,
+					mm: &$crate::model::ModelManager,
+					filter: Option<Vec<$filter>>,
+					list_options: Option<modql::filter::ListOptions>,
+					cache_policy: $crate::model::cache::CachePolicy,
+				) -> $crate::model::Result<Vec<$entity>>
+				where
+					$entity: serde::Serialize + serde::de::DeserializeOwned,
+					$filter: serde::Serialize,
+				{
+					let cache_pool = mm.valkey_pool();
+					let key = if cache_policy == $crate::model::cache::CachePolicy::Bypass {
+						None
+					} else {
+						let version = $crate::model::cache::model_query_version(
+							cache_pool,
+							<Self as $crate::model::DbBmc>::TABLE,
+						)
+						.await;
+						$crate::model::cache::model_query_key(
+							<Self as $crate::model::DbBmc>::TABLE,
+							"list",
+							version,
+							&(&filter, &list_options),
+						)
+					};
 
 					$crate::model::cache::get_or_load_json(
 						cache_pool,
 						key.as_deref(),
 						Some($crate::model::cache::MODEL_QUERY_TTL_SECS),
+						cache_policy,
 						|| async { Self::list(ctx, mm, filter, list_options).await },
 					)
 					.await
@@ -289,23 +360,46 @@ macro_rules! generate_cached_bmc_fns {
 				where
 					$filter: serde::Serialize,
 				{
-					let cache_pool = mm.valkey_pool();
-					let version = $crate::model::cache::model_query_version(
-						cache_pool,
-						<Self as $crate::model::DbBmc>::TABLE,
+					Self::count_cached_with_policy(
+						ctx,
+						mm,
+						filter,
+						$crate::model::cache::CachePolicy::Use,
 					)
-					.await;
-					let key = $crate::model::cache::model_query_key(
-						<Self as $crate::model::DbBmc>::TABLE,
-						"count",
-						version,
-						&filter,
-					);
+					.await
+				}
+
+				pub async fn count_cached_with_policy(
+					ctx: &$crate::ctx::Ctx,
+					mm: &$crate::model::ModelManager,
+					filter: Option<Vec<$filter>>,
+					cache_policy: $crate::model::cache::CachePolicy,
+				) -> $crate::model::Result<i64>
+				where
+					$filter: serde::Serialize,
+				{
+					let cache_pool = mm.valkey_pool();
+					let key = if cache_policy == $crate::model::cache::CachePolicy::Bypass {
+						None
+					} else {
+						let version = $crate::model::cache::model_query_version(
+							cache_pool,
+							<Self as $crate::model::DbBmc>::TABLE,
+						)
+						.await;
+						$crate::model::cache::model_query_key(
+							<Self as $crate::model::DbBmc>::TABLE,
+							"count",
+							version,
+							&filter,
+						)
+					};
 
 					$crate::model::cache::get_or_load_json(
 						cache_pool,
 						key.as_deref(),
 						Some($crate::model::cache::MODEL_QUERY_TTL_SECS),
+						cache_policy,
 						|| async { Self::count(ctx, mm, filter).await },
 					)
 					.await

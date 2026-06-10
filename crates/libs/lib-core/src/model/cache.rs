@@ -1,11 +1,31 @@
 use crate::model::Result;
 use lib_valkey_core::{cache_keys::CacheKey, commands, ValkeyPool};
+use serde::Deserialize;
 use serde::{de::DeserializeOwned, Serialize};
 use std::future::Future;
 use tracing::warn;
 
 pub const MODEL_ENTITY_TTL_SECS: u64 = 300;
 pub const MODEL_QUERY_TTL_SECS: u64 = 60;
+
+#[derive(Debug, Clone, Copy, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CachePolicy {
+	#[default]
+	Use,
+	Refresh,
+	Bypass,
+}
+
+impl CachePolicy {
+	pub fn read_enabled(self) -> bool {
+		matches!(self, CachePolicy::Use)
+	}
+
+	pub fn write_enabled(self) -> bool {
+		matches!(self, CachePolicy::Use | CachePolicy::Refresh)
+	}
+}
 
 #[derive(Debug, Clone)]
 pub struct RegisteredModelCache {
@@ -62,6 +82,7 @@ pub async fn get_or_load_json<T, F, Fut>(
 	cache_pool: Option<&ValkeyPool>,
 	key: Option<&str>,
 	ttl_secs: Option<u64>,
+	policy: CachePolicy,
 	loader: F,
 ) -> Result<T>
 where
@@ -69,26 +90,30 @@ where
 	F: FnOnce() -> Fut,
 	Fut: Future<Output = Result<T>>,
 {
-	if let (Some(cache_pool), Some(key)) = (cache_pool, key) {
-		match cache_pool.get().await {
-			Ok(mut conn) => match commands::get_json::<_, _, T>(&mut *conn, key).await {
-				Ok(Some(value)) => return Ok(value),
-				Ok(None) => {}
+	if policy.read_enabled() {
+		if let (Some(cache_pool), Some(key)) = (cache_pool, key) {
+			match cache_pool.get().await {
+				Ok(mut conn) => match commands::get_json::<_, _, T>(&mut *conn, key).await {
+					Ok(Some(value)) => return Ok(value),
+					Ok(None) => {}
+					Err(err) => {
+						warn!(key, error = ?err, "model cache read failed");
+						let _ = commands::del_one(&mut *conn, key).await;
+					}
+				},
 				Err(err) => {
-					warn!(key, error = ?err, "model cache read failed");
-					let _ = commands::del_one(&mut *conn, key).await;
+					warn!(key, error = ?err, "model cache connection failed");
 				}
-			},
-			Err(err) => {
-				warn!(key, error = ?err, "model cache connection failed");
 			}
 		}
 	}
 
 	let value = loader().await?;
 
-	if let (Some(cache_pool), Some(key)) = (cache_pool, key) {
-		write_json_best_effort(cache_pool, key, &value, ttl_secs).await;
+	if policy.write_enabled() {
+		if let (Some(cache_pool), Some(key)) = (cache_pool, key) {
+			write_json_best_effort(cache_pool, key, &value, ttl_secs).await;
+		}
 	}
 
 	Ok(value)
@@ -280,5 +305,21 @@ mod tests {
 
 		assert_eq!(key_a, key_b);
 		assert!(key_a.starts_with("model:agent:list:v3:"));
+	}
+
+	#[test]
+	fn test_cache_policy_deserialize_ok() {
+		assert_eq!(
+			serde_json::from_str::<CachePolicy>("\"use\"").unwrap(),
+			CachePolicy::Use
+		);
+		assert_eq!(
+			serde_json::from_str::<CachePolicy>("\"refresh\"").unwrap(),
+			CachePolicy::Refresh
+		);
+		assert_eq!(
+			serde_json::from_str::<CachePolicy>("\"bypass\"").unwrap(),
+			CachePolicy::Bypass
+		);
 	}
 }

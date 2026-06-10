@@ -62,9 +62,10 @@ pub async fn get_conv_msg(
 	mm: ModelManager,
 	params: ParamsIded,
 ) -> Result<DataRpcResult<ConvMsg>> {
-	let ParamsIded { id: msg_id } = params;
+	let cache_policy = params.cache_policy();
+	let ParamsIded { id: msg_id, .. } = params;
 
-	let msg = ConvBmc::get_msg_cached(&ctx, &mm, msg_id).await?;
+	let msg = ConvBmc::get_msg_cached_with_policy(&ctx, &mm, msg_id, cache_policy).await?;
 
 	Ok(msg.into())
 }

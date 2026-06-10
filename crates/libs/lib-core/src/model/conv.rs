@@ -221,12 +221,23 @@ impl ConvBmc {
 	}
 
 	pub async fn get_msg_cached(ctx: &Ctx, mm: &ModelManager, msg_id: i64) -> Result<ConvMsg> {
+		Self::get_msg_cached_with_policy(ctx, mm, msg_id, crate::model::cache::CachePolicy::Use)
+			.await
+	}
+
+	pub async fn get_msg_cached_with_policy(
+		ctx: &Ctx,
+		mm: &ModelManager,
+		msg_id: i64,
+		cache_policy: crate::model::cache::CachePolicy,
+	) -> Result<ConvMsg> {
 		let key = crate::model::cache::model_entity_key(<ConvMsgBmc as DbBmc>::TABLE, msg_id);
 
 		crate::model::cache::get_or_load_json(
 			mm.valkey_pool(),
 			Some(&key),
 			Some(crate::model::cache::MODEL_ENTITY_TTL_SECS),
+			cache_policy,
 			|| async { Self::get_msg(ctx, mm, msg_id).await },
 		)
 		.await

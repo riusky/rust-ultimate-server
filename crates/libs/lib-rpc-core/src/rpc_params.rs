@@ -13,6 +13,8 @@ use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use serde_with::{serde_as, OneOrMany};
 
+use lib_core::model::cache::CachePolicy;
+
 /// Params structure for any RPC Create call.
 #[derive(Deserialize)]
 pub struct ParamsForCreate<D> {
@@ -34,6 +36,14 @@ impl<D> IntoParams for ParamsForUpdate<D> where D: DeserializeOwned + Send {}
 #[derive(Deserialize)]
 pub struct ParamsIded {
 	pub id: i64,
+	#[serde(default)]
+	pub cache_policy: Option<CachePolicy>,
+}
+
+impl ParamsIded {
+	pub fn cache_policy(&self) -> CachePolicy {
+		self.cache_policy.unwrap_or_default()
+	}
 }
 impl IntoParams for ParamsIded {}
 
@@ -47,6 +57,17 @@ where
 	#[serde_as(deserialize_as = "Option<OneOrMany<_>>")]
 	pub filters: Option<Vec<F>>,
 	pub list_options: Option<ListOptions>,
+	#[serde(default)]
+	pub cache_policy: Option<CachePolicy>,
+}
+
+impl<F> ParamsList<F>
+where
+	F: DeserializeOwned,
+{
+	pub fn cache_policy(&self) -> CachePolicy {
+		self.cache_policy.unwrap_or_default()
+	}
 }
 
 impl<D> IntoDefaultRpcParams for ParamsList<D> where D: DeserializeOwned + Send + Default {}

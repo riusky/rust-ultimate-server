@@ -128,7 +128,14 @@ macro_rules! generate_common_rpc_fns {
                 ctx.require_permission(concat!(stringify!($suffix), ":create"))?;
                 let ParamsForCreate { data } = params;
                 let id = $crate::generate_common_rpc_fns!(@create $cache, $bmc, &ctx, &mm, data).await?;
-                let entity = $crate::generate_common_rpc_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+                let entity = $crate::generate_common_rpc_fns!(
+                    @get $cache,
+                    $bmc,
+                    &ctx,
+                    &mm,
+                    id,
+                    ::lib_core::model::cache::CachePolicy::Use
+                ).await?;
                 Ok(entity.into())
             }
 
@@ -138,7 +145,14 @@ macro_rules! generate_common_rpc_fns {
                 params: ParamsIded,
             ) -> Result<DataRpcResult<$entity>> {
                 ctx.require_permission(concat!(stringify!($suffix), ":read"))?;
-                let entity = $crate::generate_common_rpc_fns!(@get $cache, $bmc, &ctx, &mm, params.id).await?;
+                let entity = $crate::generate_common_rpc_fns!(
+                    @get $cache,
+                    $bmc,
+                    &ctx,
+                    &mm,
+                    params.id,
+                    params.cache_policy()
+                ).await?;
                 Ok(entity.into())
             }
 
@@ -149,7 +163,16 @@ macro_rules! generate_common_rpc_fns {
                 params: ParamsList<$filter>,
             ) -> Result<DataRpcResult<Vec<$entity>>> {
                 ctx.require_permission(concat!(stringify!($suffix), ":list"))?;
-                let entities = $crate::generate_common_rpc_fns!(@list $cache, $bmc, &ctx, &mm, params.filters, params.list_options).await?;
+                let cache_policy = params.cache_policy();
+                let entities = $crate::generate_common_rpc_fns!(
+                    @list $cache,
+                    $bmc,
+                    &ctx,
+                    &mm,
+                    params.filters,
+                    params.list_options,
+                    cache_policy
+                ).await?;
                 Ok(entities.into())
             }
 
@@ -161,7 +184,14 @@ macro_rules! generate_common_rpc_fns {
                 ctx.require_permission(concat!(stringify!($suffix), ":update"))?;
                 let ParamsForUpdate { id, data } = params;
                 $crate::generate_common_rpc_fns!(@update $cache, $bmc, &ctx, &mm, id, data).await?;
-                let entity = $crate::generate_common_rpc_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+                let entity = $crate::generate_common_rpc_fns!(
+                    @get $cache,
+                    $bmc,
+                    &ctx,
+                    &mm,
+                    id,
+                    ::lib_core::model::cache::CachePolicy::Use
+                ).await?;
                 Ok(entity.into())
             }
 
@@ -171,8 +201,16 @@ macro_rules! generate_common_rpc_fns {
                 params: ParamsIded,
             ) -> Result<DataRpcResult<$entity>> {
                 ctx.require_permission(concat!(stringify!($suffix), ":delete"))?;
-                let ParamsIded { id } = params;
-                let entity = $crate::generate_common_rpc_fns!(@get $cache, $bmc, &ctx, &mm, id).await?;
+                let cache_policy = params.cache_policy();
+                let ParamsIded { id, .. } = params;
+                let entity = $crate::generate_common_rpc_fns!(
+                    @get $cache,
+                    $bmc,
+                    &ctx,
+                    &mm,
+                    id,
+                    cache_policy
+                ).await?;
                 $crate::generate_common_rpc_fns!(@delete $cache, $bmc, &ctx, &mm, id).await?;
                 Ok(entity.into())
             }
@@ -194,18 +232,20 @@ macro_rules! generate_common_rpc_fns {
     (@create false, $bmc:ident, $ctx:expr, $mm:expr, $data:expr) => {
         $bmc::create($ctx, $mm, $data)
     };
-    (@get true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
-        $bmc::get_cached($ctx, $mm, $id)
+    (@get true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $cache_policy:expr) => {
+        $bmc::get_cached_with_policy($ctx, $mm, $id, $cache_policy)
     };
-    (@get false, $bmc:ident, $ctx:expr, $mm:expr, $id:expr) => {
+    (@get false, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $cache_policy:expr) => {{
+        let _ = $cache_policy;
         $bmc::get($ctx, $mm, $id)
+    }};
+    (@list true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr, $cache_policy:expr) => {
+        $bmc::list_cached_with_policy($ctx, $mm, $filter, $list_options, $cache_policy)
     };
-    (@list true, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr) => {
-        $bmc::list_cached($ctx, $mm, $filter, $list_options)
-    };
-    (@list false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr) => {
+    (@list false, $bmc:ident, $ctx:expr, $mm:expr, $filter:expr, $list_options:expr, $cache_policy:expr) => {{
+        let _ = $cache_policy;
         $bmc::list($ctx, $mm, $filter, $list_options)
-    };
+    }};
     (@update true, $bmc:ident, $ctx:expr, $mm:expr, $id:expr, $data:expr) => {
         $bmc::update_cached($ctx, $mm, $id, $data)
     };
