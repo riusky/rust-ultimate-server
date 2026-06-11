@@ -523,15 +523,21 @@ mod tests {
 				.await?
 				.ok_or("Should have user 'admin'")?;
 		let admin_ctx = Ctx::new(admin_user.id)?;
-		let user_role = RoleBmc::first_by_name(&root_ctx, &mm, "user")
-			.await?
-			.ok_or("Should have role 'user'")?;
+		let role_id = RoleBmc::create(
+			&root_ctx,
+			&mm,
+			RoleForCreate {
+				name: "test_non_admin_self_removal_role".to_string(),
+				display_name: None,
+				description: None,
+			},
+		)
+		.await?;
 
 		// -- Exec
-		let err =
-			UserRoleBmc::set_roles_for_user(&admin_ctx, &mm, admin_user.id, vec![user_role.id])
-				.await
-				.expect_err("Self admin removal should be blocked");
+		let err = UserRoleBmc::set_roles_for_user(&admin_ctx, &mm, admin_user.id, vec![role_id])
+			.await
+			.expect_err("Self admin removal should be blocked");
 
 		// -- Check
 		match err {
@@ -544,6 +550,8 @@ mod tests {
 		let role_names =
 			UserRoleBmc::list_role_names_for_user(&root_ctx, &mm, admin_user.id).await?;
 		assert!(role_names.contains(&"admin".to_string()));
+
+		RoleBmc::delete(&root_ctx, &mm, role_id).await?;
 
 		Ok(())
 	}
